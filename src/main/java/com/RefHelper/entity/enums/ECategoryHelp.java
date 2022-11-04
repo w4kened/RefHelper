@@ -1,0 +1,10 @@
+package com.RefHelper.entity.enums;
+
+public enum ECategoryHelp {
+    CATEGORY_HUMANITARIAN,
+    CATEGORY_ACCOMMODATION,
+    CATEGORY_HEALTHCARE,
+    CATEGORY_JOB,
+    CATEGORY_EDUCATION,
+    CATEGORY_LEGALASSISTANCE
+}
