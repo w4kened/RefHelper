@@ -1,31 +1,61 @@
 package com.RefHelper.entity;
 
-import com.RefHelper.entity.enums.ERole;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
 
-import javax.persistence.PrePersist;
+import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
 
+
+@Entity
+@Data
+@Table(name = "refugee_table")
 public class Refugee {
-    private Long id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long refugee_id;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String lastname;
+
+    @Column(unique = true)
     private String username;
-    private String password;
-    private String phoneNumber;
+
+    @Column(unique = true)
     private String email;
+
+    @Column(length = 3000)
+    private String password;
+
+    @Column(length = 9)
+    private String phoneNumber;
+
+    @Column(columnDefinition = "text")
     private String bio;
 
-    private Set<ERole> role = new HashSet<>();
-    private List<Aid> aids = new ArrayList<>();
-    private LocalDateTime performedDate;
+    @ManyToMany(cascade = {CascadeType.ALL})
+    @JoinTable(
+            name = "Refugee_Aid_table",
+            joinColumns = { @JoinColumn(name = "refugee_id") },
+            inverseJoinColumns = { @JoinColumn(name = "aid_id") }
+    )
+    Set<Aid> aids = new HashSet<>();
+
+
+    @JsonFormat(pattern = "dd-mm-yyyy HH:mm:ss")
+    @Column(updatable = false)
+    private LocalDateTime createdDate;
+
+    public Refugee() {}
 
     @PrePersist
     protected void onCreate() {
-        this.performedDate = LocalDateTime.now();
+        this.createdDate = LocalDateTime.now();
     }
 }

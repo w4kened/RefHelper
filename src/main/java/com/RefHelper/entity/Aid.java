@@ -1,45 +1,60 @@
 package com.RefHelper.entity;
 
 import com.RefHelper.entity.enums.ECategoryHelp;
-import com.RefHelper.entity.enums.ERole;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import org.locationtech.jts.geom.Point;
 
+import java.io.Serializable;
+import java.sql.Ref;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.*;
-import java.io.Serializable;
 
 @Data
 @Entity
-
-public class Aid implements  Serializable {
-    private static final Long serialVersionUID = 1L;
+@Table(name = "aid_table")
+public class Aid implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long aid_id;
+
+    @Column(name = "aid_title", columnDefinition = "text")
+    private String aid_title;
+
+    @Column(name = "aid_amountOfFollowers")
+    private int aid_amountOfFollowers;
 
     @Column(columnDefinition = "text")
-    private String description;
+    private String aid_description;
 
-    @Column(nullable = false)
+    /*
+    @Column
+    @ElementCollection(targetClass = String.class)
+    private Set<String> subscribedRef = new HashSet<>();
+*/
+
     @ManyToOne(fetch = FetchType.LAZY)
-    private Long volunteerId;
+    private Volunteer volunteer;
+
+    @ManyToMany(mappedBy = "aids")
+    private Set<Refugee> refugees = new HashSet<>();
+
 
     @ElementCollection(targetClass = ECategoryHelp.class)
-    @CollectionTable(name = "caterogy_help", joinColumns = @JoinColumn("aid_id"))
+    @CollectionTable(name = "aid_category",
+            joinColumns = @JoinColumn(name="aid_id"))
     private final Set<ECategoryHelp> categoryHelp = new HashSet<>();
 
     @JsonFormat(pattern = "dd-mm-yyyy HH:mm:ss")
     @Column(updatable = false)
     private LocalDateTime createdDate;
 
+    @Column(name = "geom")
     private Point geom;
-
 
     @PrePersist
     protected void onCreate() {
