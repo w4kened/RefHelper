@@ -1,0 +1,5 @@
+Aid_id,Aid_Title,Aid_amountOfFollowers,Aid_town,Aid_description,CategoryHelp,CreatedDate,Latitude,Longitude
+1,CATEGORY_HUMANITARIAN,0, Kielce,Pomoc Humanitarna,0,10-July-2022,50.870336,20.623824
+2,CATEGORY_ACCOMMODATION,0, Kielce,Pomoc Zakwaterowania,1,13-April-2022,50.872729,20.628937
+3,CATEGORY_HEALTHCARE,0, Kielce,Pomoc ze zdrowiem,2,25-April-2022,50.87801,20.61224
+4,CATEGORY_JOB,0, Kielce,Pomoc z pracą,3,25-April-2022,50.867989,20.609556
