@@ -1,5 +1,5 @@
-Aid_id,Aid_Title,Aid_amountOfFollowers,Aid_town,Aid_description,CategoryHelp,CreatedDate,Latitude,Longitude
-1,CATEGORY_HUMANITARIAN,0, Kielce,Pomoc Humanitarna,0,10-July-2022,50.870336,20.623824
-2,CATEGORY_ACCOMMODATION,0, Kielce,Pomoc Zakwaterowania,1,13-April-2022,50.872729,20.628937
-3,CATEGORY_HEALTHCARE,0, Kielce,Pomoc ze zdrowiem,2,25-April-2022,50.87801,20.61224
-4,CATEGORY_JOB,0, Kielce,Pomoc z pracą,3,25-April-2022,50.867989,20.609556
+id,amount_of_followers,category_id,created_date,description,latitude,longitude,title,town,volunteer_id
+1,0,1,2022-05-09 12:39:16,Opis pomocy,50.870336,20.623824,Pomoc Humanitarna, Kielce,3
+2,0,2,2022-05-09 12:39:16,Opis pomocy,50.872729,20.628937,Pomoc z zamieszkaniem, Kielce,1
+3,0,3,2022-05-09 12:39:16,Opis pomocy,50.87801,20.61224,Opieka zdrowotna, Kielce,2
+4,0,4,2022-05-09 12:39:16,Opis pomocy,50.867989,20.609556,Pomoc z pracą !!, Kielce,3

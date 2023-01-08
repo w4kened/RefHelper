@@ -11,12 +11,17 @@ import java.util.List;
 @RestController
 @RequestMapping("/aid")
 public class AidController {
-    @Autowired
+
+
+    @Autowired(required = true)
     private AidService aidService;
 
+
+    //sprawdzic zawartość listy w inny sposob
     @GetMapping
     public List<Aid> findAll() {
         return aidService.findAll();
     }
+
 
 }

@@ -1,7 +1,12 @@
 package com.RefHelper.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
@@ -11,57 +16,77 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Data
+
+
+
+@Getter
+@Setter
 @Entity
-@Table(name = "volunteer_table")
+@Table(name = "volunteer")
 public class Volunteer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long volunteer_id;
+    @Column(name = "id")
+    private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(name = "lastname", nullable = false)
     private String lastname;
 
-    @Column(unique = true, updatable = true)
+    @Column(name = "username", unique = true, updatable = true)
     private String username;
 
-    @Column(length = 3000)
+    @Column(name = "password", length = 3000, nullable = false)
     private String password;
 
-    @Column(length = 9)
+    @Column(name = "phoneNumber", unique = true, length = 9, nullable = false)
     private String phoneNumber;
 
-    @Column(unique = true)
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
-    @Column(name = "score")
-    private int score;
+    @Column(name = "bio", columnDefinition = "text")
+    private String bio;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "volunteer",
+    @Column(name = "trustScore", nullable = false)
+    private int trustScore;
+
+    @OneToMany(
+            fetch = FetchType.LAZY, mappedBy = "volunteer",
             orphanRemoval = true)
-    private List<Aid> aid  = new ArrayList<>();
+    @JsonManagedReference
+    private List<Aid> aids  = new ArrayList<>();
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "createdDate" ,updatable = false)
     private LocalDateTime createdDate;
 
 
 
     public Volunteer() {}
 
+    public Volunteer(String id) {
+        this.id = Long.parseLong(id);
+    }
+
+    public static Volunteer valueOf(String id) {
+        return new Volunteer(id);
+    }
+
     @PrePersist
     protected void onCreate() {
         this.createdDate = LocalDateTime.now();
     }
 
-    public Long getVolunteer_id() {
-        return volunteer_id;
+    public Long getid() {
+        return id;
     }
 
-    public void setVolunteer_id(Long volunteer_id) {
-        this.volunteer_id = volunteer_id;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -104,6 +129,14 @@ public class Volunteer {
         this.phoneNumber = phoneNumber;
     }
 
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -112,20 +145,24 @@ public class Volunteer {
         this.email = email;
     }
 
-    public int getScore() {
-        return score;
+    public int getTrustScore() {
+        return trustScore;
     }
 
-    public void setScore(int score) {
-        this.score = score;
+    public void setTrustScore(int trustScore) {
+        this.trustScore = trustScore;
     }
 
     public List<Aid> getAid() {
-        return aid;
+        return aids;
     }
 
     public void setAid(List<Aid> aid) {
-        this.aid = aid;
+        this.aids = aid;
+    }
+
+    public void addAids(Aid aid) {
+        aids.add(aid);
     }
 
     public LocalDateTime getCreatedDate() {

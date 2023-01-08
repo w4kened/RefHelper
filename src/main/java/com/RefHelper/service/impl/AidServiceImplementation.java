@@ -1,12 +1,19 @@
 package com.RefHelper.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 
-import com.RefHelper.entity.AidCategory;
+import com.RefHelper.entity.Category;
+import com.RefHelper.entity.Volunteer;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,13 +40,15 @@ public class AidServiceImplementation implements AidService {
     }
 
     public void save_csv() {
-        List<Aid>  res = aidRepo.findAll();
+        List<Aid> res = aidRepo.findAll();
 
-        if(res.isEmpty()) {
+        if (res.isEmpty()) {
             System.out.println("No data");
 
-            String[] HEADERS = {"Aid_id", "Town", "HelpCategory", "Latitude", "Longtitude"};
-            String fileLocation = "~/code/java/RefHelper/src/main/resources/aid_data.csv";
+            String[] HEADERS = {
+                    "id", "amount_of_followers", "category_id", "created_date", "description",
+                    "latitude", "longitude", "title", "town", "volunteer_id"};
+            String fileLocation = "/home/w4kened/code/java/RefHelper/src/main/resources/aid_data.csv";
 
             try {
                 Reader fInput = new FileReader(fileLocation);
@@ -48,44 +57,46 @@ public class AidServiceImplementation implements AidService {
                         .withFirstRecordAsHeader()
                         .parse(fInput);
 
-
                 for (CSVRecord record : records) {
-                    String s_aid_id = record.get("Aid_id");
-                    String s_aid_title = record.get("Aid_Title");
-                    String s_aid_amountOfFollowers = record.get("Aid_amount_of_followers");
-                    String s_aid_town = record.get("Aid_town");
-                    String s_aid_description = record.get("Aid_description");
-                    String s_categoryHelp = record.get("CategoryHelp");
-                    String s_createdDate = record.get("CreatedDate");
-                    String s_latitude = record.get("Latitude");
-                    String s_longitude = record.get("Longitude");
+                    String s_id = record.get("id");
+                    String s_amount_of_followers = record.get("amount_of_followers");
+                    String s_category_id = record.get("category_id");
+                    String s_created_date = record.get("created_date");
+                    String s_description = record.get("description");
+                    String s_latitude = record.get("latitude");
+                    String s_longitude = record.get("longitude");
+                    String s_title = record.get("title");
+                    String s_town = record.get("town");
+                    String s_volunteer_id = record.get("volunteer_id");
+
 
                     //Converting to proper data types
-                    Long aid_id = Long.valueOf(s_aid_id);
-                    Integer aid_amountOfFollowers = Integer.valueOf(s_aid_amountOfFollowers);
-                    AidCategory categoryHelp = AidCategory.valueOf(s_categoryHelp);
+                    Long id = Long.valueOf(s_id);
+                    Integer amount_of_followers = Integer.valueOf(s_amount_of_followers);
+                    Category category_e = Category.valueOf(s_category_id);
 
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    LocalDateTime createdDate = LocalDateTime.parse(s_created_date, formatter);
 
                     Double latitude = Double.parseDouble(s_latitude);
                     Double longitude = Double.parseDouble(s_longitude);
                     Point geom = new GeometryFactory().createPoint(new Coordinate(longitude, latitude));
-
+                    Volunteer volunteer = Volunteer.valueOf(s_volunteer_id);
 
                     //load data into Aid table
                     Aid aidObj = new Aid();
-                    aidObj.setAid_id(aid_id);
-                    aidObj.setAid_title(s_aid_title);
-                    aidObj.setAid_amountOfFollowers(aid_amountOfFollowers);
-                    aidObj.setTown(s_aid_town);
-                    aidObj.setAid_description(s_aid_description);
-                    aidObj.setCategory(categoryHelp);
+                    aidObj.setId(id);
+                    aidObj.setAmountOfFollowers(amount_of_followers);
+                    aidObj.setCategory(category_e);
+                    aidObj.setCreatedDate(createdDate);
+                    aidObj.setDescription(s_description);
                     aidObj.setGeom(geom);
-
-
+                    aidObj.setTitle(s_title);
+                    aidObj.setTown(s_town);
+                    aidObj.setVolunteer(volunteer);
 
                     aidRepo.save(aidObj);
                 }
-
 
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -94,8 +105,5 @@ public class AidServiceImplementation implements AidService {
         } else {
             System.out.println("Data Loaded");
         }
-
     }
-    
-
 }
