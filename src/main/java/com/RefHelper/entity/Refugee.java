@@ -48,7 +48,6 @@ public class Refugee {
     @Column(name = "trustScore", nullable = false)
     private int trustScore;
 
-
     @ManyToMany(cascade = {CascadeType.ALL})
     @JoinTable(
             name = "Refugee_Aid",
