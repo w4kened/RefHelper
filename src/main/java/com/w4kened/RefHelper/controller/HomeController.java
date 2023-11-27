@@ -3,6 +3,7 @@ package com.w4kened.RefHelper.controller;
 import com.w4kened.RefHelper.models.UserEntity;
 import com.w4kened.RefHelper.security.SecurityUtil;
 
+import com.w4kened.RefHelper.service.AidService;
 import com.w4kened.RefHelper.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,20 +14,27 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
 
     public UserService userService;
+    public AidService aidService;
 
     @Autowired
-    public HomeController(UserService userService) {
+    public HomeController(UserService userService, AidService aidService) {
         this.userService = userService;
+        this.aidService = aidService;
     }
 
 
     @GetMapping("/home")
     public String getHomePage(Model model) {
         UserEntity user = new UserEntity();
-//        List<>
-        String username = SecurityUtil.getSessionUser();
 
-        System.out.println("username = "+username);
-        return "layout";
+        String email = SecurityUtil.getSessionUser();
+
+        userService.findByEmail(email).getRoleEntity();
+
+        System.out.println("username = "+email);
+        System.out.println("role = "+userService.findByEmail(email).getId());
+
+        model.addAttribute("data", email);
+        return "home";
     }
 }

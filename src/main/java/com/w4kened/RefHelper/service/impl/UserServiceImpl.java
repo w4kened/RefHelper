@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -26,6 +28,8 @@ public class UserServiceImpl implements UserService {
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
+
+
     @Override
     public void saveUser(UserDto userDto) {
         UserEntity userEntity = new UserEntity();
@@ -33,6 +37,18 @@ public class UserServiceImpl implements UserService {
         userEntity.setEmail(userDto.getEmail());
         userEntity.setPassword(passwordEncoder.encode(userDto.getPassword()));
         userEntity.setPhoneNumber(userDto.getPhoneNumber());
+
+        String currentTime = LocalDateTime
+                .now()
+                .format(
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                );
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.parse(currentTime, formatter);
+        userEntity.setCreatedDate(now);
+
+        System.out.println(now);
         System.out.println("selected "+userDto.getSelectedRole());
         RoleEntity roleEntity;
         switch (userDto.getSelectedRole()) {
@@ -52,6 +68,11 @@ public class UserServiceImpl implements UserService {
     public UserEntity findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
+//    @Override
+//    public RoleEntity getRoleOfUser(String email) {
+//        return userRepository.findByEmail(email).getRoleEntity();
+//    }
 //    @Override
 //    public List<UserDto> findAllUsers() {
 //        List<UserEntity> users = userRepository.findAll();

@@ -59,22 +59,25 @@ public class SecurityConfig  extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/login", "/register", "/home", "/css/**", "/js/**")
+                .antMatchers("/login", "/register", "/css/**", "/js/**") // Removed "/home"
                 .permitAll()
+                .antMatchers("/home") // New rule for "/home"
+                .authenticated() // Requires authentication
                 .and()
                 .formLogin(form -> form
-                        .loginPage("/login")
-                        .usernameParameter("email")
-                        .defaultSuccessUrl("/home")
-                        .loginProcessingUrl("/login")
-                        .failureUrl("/login?error=true")
-                        .permitAll()
+                    .loginPage("/login")
+                    .usernameParameter("email")
+                    .defaultSuccessUrl("/home")
+                    .loginProcessingUrl("/login")
+                    .failureUrl("/login?error=true")
+                    .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                         .permitAll()
                 );
     }
+
     @Override
     public void configure(AuthenticationManagerBuilder builder) throws Exception {
         builder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());

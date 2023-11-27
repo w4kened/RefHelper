@@ -12,8 +12,6 @@ import lombok.Setter;
 @Setter
 public class UserDto {
 
-    private Long id;
-
     @Email
     @NotEmpty
     private String email;

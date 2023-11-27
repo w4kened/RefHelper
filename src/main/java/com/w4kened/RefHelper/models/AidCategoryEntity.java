@@ -1,27 +1,30 @@
 package com.w4kened.RefHelper.models;
 
-
-import javax.persistence.*;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "role_table")
-public class RoleEntity {
+@Entity(name = "aidCategory_table")
+public class AidCategoryEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
-    @OneToMany(mappedBy = "roleEntity")
+
+    @OneToMany(mappedBy = "aidCategoryEntity")
     @JsonBackReference
-    private List<UserEntity> userEntities;
+    private List<AidEntity> aidEntities;
 }

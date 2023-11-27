@@ -1,189 +1,491 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}">
-<head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" th:href="@{app/leaflet/leaflet.css}">
-    <title>Home Example</title>
-    <link rel="stylesheet" href="./style.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-<style>
-                #map {
-                    height: calc(100vh - 0px) !important;
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+   layout:decorate="~{layout}">
+   <head>
+      <meta charset="utf-8">
+      <link rel="stylesheet" th:href="@{app/leaflet/leaflet.css}">
+      <title>Home Example</title>
+      <link rel="stylesheet" href="./style.css">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+      <style>
+         /* Red Marker */
+         .red-marker {
+         background-color: red;
+         }
+         /* Blue Marker */
+         .blue-marker {
+         background-color: blue;
+         }
+         /* Green Marker */
+         .green-marker {
+         background-color: green;
+         }
+         #map {
+         height: calc(100vh - 0px) !important;
+         }
+         .leaflet-container {  /* all maps */
+         width:  100%;
+         /* height: calc(100vh - 60px); */
+         height: 100vh;
+         }
+         .legend, .temporal-legend {
+         padding: 6px 10px;
+         font: 14px/16px Arial, Helvetica, sans-serif;
+         background: rgba(0,0,0,0.85);
+         box-shadow: 0 0 15px rgba(0,0,0,0.2);
+         border-radius: 5px;
+         color:whitesmoke;
+         }
+         #legendTitle {
+         text-align: center;
+         margin-bottom: 15px;
+         color: whitesmoke;
+         /* font-variant: small-caps; */
+         font-weight: bold;
+         }
+         .symbolsContainer {
+         float: left;
+         margin-left: 50px;
+         }
+         .legendCircle {
+         border-radius:50%;
+         border: 1px solid #537898;
+         background: rgba(0,128,128,0.5);
+         display: inline-block;
+         }
+         .legendValue {
+         position: absolute;
+         right: 12px;
+         color:whitesmoke;
+         font-size:10pt;
+         text-align:center;
+         font-weight: bold;
+         }
+         .info {
+         width:30vw;
+         height:48vh;
+         /* width:20vw; */
+         /* height:300px; */
+         padding: 6px 10px;
+         font: 14px/16px Arial, Helvetica, sans-serif;
+         background: rgba(0,0,0,0.85);
+         box-shadow: 0 0 15px rgba(0,0,0,0.2);
+         border-radius: 5px;
+         color:whitesmoke;
+         /* max-width:100%;
+         max-height:100%; */
+         }
+         .info h5 {
+         margin: 0 0 5px;
+         color: #777;
+         text-align: center;
+         /* margin-bottom: 15px; */
+         color: whitesmoke;
+         /* font-variant: small-caps; */
+         font-weight: bold;
+         }
+         .info #horBarChart {
+         width: 100% !important;
+         max-width: 800px;
+         /* height:inherit; */
+         }
+         .leaflet-control-layers {
+         float:right;
+         top:500px;
+         right:0;
+         /* margin-left:-200px; */
+         position:absolute;
+         background: rgba(0,0,0,0.85);
+         box-shadow: 0 0 15px rgba(0,0,0,0.2);
+         border-radius: 5px;
+         color:whitesmoke;
+         }
+      </style>
+   </head>
+   <body layout:fragment="content">
+      <div id="map"></div>
+      <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+      <script th:src="@{app/jquery/dist/jquery.min.js}"></script>
+      <script th:src="@{app/leaflet/leaflet.js}"></script>
+      <script th:src="@{app/extscripts/js/Chart.js}"></script>
+      <script type="text/javascript">
+         // Url Endpoints
+         var dataUrl = "http://localhost:8080/aid";
+         
+         // Basemap urls
+         var osm_humanitarian = L.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+         });
+         
+         var osm_map = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+         });
+         
+         var esri_dark_gray_base = L.tileLayer('http://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '&copy; <a href="http://services.arcgisonline.com/arcgis/rest/services">ESRI</a> arcgisonline'
+         });
+         
+         var world_street_map = L.tileLayer('http://services.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+         });
+         
+         var world_imagery = L.tileLayer('http://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+         });
+         
+         
+         // Initialize the map
+         var map = L.map('map', {
+            layers: [osm_humanitarian] // Default basemap
+         }).setView([51.87801, 20.61224], 7)
+         
+         // Initialize basemaps
+         var baseLayers = {
+            "Open Street Map": osm_map,
+            "OSM Humanitarian": osm_humanitarian,
+            "Dark Gray Base": esri_dark_gray_base,
+            "World Street Map": world_street_map,
+            "World Imagery": world_imagery
+         };
+         
+         // Create layer groups
+         var point_layers = L.layerGroup().addTo(map);
+         
+         
+         <!--                $.each(data, function(i, item) {-->
+         <!--                    var cpoints = L.marker(L.latLng(item.geom.coordinates[1], item.geom.coordinates[0]), {-->
+         <!--                    color: '#009999',-->
+         <!--                    radius: 155,-->
+         <!--                    weight: 1.0,-->
+         <!--                    fillOpacity: 0.7-->
+         <!--                });-->
+         <!--                cpoints.bindPopup(-->
+         <!--                    "<h4><b>Town:</b> " + item.town.toString() + "</h4>" +-->
+         <!--                    "<h4><b>Title:</b> " + item.title.toString() + "</h4>"-->
+         <!--                );-->
+         <!--                points.on('mouseover', function(e) {-->
+         <!--                    this.setStyle({color:'yellow'});-->
+         <!--                    this.openPopup();-->
+         <!--                });-->
+         <!--                cpoints.on('mouseout', function(e) {-->
+         <!--                    this.setStyle({color:'#009999'});-->
+         <!--                    this.closePopup();-->
+         <!--                });-->
+         <!--                    point_layers.addLayer(cpoints);-->
+         <!--                });-->
+         <!--             });-->
+         
+         <!--    var theMarker = {};-->
+         
+         <!--    map.on('click',function(e){-->
+         <!--        lat = e.latlng.lat;-->
+         <!--        lon = e.latlng.lng;-->
+         
+         <!--        console.log("You clicked the map at LAT: "+ lat+" and LONG: "+lon );-->
+         <!--        //Clear existing marker,-->
+         
+         <!--        if (theMarker != undefined) {-->
+         <!--            map.removeLayer(theMarker);-->
+         <!--        };-->
+         
+         <!--        //Add a marker to show where you clicked.-->
+         <!--        theMarker = L.marker([lat,lon]).addTo(map);-->
+         <!--    });-->
+         <!--            function addMarker(lat, lon, colorClass) {-->
+         <!--              const marker = L.marker([lat, lon], {-->
+         <!--                icon: L.divIcon({-->
+         <!--                  className: `custom-marker ${colorClass}`,-->
+         <!--                  iconSize: [30, 30],-->
+         <!--                }),-->
+         <!--              }).addTo(map);-->
+         <!--            }-->
+         
+         <!--            addMarker(51.5074, -0.1278, 'red-marker');-->
+         <!--addMarker(40.7128, -74.0060, 'blue-marker');-->
+         <!--addMarker(34.0522, -118.2437, 'green-marker');-->
+         
+         <!--            var greenIcon = new L.Icon({-->
+         <!--              iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',-->
+         <!--              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',-->
+         <!--              iconSize: [25, 41],-->
+         <!--              iconAnchor: [12, 41],-->
+         <!--              popupAnchor: [1, -34],-->
+         <!--              shadowSize: [41, 41]-->
+         <!--            });-->
+         <!--            var redIcon = new L.Icon({-->
+         <!--              iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',-->
+         <!--              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',-->
+         <!--              iconSize: [25, 41],-->
+         <!--              iconAnchor: [12, 41],-->
+         <!--              popupAnchor: [1, -34],-->
+         <!--              shadowSize: [41, 41]-->
+         <!--            });-->
+         <!--            var blueIcon = new L.Icon({-->
+         <!--              iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',-->
+         <!--              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',-->
+         <!--              iconSize: [25, 41],-->
+         <!--              iconAnchor: [12, 41],-->
+         <!--              popupAnchor: [1, -34],-->
+         <!--              shadowSize: [41, 41]-->
+         <!--            });-->
+         <!--            var violetIcon = new L.Icon({-->
+         <!--              iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png',-->
+         <!--              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',-->
+         <!--              iconSize: [25, 41],-->
+         <!--              iconAnchor: [12, 41],-->
+         <!--              popupAnchor: [1, -34],-->
+         <!--              shadowSize: [41, 41]-->
+         <!--            });-->
+         
+         
+         
+         // Define marker icons
+         var markerIcons = {
+            red: L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            }),
+            green: L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            }),
+            blue: L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            }),
+            violet: L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            }),
+            gold: L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            }),
+            gray: L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            })
+         };
+         
+         
+         
+         function convertIdToColor(id) {
+             let name = '';
+         
+             switch (id) {
+                 case 1:
+                     name = 'gray';
+                     break;
+                 case 3:
+                     name = 'green';
+                     break;
+                 case 2:
+                     name = 'red';
+                     break;
+                 case 4:
+                     name = 'blue';
+                     break;
+                 case 5:
+                     name = 'violet';
+                     break;
+                 case 6:
+                     name = 'gold';
+                     break;
+             }
+             return  name;
+         }
+         
+         function convertColorToId(color) {
+             let id = null;
+         
+             switch (color) {
+                 case 'gray':
+                     id = 1;
+                     break;
+                 case 'green':
+                     id = 3;
+                     break;
+                 case 'red':
+                     id = 2;
+                     break;
+                 case 'blue':
+                     id = 4;
+                     break;
+                 case 'violet':
+                     id = 5;
+                     break;
+                 case 'gold':
+                     id = 6;
+                     break;
+             }
+            return id;
+         }
+         
+         function sendAidDataToServer(aidData) {
+            var url = '/uploadAidData';
+         
+             const jsonData = JSON.stringify(aidData);
+         
+             fetch(url, {
+                method: 'POST',
+                body: jsonData,
+                headers: {
+                    'Content-Type': 'application/json'
                 }
-                .leaflet-container {  /* all maps */
-                    width:  100%;
-                    /* height: calc(100vh - 60px); */
-                    height: 100vh;
-                }
+            })
+             .then(response => response.text())
+             .then(data => {
+            console.log('Aid sended sucessfull!'); // Вивести результат в консоль
+         })
+             .catch(error => {
+            console.error('Error at sending data to server:', error);
+         });
+         }
+         
+         var theMarker = null;
+         var markerModeEnabled = false;
+         let markerlist = [];
+         
+         // Оновлена функція для додавання маркера та побору даних
+         function addMarker(marker, flagOption) {
+            let color = convertIdToColor(marker.aidCategoryEntity.id);
+         
+             // OPTION 1 for adding marker to map and sending to server
+             // OPTION 2 for only adding marker to map
+             switch (flagOption) {
+                 case 1:
+                     point_layers.clearLayers();
 
-                .legend, .temporal-legend {
-                    padding: 6px 10px;
-                    font: 14px/16px Arial, Helvetica, sans-serif;
-                    background: rgba(0,0,0,0.85);
-                    box-shadow: 0 0 15px rgba(0,0,0,0.2);
-                    border-radius: 5px;
-                    color:whitesmoke;
-                }
+                     marker.description = prompt("Enter describe of aid:");
+                     marker.description = marker.description.trim();
+                     let regexPattern = /^[0-9a-zA-Z$_]+$/;
+         
+                     if (marker.description !== null && marker.description.trim().length > 0 && regexPattern.test(marker.description)) {
+                         theMarker = L.marker([marker.latitude, marker.longitude], {
+                             icon: markerIcons[color]
+                         }).addTo(map);
+                         theMarker.bindPopup(marker.description);
+                         markerlist.push(theMarker);
+                         point_layers.addLayer(theMarker);
 
-                #legendTitle {
-                    text-align: center;
-                    margin-bottom: 15px;
-                    color: whitesmoke;
-                    /* font-variant: small-caps; */
-                    font-weight: bold;
-                }
+//                         addToSidebar(marker.aidCategoryEntity.id, marker.description, marker.latitude, marker.longitude);
+         addToSidebar(marker);
 
-                .symbolsContainer {
-                    float: left;
-                    margin-left: 50px;
-                }
+                         const markerData = {
+                             selectedCategoryAid: marker.aidCategoryEntity.id,
+                             description: marker.description,
+                             latitude: marker.latitude,
+                             longitude: marker.longitude
+                         };
+                         console.log('prepared aid for sending:', markerData);
+                         sendAidDataToServer(markerData);
+                     }
+                     break;
+                 case 2:
+                     if (marker.description) {
+//                        point_layers.clearLayers();
+                         console.log('inner case entered');
+                         console.log('marker');
 
-                .legendCircle {
-                    border-radius:50%;
-                    border: 1px solid #537898;
-                    background: rgba(0,128,128,0.5);
-                    display: inline-block;
-                }
+                         addToSidebar(marker);
+//                         addToSidebar(marker.aidCategoryEntity.id, marker.description, marker.latitude, marker.longitude);
 
-                .legendValue {
-                    position: absolute;
-                    right: 12px;
-                    color:whitesmoke;
-                    font-size:10pt;
-                    text-align:center;
-                    font-weight: bold;
-                }
+                         theMarker = L.marker([marker.latitude, marker.longitude], {
+                             icon: markerIcons[color]
+                         }).addTo(map);
+                         theMarker.bindPopup(marker.description);
+                         markerlist.push(theMarker);
+                         point_layers.addLayer(theMarker);
 
-                .info {
-                    width:30vw;
-                    height:48vh;
-                    /* width:20vw; */
-                    /* height:300px; */
-                    padding: 6px 10px;
-                    font: 14px/16px Arial, Helvetica, sans-serif;
-                    background: rgba(0,0,0,0.85);
-                    box-shadow: 0 0 15px rgba(0,0,0,0.2);
-                    border-radius: 5px;
-                    color:whitesmoke;
-                    /* max-width:100%;
-                    max-height:100%; */
-                }
+                     }
+                     break;
+             }
+         }
+         
+         // Додайте цей код відображення маркерів з сервера
+         function displayAidMarkersFromServer() {
 
-                .info h5 {
-                    margin: 0 0 5px;
-                    color: #777;
-                    text-align: center;
-                    /* margin-bottom: 15px; */
-                    color: whitesmoke;
-                    /* font-variant: small-caps; */
-                    font-weight: bold;
-                }
+             const url = '/getAllAidMarkers'; // URL-адреса вашого контролера для отримання маркерів
+             console.log('displayAidMarkersFromServer >>>>');
+         
+             fetch(url)
+                 .then(response => response.json())
+                 .then(aid => {
+                  console.log('-- ', aid);
 
-                .info #horBarChart {
-                    width: 100% !important;
-                    max-width: 800px;
-                    /* height:inherit; */
-                }
+                     aid.forEach(marker => {
+                        console.log('--+ ', marker);
 
-                .leaflet-control-layers {
-                    float:right;
-                    top:500px;
-                    right:0;
-                    /* margin-left:-200px; */
-                    position:absolute;
-                    background: rgba(0,0,0,0.85);
-                    box-shadow: 0 0 15px rgba(0,0,0,0.2);
-                    border-radius: 5px;
-                    color:whitesmoke;
-                }
-            </style>
-</head>
-
-<body>
-<div id="map"></div>
-
-
-<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-<script th:src="@{app/jquery/dist/jquery.min.js}"></script>
-<script th:src="@{app/leaflet/leaflet.js}"></script>
-<script th:src="@{app/extscripts/js/Chart.js}"></script>
-<script type="text/javascript">
-    			// Url Endpoints
-			var dataUrl = "http://localhost:8080/aid";
-
-            // Basemap urls
-			var osm_humanitarian = L.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-			});
-
-            var osm_map = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            });
-
-            var esri_dark_gray_base = L.tileLayer('http://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-				attribution: '&copy; <a href="http://services.arcgisonline.com/arcgis/rest/services">ESRI</a> arcgisonline'
-			});
-
-			var world_street_map = L.tileLayer('http://services.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-				attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
-				});
-
-		 	var world_imagery = L.tileLayer('http://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-				attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-			});
-
-
-            // Initialize the map
-			var map = L.map('map', {
-				layers: [osm_humanitarian] // Default basemap
-			}).setView([50.87801, 20.61224], 15)
-
-			// Initialize basemaps
-            var baseLayers = {
-		        "Open Street Map": osm_map,
-		        "OSM Humanitarian": osm_humanitarian,
-		        "Dark Gray Base": esri_dark_gray_base,
-		        "World Street Map": world_street_map,
-		        "World Imagery": world_imagery
-		    };
-
-			// Create layer groups
-		    var point_layers = L.layerGroup().addTo(map);
-
-
-		     $.getJSON(dataUrl, function(data) {
-				$.each(data, function(i, item) {
-					var cpoints = L.marker(L.latLng(item.geom.coordinates[1], item.geom.coordinates[0]), {
-		                color: '#009999',
-		                radius: 155,
-		                weight: 1.0,
-		                fillOpacity: 0.7
-		            });
-		            cpoints.bindPopup(
-						"<h4><b>Town:</b> " + item.town.toString() + "</h4>" +
-						"<h4><b>Title:</b> " + item.title.toString() + "</h4>"
-					);
-		            cpoints.on('mouseover', function(e) {
-						this.setStyle({color:'yellow'});
-		                this.openPopup();
-		            });
-		            cpoints.on('mouseout', function(e) {
-						this.setStyle({color:'#009999'});
-		                this.closePopup();
-		            });
-		            point_layers.addLayer(cpoints);
-		        });
-			});
-
-			var overlayMaps = {
-				"Aid markers by Town (2012)": point_layers
-			}
-
-			L.control.layers(baseLayers, overlayMaps).addTo(map);
-
-</script>
-</body>
+//                         console.log('fetched marker before adding -- ', marker);
+//                         console.log('fetched marker before adding -- ', marker);
+                        addMarker(marker, 2);
+//
+                     });
+                 })
+                 .catch(error => {
+                     console.error('Помилка під час отримання маркерів з сервера:', error);
+                 });
+         }
+         // Викликати цю функцію, коли ви хочете відобразити всі маркери з сервера
+         displayAidMarkersFromServer();
+         
+         
+         
+         // Обробка клацання по карті з оновленою функцією
+         map.on('click', function (e) {
+             if (markerModeEnabled) {
+         
+                 const selectedColor = document.getElementById('markerColor').value;
+                 let marker = {
+                     description: '',
+                     latitude: e.latlng.lat,
+                     longitude: e.latlng.lng,
+                     aidCategoryEntity: {
+                        id: convertColorToId(selectedColor)
+                     }
+                 };
+                displayAidMarkersFromServer();
+                addMarker(marker, 1);
+            }
+         });
+         
+         // Toggle marker adding mode
+         document.getElementById('toggleMarkerMode').addEventListener('click', function () {
+            markerModeEnabled = !markerModeEnabled;
+         });
+         
+         
+         var overlayMaps = {
+//            "Aid markers by Town (2012)": point_layers
+         }
+         
+         L.control.layers(baseLayers, overlayMaps).addTo(map);
+      </script>
+   </body>
 </html>
+

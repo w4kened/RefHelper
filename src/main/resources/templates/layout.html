@@ -2,7 +2,10 @@
 <html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
     <head>
         <meta charset="utf-8">
+<!--        <script src="/js/layoutScript.js" type="text/javascript" >-->
+<!--        </script>-->
 
+<!--        <script type="text/javascript" src="/static/js/layoutScript.js"></script>-->
 
         <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
@@ -14,7 +17,8 @@
         <meta name="description" content="w4kened - RefHelper">
 
 
-        <link rel="stylesheet" href="./style.css">
+<!--            <font color="FFFFFF"></font>-->
+<!--        <link rel="stylesheet" href="./style.css">-->
         <link rel="stylesheet" th:href="@{app/bootstrap/dist/css/bootstrap.min.css}">
         <link rel="stylesheet" th:href="@{app/font-awesome/css/font-awesome.min.css}">
         <link rel="stylesheet" th:href="@{app/Ionicons/css/ionicons.min.css}">
@@ -24,7 +28,65 @@
 
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 
-
+        <style>
+            #sidebar {
+                margin-left: 3%;
+                margin-right: 3%;
+            }
+            #sidebarList {
+                overflow-y: scroll !important;
+                overflow-x: hidden !important;
+                height: 56rem !important;
+                width: 100% !important;
+                padding-left: 1rem;
+/*                border: 1px solid #87AC52;*/
+            }
+            #markerColor {
+                color: #000000;
+                margin-block: 3%;
+                width: 100%;
+            }
+            #searchField {
+                color: #000000;
+                margin-block: 3%;
+                width: 100%;
+            }
+            /* Default styles for the button */
+            .btncls {
+                background-color: #87AC52; /* Set your default background color */
+                color: #fff; /* Set your default text color */
+                margin-block: 3% !important;
+                margin-left: 6rem;
+            }
+            /* Styles for the active state */
+            .btncls.active {
+                background-color: #D2938E; /* Set your active background color */
+                color: #fff; /* Set your active text color */
+            }
+/*            body {*/
+/*                color: #fff !important;*/
+/*            }*/
+            select {
+            }
+            .highlight {
+                background-color: #87AC52 !important;
+            }
+            .list-group-item {
+                border: 1px solid #87AC52 !important;
+                background-color: #222D32;
+                margin-left: -1rem;
+                display: flow-root list-item !important;
+            }
+            .fa {
+                font-size: 2.5rem;
+            }
+            p {
+                color: white;
+            }
+            .fw-bold {
+                font-weight: bold;
+            }
+        </style>
     </head>
 
     <body class="hold-transition skin-blue sidebar-mini">
@@ -38,25 +100,46 @@
                 </a>
             </header>
             <aside class="main-sidebar">
-            	
                 <!-- sidebar: style can be found in sidebar.less -->
-                <section class="sidebar">
-                
-                <!-- sidebar menu: : style can be found in sidebar.less -->
-                <ul class="sidebar-menu" data-widget="tree">
-                    <li class="header">MAPS NAVIGATION</li>
-                    <li class="treeview active">
-                    <a href="#">
-                        <i class="fa fa-globe"></i> <span>Maps</span>
-                        <span class="pull-right-container">
-                        <i class="fa fa-angle-left pull-right"></i>
-                        </span>
-                    </a>
-                    <ul class="treeview-menu">
-                        <li><a href="localhost:8080"><i class="fa fa-map"></i> RefHelper (2017)</a></li>
-                    </ul>
-                    </li>
-                </ul>
+                <section class="sidebar" id="sidebar">
+                    <p id="dataElement" th:text="${data}"></p>
+<!--                -->
+<!--                    &lt;!&ndash; sidebar menu: : style can be found in sidebar.less &ndash;&gt;-->
+<!--                    <ul class="sidebar-menu" data-widget="tree">-->
+<!--                        <li class="header">MAPS NAVIGATION</li>-->
+<!--                        <li class="treeview active">-->
+<!--                        <a href="#">-->
+<!--                            <i class="fa fa-globe"></i> <span>Maps</span>-->
+<!--                            <span class="pull-right-container">-->
+<!--                            <i class="fa fa-angle-left pull-right"></i>-->
+<!--                            </span>-->
+<!--                        </a>-->
+<!--                        <ul class="treeview-menu">-->
+<!--                            <li><a href="localhost:8080"><i class="fa fa-map"></i> RefHelper (2017)</a></li>-->
+<!--                        </ul>-->
+<!--                        </li>-->
+<!--                    </ul>-->
+
+
+                    <select class="form-select" id="markerColor" aria-label="Default select example">
+                        <option value="red">Healthcare Aid</option>
+                        <option value="green">Education Aid</option>
+                        <option value="blue">Employment Aid</option>
+                        <option value="violet">Legal Aid</option>
+                        <option value="gold">Community Aid</option>
+                        <option value="gray">Basic Necessities Aid</option>
+                    </select>
+                    <button id="toggleMarkerMode" class="btn btncls" type="button">
+                        Add aid
+                    </button>
+
+                    <input type="text" id="searchField" name="keyword">
+
+
+                    <!-- Додайте цей елемент в HTML-файл -->
+                        <ol id="sidebarList"></ol>
+
+                    <a th:href="@{/logout}">Logout</a>
                 </section>
                 <!-- /.sidebar -->
             </aside>
@@ -75,10 +158,279 @@
             
 		
         <!-- scripts -->
+
         <script th:src="@{app/jquery-ui/jquery-ui.min.js}"></script>
         <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+
+
+
         <script>
-        $.widget.bridge('uibutton', $.ui.button);
+            $.widget.bridge('uibutton', $.ui.button);
+
+            // Assuming you have a reference to your button element
+            var toggleButton = document.getElementById('toggleMarkerMode');
+
+            // Toggle the 'active' class on button click
+            toggleButton.addEventListener('click', function () {
+                this.classList.toggle('active');
+
+
+                // Update the button text based on the presence of the 'active' class
+                if (this.classList.contains('active')) {
+                    toggleButton.textContent = 'Cancel';
+                } else {
+                    toggleButton.textContent = 'Add aid';
+                }
+
+            });
+
+            //            // Функція для додавання маркера до списку на лівій бічній панелі
+            //            function addMarkerToList(description) {
+            //                const list = document.getElementById('markerList');
+            //                const listItem = document.createElement('li');
+            //                listItem.textContent = description;
+            //                list.appendChild(listItem);
+            //            }
+
+
+
+            function convertIdToName(id) {
+                let name = '';
+
+                switch (id) {
+                    case 1:
+                        name = 'Basic Necessities Aid';
+                        break;
+                    case 3:
+                        name = 'Education Aid';
+                        break;
+                    case 2:
+                        name = 'Healthcare Aid';
+                        break;
+                    case 4:
+                        name = 'Employment Aid';
+                        break;
+                    case 5:
+                        name = 'Legal Aid';
+                        break;
+                    case 6:
+                        name = 'Community Aid';
+                        break;
+                }
+                return  name;
+            }
+
+            // Функція для додавання маркера до списку на бічній панелі
+            var markerMap = {};
+
+            function deleteAidDataFromServer(usersAidsId, aidId) {
+                const url = `/deleteAidById/${usersAidsId}/${aidId}`;
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.text())
+                    .then(data => {
+                    console.log('Delete request sended sucessfull!'); // Вивести результат в консоль
+                })
+                    .catch(error => {
+                    console.error('Error at sending delete data to server:', error);
+                });
+//                location.reload();
+//  displayAidMarkersFromServer();
+            }
+//
+//            function deleteAidFromDatabase(latitude, longitude, description) {
+//                const url = '/deleteAid'; // Replace this with your backend endpoint URL
+//
+//                const data = {
+//                    latitude: latitude,
+//                    longitude: longitude,
+//                    description: description
+//                };
+//
+//                fetch(url, {
+//                    method: 'POST',
+//                    headers: {
+//                        'Content-Type': 'application/json'
+//                    },
+//                    body: JSON.stringify(data)
+//                })
+//                    .then(response => {
+//                    if (response.ok) {
+//                        console.log('Aid deleted successfully');
+//                        // Perform any other action after successful deletion if needed
+//                    } else {
+//                        console.error('Failed to delete aid');
+//                    }
+//                })
+//                    .catch(error => {
+//                    console.error('Error:', error);
+//                });
+//            }
+
+
+                let obj = null;
+
+            // Function to render aids in the sidebar
+            function renderAids(aids) {
+                const sidebarList = document.getElementById('sidebarList');
+                sidebarList.innerHTML = ''; // Clear the existing list
+
+                aids.forEach(function (aid) {
+                    // Create list items and add to the sidebar
+                    const listItem = document.createElement('li');
+                    // Construct list item content using aid details (similar to your existing code)
+                    // ...
+
+                    sidebarList.appendChild(listItem);
+                });
+            }
+
+
+            function addToSidebar(marker) {
+
+                const dataElement = document.getElementById('dataElement');
+                const dataText = dataElement.textContent;
+                console.log('dataText ', dataText);
+                obj = marker;
+
+//            function addToSidebar(id, description, latitude, longitude) {
+                 const sidebarList = document.getElementById('sidebarList');
+
+                const listItem = document.createElement('li');
+                listItem.className = "list-group-item d-flex justify-content-between align-items-start";
+
+                const div = document.createElement('div');
+                div.className = "ms-2 me-auto";
+
+                const subheading = document.createElement('div');
+                subheading.className = "fw-bold";
+                subheading.textContent = convertIdToName(marker.aidCategoryEntity.id);
+
+                const descriptionDiv = document.createElement('div');
+                descriptionDiv.textContent = marker.description;
+
+                const removeIcon = document.createElement('i');
+                removeIcon.className = "fa fa-trash-o";
+
+//                if (marker.usersAidsEntities[0].userEntity.id == dataText) {
+//                    //make icon visible if id same
+//                }
+//                else {
+//                    dataText
+//                }
+
+                // Add click event listener to list item
+                listItem.addEventListener('click', function() {
+
+                    const highlightedItems = document.querySelectorAll('.highlight');
+                    highlightedItems.forEach(item => item.classList.remove('highlight'));
+
+                    // Highlight the clicked description
+                    this.classList.add('highlight');
+
+                    // Remove any previously highlighted marker
+                    if (markerMap[marker.aidCategoryEntity.id]) {
+                        map.removeLayer(markerMap[marker.aidCategoryEntity.id]);
+                    }
+                    // Get the text content of the element with ID 'dataElement'
+
+
+                    // Highlight the marker associated with this description
+                    const highlightedMarker = L.marker([marker.latitude, marker.longitude], {
+                        icon: markerIcons[convertIdToColor(marker.aidCategoryEntity.id)]
+                    }).addTo(map);
+                    highlightedMarker.bindPopup(marker.description).openPopup();
+                    // Center the map on the clicked marker's location
+                    map.setView([marker.latitude, marker.longitude], map.getZoom()); // Change the map.getZoom() according to your requirement
+
+                    markerMap[marker.aidCategoryEntity.id] = highlightedMarker;
+                    console.log('marker.id ', marker.id);
+                    console.log('marker ', marker);
+                    console.log();
+
+                });
+                // Check if the first userEntity ID associated with the marker matches dataText
+                console.log('id id',marker.usersAidsEntities[0].userEntity.email,' ', dataText);
+                if (marker.usersAidsEntities[0].userEntity.email == dataText) {
+                    // Add the subheading and description to the div
+                    div.appendChild(subheading);
+                    div.appendChild(descriptionDiv);
+
+                    // Add the div and badge to the  list item
+                    listItem.appendChild(div);
+                    listItem.appendChild(removeIcon); // Add the removeIcon to the list item
+
+
+                    // Add the list item to the sidebar list
+                    sidebarList.appendChild(listItem);
+
+                    // Add click event listener to the trash icon (similar to your existing code)
+
+                        // Add click event listener to the trash icon
+                        removeIcon.addEventListener('click', function(event) {
+                            listItem.dispatchEvent(new Event('click'));
+                            console.log(marker);
+                            var result = confirm("Want to delete?");
+
+                            if (result) {
+                                console.log('list item ', listItem);
+                                console.log('our data [',marker.description.trim(),']');
+
+
+                                point_layers.clearLayers();
+                                deleteAidDataFromServer(marker.usersAidsEntities[0].id, marker.id);
+
+        //
+        //                        for (let i = 0; i < markerlist.length; i++) {
+        //                            let marker = markerlist[i];
+        //                            // Check if the current marker has the same description, latitude, and longitude
+        //                            if (
+        //                            marker._popup._content === description &&
+        //                            marker._latlng.lat === latitude &&
+        //                            marker._latlng.lng === longitude
+        //                            ) {
+        //                                console.log('marker founded')
+        //                                map.removeLayer(marker); // Return the matching marker object
+        //                                break;
+        //                            }
+        //                        }
+        //                        console.log('markerklist ', markerlist);
+
+                            }
+                        });
+                }
+                else {
+
+                    // Add the subheading and description to the div
+                    div.appendChild(subheading);
+                    div.appendChild(descriptionDiv);
+
+                    // Add the div and badge to the  list item
+                    listItem.appendChild(div);
+
+                    // Add the list item to the sidebar list
+                    sidebarList.appendChild(listItem);
+                }
+            }
+
+            let listItems = document.querySelectorAll('#sidebarList li');
+
+            listItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove the 'highlight' class from all items
+                    listItems.forEach(item => {
+                    item.classList.remove('highlight');
+                    });
+
+                    // Add the 'highlight' class to the clicked item
+                    this.classList.add('highlight');
+                });
+            });
+
         </script>
         <script th:src="@{app/bootstrap/dist/js/bootstrap.min.js}"></script>
         <script th:src="@{app/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js}"></script>
