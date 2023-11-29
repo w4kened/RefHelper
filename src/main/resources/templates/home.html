@@ -112,34 +112,34 @@
       <script type="text/javascript">
          // Url Endpoints
          var dataUrl = "http://localhost:8080/aid";
-         
+
          // Basemap urls
          var osm_humanitarian = L.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
          });
-         
+
          var osm_map = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
          });
-         
+
          var esri_dark_gray_base = L.tileLayer('http://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
             attribution: '&copy; <a href="http://services.arcgisonline.com/arcgis/rest/services">ESRI</a> arcgisonline'
          });
-         
+
          var world_street_map = L.tileLayer('http://services.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
          });
-         
+
          var world_imagery = L.tileLayer('http://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
          });
-         
-         
+
+
          // Initialize the map
          var map = L.map('map', {
             layers: [osm_humanitarian] // Default basemap
          }).setView([51.87801, 20.61224], 7)
-         
+
          // Initialize basemaps
          var baseLayers = {
             "Open Street Map": osm_map,
@@ -148,98 +148,11 @@
             "World Street Map": world_street_map,
             "World Imagery": world_imagery
          };
-         
+
          // Create layer groups
          var point_layers = L.layerGroup().addTo(map);
-         
-         
-         <!--                $.each(data, function(i, item) {-->
-         <!--                    var cpoints = L.marker(L.latLng(item.geom.coordinates[1], item.geom.coordinates[0]), {-->
-         <!--                    color: '#009999',-->
-         <!--                    radius: 155,-->
-         <!--                    weight: 1.0,-->
-         <!--                    fillOpacity: 0.7-->
-         <!--                });-->
-         <!--                cpoints.bindPopup(-->
-         <!--                    "<h4><b>Town:</b> " + item.town.toString() + "</h4>" +-->
-         <!--                    "<h4><b>Title:</b> " + item.title.toString() + "</h4>"-->
-         <!--                );-->
-         <!--                points.on('mouseover', function(e) {-->
-         <!--                    this.setStyle({color:'yellow'});-->
-         <!--                    this.openPopup();-->
-         <!--                });-->
-         <!--                cpoints.on('mouseout', function(e) {-->
-         <!--                    this.setStyle({color:'#009999'});-->
-         <!--                    this.closePopup();-->
-         <!--                });-->
-         <!--                    point_layers.addLayer(cpoints);-->
-         <!--                });-->
-         <!--             });-->
-         
-         <!--    var theMarker = {};-->
-         
-         <!--    map.on('click',function(e){-->
-         <!--        lat = e.latlng.lat;-->
-         <!--        lon = e.latlng.lng;-->
-         
-         <!--        console.log("You clicked the map at LAT: "+ lat+" and LONG: "+lon );-->
-         <!--        //Clear existing marker,-->
-         
-         <!--        if (theMarker != undefined) {-->
-         <!--            map.removeLayer(theMarker);-->
-         <!--        };-->
-         
-         <!--        //Add a marker to show where you clicked.-->
-         <!--        theMarker = L.marker([lat,lon]).addTo(map);-->
-         <!--    });-->
-         <!--            function addMarker(lat, lon, colorClass) {-->
-         <!--              const marker = L.marker([lat, lon], {-->
-         <!--                icon: L.divIcon({-->
-         <!--                  className: `custom-marker ${colorClass}`,-->
-         <!--                  iconSize: [30, 30],-->
-         <!--                }),-->
-         <!--              }).addTo(map);-->
-         <!--            }-->
-         
-         <!--            addMarker(51.5074, -0.1278, 'red-marker');-->
-         <!--addMarker(40.7128, -74.0060, 'blue-marker');-->
-         <!--addMarker(34.0522, -118.2437, 'green-marker');-->
-         
-         <!--            var greenIcon = new L.Icon({-->
-         <!--              iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',-->
-         <!--              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',-->
-         <!--              iconSize: [25, 41],-->
-         <!--              iconAnchor: [12, 41],-->
-         <!--              popupAnchor: [1, -34],-->
-         <!--              shadowSize: [41, 41]-->
-         <!--            });-->
-         <!--            var redIcon = new L.Icon({-->
-         <!--              iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',-->
-         <!--              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',-->
-         <!--              iconSize: [25, 41],-->
-         <!--              iconAnchor: [12, 41],-->
-         <!--              popupAnchor: [1, -34],-->
-         <!--              shadowSize: [41, 41]-->
-         <!--            });-->
-         <!--            var blueIcon = new L.Icon({-->
-         <!--              iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',-->
-         <!--              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',-->
-         <!--              iconSize: [25, 41],-->
-         <!--              iconAnchor: [12, 41],-->
-         <!--              popupAnchor: [1, -34],-->
-         <!--              shadowSize: [41, 41]-->
-         <!--            });-->
-         <!--            var violetIcon = new L.Icon({-->
-         <!--              iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png',-->
-         <!--              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',-->
-         <!--              iconSize: [25, 41],-->
-         <!--              iconAnchor: [12, 41],-->
-         <!--              popupAnchor: [1, -34],-->
-         <!--              shadowSize: [41, 41]-->
-         <!--            });-->
-         
-         
-         
+
+
          // Define marker icons
          var markerIcons = {
             red: L.icon({
@@ -291,12 +204,12 @@
                 shadowSize: [41, 41]
             })
          };
-         
-         
-         
+
+
+
          function convertIdToColor(id) {
              let name = '';
-         
+
              switch (id) {
                  case 1:
                      name = 'gray';
@@ -319,10 +232,10 @@
              }
              return  name;
          }
-         
+
          function convertColorToId(color) {
              let id = null;
-         
+
              switch (color) {
                  case 'gray':
                      id = 1;
@@ -345,12 +258,12 @@
              }
             return id;
          }
-         
+
          function sendAidDataToServer(aidData) {
             var url = '/uploadAidData';
-         
+
              const jsonData = JSON.stringify(aidData);
-         
+
              fetch(url, {
                 method: 'POST',
                 body: jsonData,
@@ -360,41 +273,43 @@
             })
              .then(response => response.text())
              .then(data => {
+            location.reload();
             console.log('Aid sended sucessfull!'); // Вивести результат в консоль
          })
              .catch(error => {
             console.error('Error at sending data to server:', error);
          });
          }
-         
+
          var theMarker = null;
          var markerModeEnabled = false;
          let markerlist = [];
-         
+
+
          // Оновлена функція для додавання маркера та побору даних
          function addMarker(marker, flagOption) {
             let color = convertIdToColor(marker.aidCategoryEntity.id);
-         
+
              // OPTION 1 for adding marker to map and sending to server
              // OPTION 2 for only adding marker to map
              switch (flagOption) {
                  case 1:
-                     point_layers.clearLayers();
+//                     point_layers.clearLayers();
 
                      marker.description = prompt("Enter describe of aid:");
                      marker.description = marker.description.trim();
-                     let regexPattern = /^[0-9a-zA-Z$_]+$/;
-         
+//                     let regexPattern = /^[0-9a-zA-Z$_]+$/;
+                    let regexPattern = /^[0-9a-zA-Z$_\u0400-\u04FF\s]+$/;
                      if (marker.description !== null && marker.description.trim().length > 0 && regexPattern.test(marker.description)) {
-                         theMarker = L.marker([marker.latitude, marker.longitude], {
-                             icon: markerIcons[color]
-                         }).addTo(map);
-                         theMarker.bindPopup(marker.description);
-                         markerlist.push(theMarker);
-                         point_layers.addLayer(theMarker);
+//                         theMarker = L.marker([marker.latitude, marker.longitude], {
+//                             icon: markerIcons[color]
+//                         });
+//                         theMarker.bindPopup(marker.description);
+//                         markerlist.push(theMarker);
+//                         point_layers.addLayer(theMarker);
+//                         console.log('before adding marker, ', marker   );
 
-//                         addToSidebar(marker.aidCategoryEntity.id, marker.description, marker.latitude, marker.longitude);
-         addToSidebar(marker);
+//                         addToSidebar(marker);
 
                          const markerData = {
                              selectedCategoryAid: marker.aidCategoryEntity.id,
@@ -402,15 +317,15 @@
                              latitude: marker.latitude,
                              longitude: marker.longitude
                          };
-                         console.log('prepared aid for sending:', markerData);
+//                         console.log('prepared aid for sending:', markerData);
                          sendAidDataToServer(markerData);
                      }
                      break;
                  case 2:
                      if (marker.description) {
 //                        point_layers.clearLayers();
-                         console.log('inner case entered');
-                         console.log('marker');
+//                         console.log('inner case entered');
+//                         console.log('marker');
 
                          addToSidebar(marker);
 //                         addToSidebar(marker.aidCategoryEntity.id, marker.description, marker.latitude, marker.longitude);
@@ -420,29 +335,33 @@
                          }).addTo(map);
                          theMarker.bindPopup(marker.description);
                          markerlist.push(theMarker);
+//                         console.log('marker from map', theMarker);
+//                         console.log('marker from list', theMarker);
+
                          point_layers.addLayer(theMarker);
+
 
                      }
                      break;
              }
          }
-         
+
          // Додайте цей код відображення маркерів з сервера
          function displayAidMarkersFromServer() {
 
              const url = '/getAllAidMarkers'; // URL-адреса вашого контролера для отримання маркерів
              console.log('displayAidMarkersFromServer >>>>');
-         
+
              fetch(url)
                  .then(response => response.json())
                  .then(aid => {
-                  console.log('-- ', aid);
+//                  console.log('-- ', aid);
 
                      aid.forEach(marker => {
-                        console.log('--+ ', marker);
+//                        console.log('--+ ', marker);
 
 //                         console.log('fetched marker before adding -- ', marker);
-//                         console.log('fetched marker before adding -- ', marker);
+                         console.log('fetched marker before adding -- ', marker);
                         addMarker(marker, 2);
 //
                      });
@@ -453,13 +372,15 @@
          }
          // Викликати цю функцію, коли ви хочете відобразити всі маркери з сервера
          displayAidMarkersFromServer();
-         
-         
-         
+
+
+
          // Обробка клацання по карті з оновленою функцією
          map.on('click', function (e) {
              if (markerModeEnabled) {
-         
+
+                  console.log(e.latlng.lat, ' ', e.latlng.lng,);
+
                  const selectedColor = document.getElementById('markerColor').value;
                  let marker = {
                      description: '',
@@ -469,21 +390,24 @@
                         id: convertColorToId(selectedColor)
                      }
                  };
-                displayAidMarkersFromServer();
                 addMarker(marker, 1);
+//                location.reload();
+
+//                displayAidMarkersFromServer();
+
             }
          });
-         
+
          // Toggle marker adding mode
          document.getElementById('toggleMarkerMode').addEventListener('click', function () {
             markerModeEnabled = !markerModeEnabled;
          });
-         
-         
+
+
          var overlayMaps = {
 //            "Aid markers by Town (2012)": point_layers
          }
-         
+
          L.control.layers(baseLayers, overlayMaps).addTo(map);
       </script>
    </body>

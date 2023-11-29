@@ -36,7 +36,7 @@
             #sidebarList {
                 overflow-y: scroll !important;
                 overflow-x: hidden !important;
-                height: 56rem !important;
+                height: 50rem !important;
                 width: 100% !important;
                 padding-left: 1rem;
 /*                border: 1px solid #87AC52;*/
@@ -184,13 +184,6 @@
 
             });
 
-            //            // Функція для додавання маркера до списку на лівій бічній панелі
-            //            function addMarkerToList(description) {
-            //                const list = document.getElementById('markerList');
-            //                const listItem = document.createElement('li');
-            //                listItem.textContent = description;
-            //                list.appendChild(listItem);
-            //            }
 
 
 
@@ -234,60 +227,16 @@
                     .then(response => response.text())
                     .then(data => {
                     console.log('Delete request sended sucessfull!'); // Вивести результат в консоль
+                    location.reload();
+
                 })
                     .catch(error => {
                     console.error('Error at sending delete data to server:', error);
                 });
-//                location.reload();
-//  displayAidMarkersFromServer();
             }
-//
-//            function deleteAidFromDatabase(latitude, longitude, description) {
-//                const url = '/deleteAid'; // Replace this with your backend endpoint URL
-//
-//                const data = {
-//                    latitude: latitude,
-//                    longitude: longitude,
-//                    description: description
-//                };
-//
-//                fetch(url, {
-//                    method: 'POST',
-//                    headers: {
-//                        'Content-Type': 'application/json'
-//                    },
-//                    body: JSON.stringify(data)
-//                })
-//                    .then(response => {
-//                    if (response.ok) {
-//                        console.log('Aid deleted successfully');
-//                        // Perform any other action after successful deletion if needed
-//                    } else {
-//                        console.error('Failed to delete aid');
-//                    }
-//                })
-//                    .catch(error => {
-//                    console.error('Error:', error);
-//                });
-//            }
 
 
-                let obj = null;
 
-            // Function to render aids in the sidebar
-            function renderAids(aids) {
-                const sidebarList = document.getElementById('sidebarList');
-                sidebarList.innerHTML = ''; // Clear the existing list
-
-                aids.forEach(function (aid) {
-                    // Create list items and add to the sidebar
-                    const listItem = document.createElement('li');
-                    // Construct list item content using aid details (similar to your existing code)
-                    // ...
-
-                    sidebarList.appendChild(listItem);
-                });
-            }
 
 
             function addToSidebar(marker) {
@@ -295,12 +244,11 @@
                 const dataElement = document.getElementById('dataElement');
                 const dataText = dataElement.textContent;
                 console.log('dataText ', dataText);
-                obj = marker;
 
-//            function addToSidebar(id, description, latitude, longitude) {
-                 const sidebarList = document.getElementById('sidebarList');
+                //            function addToSidebar(id, description, latitude, longitude) {
+                const sidebarList = document.getElementById('sidebarList');
 
-                const listItem = document.createElement('li');
+                const listItem = document.createElement('limarker');
                 listItem.className = "list-group-item d-flex justify-content-between align-items-start";
 
                 const div = document.createElement('div');
@@ -316,12 +264,6 @@
                 const removeIcon = document.createElement('i');
                 removeIcon.className = "fa fa-trash-o";
 
-//                if (marker.usersAidsEntities[0].userEntity.id == dataText) {
-//                    //make icon visible if id same
-//                }
-//                else {
-//                    dataText
-//                }
 
                 // Add click event listener to list item
                 listItem.addEventListener('click', function() {
@@ -370,38 +312,28 @@
 
                     // Add click event listener to the trash icon (similar to your existing code)
 
-                        // Add click event listener to the trash icon
-                        removeIcon.addEventListener('click', function(event) {
-                            listItem.dispatchEvent(new Event('click'));
-                            console.log(marker);
-                            var result = confirm("Want to delete?");
-
-                            if (result) {
-                                console.log('list item ', listItem);
-                                console.log('our data [',marker.description.trim(),']');
-
-
-                                point_layers.clearLayers();
-                                deleteAidDataFromServer(marker.usersAidsEntities[0].id, marker.id);
-
-        //
-        //                        for (let i = 0; i < markerlist.length; i++) {
-        //                            let marker = markerlist[i];
-        //                            // Check if the current marker has the same description, latitude, and longitude
-        //                            if (
-        //                            marker._popup._content === description &&
-        //                            marker._latlng.lat === latitude &&
-        //                            marker._latlng.lng === longitude
-        //                            ) {
-        //                                console.log('marker founded')
-        //                                map.removeLayer(marker); // Return the matching marker object
-        //                                break;
-        //                            }
-        //                        }
-        //                        console.log('markerklist ', markerlist);
-
+                    // Add click event listener to the trash icon
+                    removeIcon.addEventListener('click', function(event) {
+                        listItem.dispatchEvent(new Event('click'));
+                        markerlist.forEach((element) => {
+                            if (element._latlng.lat == marker.latitude && element._latlng.lng == marker.longitude) {
+                                map.removeLayer(element);
+                                console.log('removing elemet ', element);
                             }
                         });
+                        console.log(marker);
+                        var result = confirm("Want to delete?");
+
+                        if (result) {
+                            console.log('list item ', listItem);
+                            console.log('our data [',marker.description.trim(),']');
+
+
+                            point_layers.clearLayers();
+                            deleteAidDataFromServer(marker.usersAidsEntities[0].id, marker.id);
+
+                        }
+                    });
                 }
                 else {
 
@@ -417,13 +349,49 @@
                 }
             }
 
+            // Function to filter aids based on the keyword
+            function filterAidsByKeyword(keyword) {
+                const listItems = document.querySelectorAll('#sidebarList li');
+
+                listItems.forEach(item => {
+
+                    const description = item.querySelector('div:nth-child(2)').textContent.toLowerCase();
+                    if (description.includes(keyword.toLowerCase())) {
+                        item.style.display = 'block'; // Show the item if the keyword is found
+                    } else {
+                        item.style.display = 'none'; // Hide the item if the keyword is not found
+                    }
+                });
+            }
+
+            let word = [];
+            // Event listener for the search field
+            const searchField = document.getElementById('searchField');
+            searchField.addEventListener('input', function(event) {
+                if (input !== '') {
+                    console.log('inputed '+keyword);
+
+                const keyword = event.target.value.trim(); // Get the entered keyword
+                    filterAidsByKeyword(keyword);
+
+//                word.push(key)
+                console.log('inputed '+keyword);
+                }
+                else {
+                    console.log('string is empty');
+
+                }
+            });
+
+
+
             let listItems = document.querySelectorAll('#sidebarList li');
 
             listItems.forEach(item => {
                 item.addEventListener('click', function() {
                     // Remove the 'highlight' class from all items
                     listItems.forEach(item => {
-                    item.classList.remove('highlight');
+                        item.classList.remove('highlight');
                     });
 
                     // Add the 'highlight' class to the clicked item
