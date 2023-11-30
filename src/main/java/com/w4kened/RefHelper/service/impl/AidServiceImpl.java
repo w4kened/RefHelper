@@ -18,19 +18,21 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Service
 public class AidServiceImpl implements AidService {
     @Autowired
-    private final AidRepository aidRepository;
+    private  AidRepository aidRepository;
     @Autowired
-    private final AidCategoryRepository aidCategoryRepository;
+    private  AidCategoryRepository aidCategoryRepository;
     @Autowired
 
-    private final UserService userService;
+    private  UserService userService;
     @Autowired
-    private final UsersAidsRepository usersAidsRepository;
+    private  UsersAidsRepository usersAidsRepository;
 
     @Autowired
     public AidServiceImpl(AidRepository aidRepository,
@@ -93,11 +95,20 @@ public class AidServiceImpl implements AidService {
             }
         }
         System.out.println("saving from service->repository " );
-        System.out.println(aidEntity);
+        System.out.println(aidEntity.getAidCategoryEntity());
         aidRepository.save(aidEntity);
 
         UserEntity userEntity = userService.findByEmail(SecurityUtil.getSessionUser());
         UsersAidsEntity usersAidsEntity  = new UsersAidsEntity();
+//        List<UsersAidsEntity> usersAidsEntities = usersAidsRepository.findByAidId(aidEntity.getId());
+//        Integer count = 1;
+//        for (UsersAidsEntity element : usersAidsEntities) {
+//            if (element.getAidInteraction() == AidInteraction.CREATING ) {
+//                count++;
+//            }
+////            System.out.println("interaction "+element.getAidInteraction());
+//        }
+
         usersAidsEntity.setAidEntity(aidEntity);
         usersAidsEntity.setUserEntity(userEntity);
         usersAidsEntity.setAidInteraction(AidInteraction.CREATING);
@@ -107,45 +118,7 @@ public class AidServiceImpl implements AidService {
     @Override
     public void removeAid(Long usersAidsId, Long aidId) {
 
-//        AidEntity aidEntity = new AidEntity();
-//        aidEntity.setDescription(aidDto.getDescription());
-//        aidEntity.setLatitude(aidDto.getLatitude());
-//        aidEntity.setLongitude(aidDto.getLongitude());
-//        AidCategoryEntity aidCategory;
-//        aidEntity.setCreatedDate(aidDto.getCreatedDate());
-//        switch (aidDto.getSelectedCategoryAid()) {
-//            case 1 -> {
-//                aidCategory = aidCategoryRepository.findByName("Basic Necessities Aid");
-//                aidEntity.setCategoryAidEntity(aidCategory);
-//            }
-//            case 2 -> {
-//                aidCategory = aidCategoryRepository.findByName("Healthcare Aid");
-//                aidEntity.setCategoryAidEntity(aidCategory);
-//            }
-//            case 3 -> {
-//                aidCategory = aidCategoryRepository.findByName("Education Aid");
-//                aidEntity.setCategoryAidEntity(aidCategory);
-//            }
-//            case 4 -> {
-//                aidCategory = aidCategoryRepository.findByName("Employment Aid");
-//                aidEntity.setCategoryAidEntity(aidCategory);
-//            }
-//            case 5 -> {
-//                aidCategory = aidCategoryRepository.findByName("Legal Aid");
-//                aidEntity.setCategoryAidEntity(aidCategory);
-//            }
-//            case 6 -> {
-//                aidCategory = aidCategoryRepository.findByName("Community Aid");
-//                aidEntity.setCategoryAidEntity(aidCategory);
-//            }
-//        }
-//        System.out.println(aidEntity.getId());
-////        aidEntity.setCreatedDate(aidDto.getCreatedDate());
-//        System.out.println("removing from service->repository");
-//        System.out.println(aidEntity);
-//        aidRepository.deleteByDescriptionAndLatitudeAndLongitude(description, latitude, longitude);
-
-        aidRepository.deleteUsersAidsById(usersAidsId);
+        usersAidsRepository.removeUsersAidsById(usersAidsId);
         aidRepository.deleteById(aidId);
     }
 

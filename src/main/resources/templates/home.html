@@ -3,9 +3,13 @@
    layout:decorate="~{layout}">
    <head>
       <meta charset="utf-8">
+      <!-- Leaflet CSS -->
+
+
+
       <link rel="stylesheet" th:href="@{app/leaflet/leaflet.css}">
       <title>Home Example</title>
-      <link rel="stylesheet" href="./style.css">
+<!--      <link rel="stylesheet" href="./style.css">-->
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
       <style>
          /* Red Marker */
@@ -109,6 +113,14 @@
       <script th:src="@{app/jquery/dist/jquery.min.js}"></script>
       <script th:src="@{app/leaflet/leaflet.js}"></script>
       <script th:src="@{app/extscripts/js/Chart.js}"></script>
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+      <!-- Leaflet.js -->
+      <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+      <!-- Leaflet.markercluster CSS -->
+      <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.0/dist/MarkerCluster.css" />
+      <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.0/dist/MarkerCluster.Default.css" />
+      <!-- Leaflet.markercluster JS -->
+      <script src="https://unpkg.com/leaflet.markercluster@1.5.0/dist/leaflet.markercluster.js"></script>
       <script type="text/javascript">
          // Url Endpoints
          var dataUrl = "http://localhost:8080/aid";
@@ -138,7 +150,9 @@
          // Initialize the map
          var map = L.map('map', {
             layers: [osm_humanitarian] // Default basemap
-         }).setView([51.87801, 20.61224], 7)
+         }).setView([51.87801, 20.61224], 7);
+
+         var markerCluster = L.markerClusterGroup();
 
          // Initialize basemaps
          var baseLayers = {
@@ -290,7 +304,7 @@
          function addMarker(marker, flagOption) {
             let color = convertIdToColor(marker.aidCategoryEntity.id);
 
-             // OPTION 1 for adding marker to map and sending to server
+             // OPTION 1 for sending marker to server
              // OPTION 2 for only adding marker to map
              switch (flagOption) {
                  case 1:
@@ -332,13 +346,18 @@
 
                          theMarker = L.marker([marker.latitude, marker.longitude], {
                              icon: markerIcons[color]
-                         }).addTo(map);
+                         }) //.addTo(map);
                          theMarker.bindPopup(marker.description);
+                        markerCluster.addLayer(theMarker);
+
                          markerlist.push(theMarker);
 //                         console.log('marker from map', theMarker);
 //                         console.log('marker from list', theMarker);
 
                          point_layers.addLayer(theMarker);
+                        map.addLayer(markerCluster);
+                        point_layers.clearLayers();
+
 
 
                      }
@@ -361,7 +380,7 @@
 //                        console.log('--+ ', marker);
 
 //                         console.log('fetched marker before adding -- ', marker);
-                         console.log('fetched marker before adding -- ', marker);
+                        console.log('fetched marker before adding -- ', marker);
                         addMarker(marker, 2);
 //
                      });
@@ -402,12 +421,21 @@
          document.getElementById('toggleMarkerMode').addEventListener('click', function () {
             markerModeEnabled = !markerModeEnabled;
          });
+//         // Configure cluster behavior
+//         markerCluster.options = {
+//            maxClusterRadius: 40, // Set the maximum radius of a cluster in pixels
+//            spiderfyOnMaxZoom: true, // When you reach the max zoom level, spiderfy markers
+//            showCoverageOnHover: false, // Don't show the coverage area on hover
+//            // More options can be found in the Leaflet.markercluster documentation
+//         };
 
 
          var overlayMaps = {
 //            "Aid markers by Town (2012)": point_layers
          }
-
+         function removeLayer(marker) {
+            point_layers.removeLayer(marker);
+         }
          L.control.layers(baseLayers, overlayMaps).addTo(map);
       </script>
    </body>

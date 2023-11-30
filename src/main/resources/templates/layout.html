@@ -139,7 +139,7 @@
                     <!-- Додайте цей елемент в HTML-файл -->
                         <ol id="sidebarList"></ol>
 
-                    <a th:href="@{/logout}">Logout</a>
+                    <a th:href="@{/logout}" style="margin-top: 65%;display: flex;">Logout</a>
                 </section>
                 <!-- /.sidebar -->
             </aside>
@@ -227,7 +227,8 @@
                     .then(response => response.text())
                     .then(data => {
                     console.log('Delete request sended sucessfull!'); // Вивести результат в консоль
-                    location.reload();
+//                    location.reload(
+
 
                 })
                     .catch(error => {
@@ -266,7 +267,8 @@
 
 
                 // Add click event listener to list item
-                listItem.addEventListener('click', function() {
+                listItem.addEventListener('click', function(e) {
+//                    console.log('outer e ', e.preventDefault());
 
                     const highlightedItems = document.querySelectorAll('.highlight');
                     highlightedItems.forEach(item => item.classList.remove('highlight'));
@@ -274,25 +276,37 @@
                     // Highlight the clicked description
                     this.classList.add('highlight');
 
-                    // Remove any previously highlighted marker
-                    if (markerMap[marker.aidCategoryEntity.id]) {
-                        map.removeLayer(markerMap[marker.aidCategoryEntity.id]);
-                    }
+
+//                    // Remove any previously highlighted marker
+//                    if (markerMap[marker.aidCategoryEntity.id]) {
+//                        map.removeLayer(markerMap[marker.aidCategoryEntity.id]);
+//                    }
+
+//                    map.removeLayer(markerMap[marker.aidCategoryEntity.id]);
                     // Get the text content of the element with ID 'dataElement'
 
 
                     // Highlight the marker associated with this description
-                    const highlightedMarker = L.marker([marker.latitude, marker.longitude], {
-                        icon: markerIcons[convertIdToColor(marker.aidCategoryEntity.id)]
-                    }).addTo(map);
-                    highlightedMarker.bindPopup(marker.description).openPopup();
+//                    const highlightedMarker = L.marker([marker.latitude, marker.longitude], {
+//                        icon: markerIcons[convertIdToColor(marker.aidCategoryEntity.id)]
+//                    }).addTo(map);
+//                    highlightedMarker.bindPopup(marker.description).openPopup();
                     // Center the map on the clicked marker's location
-                    map.setView([marker.latitude, marker.longitude], map.getZoom()); // Change the map.getZoom() according to your requirement
+//                    marker.openPopup();
+//                    point_layers.removeLayer(highlightedMarker);
+//                    map.removeLayer(highlightedMarker);
+//                    point_layers.clearLayers(markerlist[0]);
+                    for (var i  = 0; i < markerlist.length; i++) {
+                        if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
+                            //                                point_layers.removeLayer(markerlist[i]);
+                            console.log('finded ', markerlist[i]);
+                            map.setView([markerlist[i]._latlng.lat, markerlist[i]._latlng.lng], map.getZoom()+5); // Change the map.getZoom() according to your requirement
+                            markerlist[i].openPopup();
+                            break;
+                        }
+                    }
 
-                    markerMap[marker.aidCategoryEntity.id] = highlightedMarker;
-                    console.log('marker.id ', marker.id);
-                    console.log('marker ', marker);
-                    console.log();
+
 
                 });
                 // Check if the first userEntity ID associated with the marker matches dataText
@@ -314,23 +328,46 @@
 
                     // Add click event listener to the trash icon
                     removeIcon.addEventListener('click', function(event) {
-                        listItem.dispatchEvent(new Event('click'));
-                        markerlist.forEach((element) => {
-                            if (element._latlng.lat == marker.latitude && element._latlng.lng == marker.longitude) {
-                                map.removeLayer(element);
-                                console.log('removing elemet ', element);
-                            }
-                        });
-                        console.log(marker);
+
+//                        e.stopPropagation();
+//                        listItem.dispatchEvent(new Event('click'));
+
+//                        markerlist.forEach((element) => {
+//                            if (element._latlng.lat == marker.latitude && element._latlng.lng == marker.longitude) {
+//                                point_layers.removeLayer(element);
+//                                console.log('removing elemet ', element);
+//                            }
+//                        });
+//                        for (var i  = 0; i < markerlist.length; i++) {
+//                            if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
+////                                point_layers.removeLayer(markerlist[i]);
+//                                console.log('finded ', markerlist[i])
+//                                removeLayer(markerlist[i]);
+//
+////                                console.log('removing elemet ', markerlist[i]);
+////                                point_layers.clearLayers();
+//                                break;
+//                            }
+//                        }
+                        console.log('delete evenet');
                         var result = confirm("Want to delete?");
 
                         if (result) {
                             console.log('list item ', listItem);
                             console.log('our data [',marker.description.trim(),']');
 
+//                            point_layers.clearLayers();
+                            for (var i  = 0; i < markerlist.length; i++) {
+                                if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
 
-                            point_layers.clearLayers();
-                            deleteAidDataFromServer(marker.usersAidsEntities[0].id, marker.id);
+
+                                    deleteAidDataFromServer(marker.usersAidsEntities[0].id, marker.id);
+                                    map.removeLayer(markerlist[i]);
+                                    sidebarList.removeChild(listItem);
+
+                                    break;
+                                }
+                            }
 
                         }
                     });
@@ -349,7 +386,7 @@
                 }
             }
 
-            // Function to filter aids based on the keyword
+            // Function to filter aids based on the keyw ord
             function filterAidsByKeyword(keyword) {
                 const listItems = document.querySelectorAll('#sidebarList li');
 

@@ -19,10 +19,10 @@ public interface AidRepository extends CrudRepository<AidEntity, Long> {
 //    void deleteByDescriptionAndLatitudeAndLongitude(String description, Double latitude, Double longitude);
 //
 
-    @Modifying
-    @Transactional
-    @Query(value = "delete from users_aids_table where id = ?1")
-    void deleteUsersAidsById(Long id);
+//    @Modifying
+//    @Transactional
+//    @Query(value = "delete from users_aids_table where id = ?1")
+//    void deleteUsersAidsById(Long id);
 
     @Modifying
     @Transactional

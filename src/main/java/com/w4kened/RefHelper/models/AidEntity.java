@@ -44,7 +44,7 @@ public class AidEntity {
     @JsonManagedReference
     private AidCategoryEntity aidCategoryEntity;
 
-    @OneToMany(mappedBy = "aidEntity")
+    @OneToMany(mappedBy = "aidEntity", cascade=CascadeType.ALL,orphanRemoval=true)
     @JsonManagedReference
     private List<UsersAidsEntity> usersAidsEntities;
 }

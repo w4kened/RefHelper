@@ -21,7 +21,8 @@ public class RoleEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    @OneToMany(mappedBy = "roleEntity")
+
+    @OneToMany(mappedBy = "roleEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
     private List<UserEntity> userEntities;
 }

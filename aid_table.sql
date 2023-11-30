@@ -23,17 +23,17 @@ FOR EACH ROW
 BEGIN
     DECLARE category_count INT;
     
-    -- Check if there is no existing record with the same category_id in aid_table
-    SELECT COUNT(*) INTO category_count
-    FROM aid_table
-    WHERE category_id = NEW.category_id
-    AND id != NEW.id; -- Exclude the current record
+--     Check if there is no existing record with the same category_id in aid_table
+--     SELECT COUNT(*) INTO category_count
+--     FROM aid_table
+--     WHERE category_id = NEW.category_id
+--     AND id != NEW.id; -- Exclude the current record
     
     -- If no existing record found, insert into users_aids_table
-    IF aid_description = 0 THEN
+--     IF aid_description = 0 THEN
         INSERT INTO users_aids_table (aid_interaction, aid_id, user_id)
         VALUES ('CREATING', NEW.id, 1);
-    END IF;
+--     END IF;
 END;
 
 
@@ -41,22 +41,25 @@ CREATE TRIGGER eventInserter
 AFTER INSERT ON aid_table
 FOR EACH ROW 
 BEGIN
-    DECLARE categoryExists INT;
-
-    -- Check if a record exists in users_aids_table with the same category_id and 'CREATING' interaction
-    SELECT COUNT(*) INTO categoryExists 
-    FROM users_aids_table 
-    WHERE id = NEW.category_id 
-    AND aid_interaction = 'CREATING';
-
-    -- If the record doesn't exist, insert a new record into users_aids_table
-    IF categoryExists = 0 THEN
-        INSERT INTO users_aids_table (aid_interaction, aid_id, user_id)
-        VALUES ('CREATING', NEW.id, 1);
-    ELSE
-        INSERT INTO users_aids_table (aid_interaction, aid_id, user_id)
-        VALUES ('MODIFYING', NEW.id, 1);
-    END IF;
+	
+    INSERT INTO users_aids_table (aid_interaction, aid_id, user_id)
+    VALUES ('CREATING', NEW.id, 1);
+--     DECLARE categoryExists INT;
+-- 
+--     -- Check if a record exists in users_aids_table with the same category_id and 'CREATING' interaction
+--     SELECT COUNT(*) INTO categoryExists 
+--     FROM users_aids_table 
+--     WHERE aid_id = NEW.id 
+--     and
+--     AND aid_interaction = 'CREATING';
+-- 
+--     -- If the record doesn't exist, insert a new record into users_aids_table
+--     IF categoryExists = 0 THEN
+-- 
+--     ELSE
+--         INSERT INTO users_aids_table (aid_interaction, aid_id, user_id)
+--         VALUES ('MODIFYING', NEW.id, 1);
+--     END IF;
 END;
 drop TRIGGER eventInserter;
 
