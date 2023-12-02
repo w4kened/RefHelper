@@ -48,8 +48,9 @@
             }
             #searchField {
                 color: #000000;
-                margin-block: 3%;
+                margin-block: 4%;
                 width: 100%;
+                margin-bottom: 8%;
             }
             /* Default styles for the button */
             .btncls {
@@ -227,7 +228,7 @@
                     .then(response => response.text())
                     .then(data => {
                     console.log('Delete request sended sucessfull!'); // Вивести результат в консоль
-//                    location.reload(
+                    //                    location.reload(
 
 
                 })
@@ -238,10 +239,7 @@
 
 
 
-
-
             function addToSidebar(marker) {
-
                 const dataElement = document.getElementById('dataElement');
                 const dataText = dataElement.textContent;
                 console.log('dataText ', dataText);
@@ -265,10 +263,16 @@
                 const removeIcon = document.createElement('i');
                 removeIcon.className = "fa fa-trash-o";
 
+//                wrappedMarkers.push(
+//                    marker
+//                    //                    category: convertIdToName(marker.aidCategoryEntity.id),
+//                    //                    description: marker.description
+//                );
+
 
                 // Add click event listener to list item
                 listItem.addEventListener('click', function(e) {
-//                    console.log('outer e ', e.preventDefault());
+                    //                    console.log('outer e ', e.preventDefault());
 
                     const highlightedItems = document.querySelectorAll('.highlight');
                     highlightedItems.forEach(item => item.classList.remove('highlight'));
@@ -277,33 +281,35 @@
                     this.classList.add('highlight');
 
 
-//                    // Remove any previously highlighted marker
-//                    if (markerMap[marker.aidCategoryEntity.id]) {
-//                        map.removeLayer(markerMap[marker.aidCategoryEntity.id]);
-//                    }
+                    //                    // Remove any previously highlighted marker
+                    //                    if (markerMap[marker.aidCategoryEntity.id]) {
+                    //                        map.removeLayer(markerMap[marker.aidCategoryEntity.id]);
+                    //                    }
 
-//                    map.removeLayer(markerMap[marker.aidCategoryEntity.id]);
+                    //                    map.removeLayer(markerMap[marker.aidCategoryEntity.id]);
                     // Get the text content of the element with ID 'dataElement'
 
 
                     // Highlight the marker associated with this description
-//                    const highlightedMarker = L.marker([marker.latitude, marker.longitude], {
-//                        icon: markerIcons[convertIdToColor(marker.aidCategoryEntity.id)]
-//                    }).addTo(map);
-//                    highlightedMarker.bindPopup(marker.description).openPopup();
+                    //                    const highlightedMarker = L.marker([marker.latitude, marker.longitude], {
+                    //                        icon: markerIcons[convertIdToColor(marker.aidCategoryEntity.id)]
+                    //                    }).addTo(map);
+                    //                    highlightedMarker.bindPopup(marker.description).openPopup();
                     // Center the map on the clicked marker's location
-//                    marker.openPopup();
-//                    point_layers.removeLayer(highlightedMarker);
-//                    map.removeLayer(highlightedMarker);
-//                    point_layers.clearLayers(markerlist[0]);
+                    //                    marker.openPopup();
+                    //                    point_layers.removeLayer(highlightedMarker);
+                    //                    map.removeLayer(highlightedMarker);
+                    //                    point_layers.clearLayers(markerlist[0]);
                     for (var i  = 0; i < markerlist.length; i++) {
                         if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
                             //                                point_layers.removeLayer(markerlist[i]);
                             console.log('finded ', markerlist[i]);
-                            map.setView([markerlist[i]._latlng.lat, markerlist[i]._latlng.lng], map.getZoom()+5); // Change the map.getZoom() according to your requirement
+                            map.setView([markerlist[i]._latlng.lat, markerlist[i]._latlng.lng], map.getZoom()+1); // Change the map.getZoom() according to your requirement
                             markerlist[i].openPopup();
                             break;
+
                         }
+
                     }
 
 
@@ -329,26 +335,7 @@
                     // Add click event listener to the trash icon
                     removeIcon.addEventListener('click', function(event) {
 
-//                        e.stopPropagation();
-//                        listItem.dispatchEvent(new Event('click'));
 
-//                        markerlist.forEach((element) => {
-//                            if (element._latlng.lat == marker.latitude && element._latlng.lng == marker.longitude) {
-//                                point_layers.removeLayer(element);
-//                                console.log('removing elemet ', element);
-//                            }
-//                        });
-//                        for (var i  = 0; i < markerlist.length; i++) {
-//                            if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
-////                                point_layers.removeLayer(markerlist[i]);
-//                                console.log('finded ', markerlist[i])
-//                                removeLayer(markerlist[i]);
-//
-////                                console.log('removing elemet ', markerlist[i]);
-////                                point_layers.clearLayers();
-//                                break;
-//                            }
-//                        }
                         console.log('delete evenet');
                         var result = confirm("Want to delete?");
 
@@ -356,14 +343,14 @@
                             console.log('list item ', listItem);
                             console.log('our data [',marker.description.trim(),']');
 
-//                            point_layers.clearLayers();
+                            //                            point_layers.clearLayers();
                             for (var i  = 0; i < markerlist.length; i++) {
                                 if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
-
-
                                     deleteAidDataFromServer(marker.usersAidsEntities[0].id, marker.id);
                                     map.removeLayer(markerlist[i]);
                                     sidebarList.removeChild(listItem);
+//                                    removeLayer(marker);
+                                    markerCluster.removeLayer(markerlist[i]);
 
                                     break;
                                 }
@@ -388,35 +375,35 @@
 
             // Function to filter aids based on the keyw ord
             function filterAidsByKeyword(keyword) {
-                const listItems = document.querySelectorAll('#sidebarList li');
+                keyword = keyword.toLowerCase().trim();
+                document.getElementById("sidebarList").innerHTML = "";
+//                let arr = wrappedMarkers;
+//                wrappedMarkers = [];
 
-                listItems.forEach(item => {
+                wrappedMarkers.forEach(marker => {
+                    if (convertIdToName(marker.aidCategoryEntity.id).includes(keyword) || marker.description.includes(keyword)) {
 
-                    const description = item.querySelector('div:nth-child(2)').textContent.toLowerCase();
-                    if (description.includes(keyword.toLowerCase())) {
-                        item.style.display = 'block'; // Show the item if the keyword is found
-                    } else {
-                        item.style.display = 'none'; // Hide the item if the keyword is not found
+                        addToSidebar(marker);
+                        console.log('founded ', marker);
+                    }
+                    else {
+
                     }
                 });
             }
 
-            let word = [];
-            // Event listener for the search field
-            const searchField = document.getElementById('searchField');
-            searchField.addEventListener('input', function(event) {
-                if (input !== '') {
-                    console.log('inputed '+keyword);
-
+            document.getElementById('searchField').addEventListener('input', function(event) {
                 const keyword = event.target.value.trim(); // Get the entered keyword
+                console.log('inputed >',keyword,'<');
+                if (keyword != '') {
                     filterAidsByKeyword(keyword);
-
-//                word.push(key)
-                console.log('inputed '+keyword);
                 }
                 else {
-                    console.log('string is empty');
-
+//                    console.log('>',keyword,'<');
+                    document.getElementById("sidebarList").innerHTML = "";
+                    wrappedMarkers.forEach(element => {
+                        addToSidebar(element);
+                    })
                 }
             });
 

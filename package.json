@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "leaflet-geometryutil": "^0.10.2",
     "leaflet.markercluster": "^1.5.3"
   }
 }
