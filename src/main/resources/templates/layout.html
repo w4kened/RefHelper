@@ -304,7 +304,7 @@
                         if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
                             //                                point_layers.removeLayer(markerlist[i]);
                             console.log('finded ', markerlist[i]);
-                            map.setView([markerlist[i]._latlng.lat, markerlist[i]._latlng.lng], map.getZoom()+1); // Change the map.getZoom() according to your requirement
+                            map.setView([markerlist[i]._latlng.lat, markerlist[i]._latlng.lng], 12); // Change the map.getZoom() according to your requirement
                             markerlist[i].openPopup();
                             break;
 
@@ -360,7 +360,6 @@
                     });
                 }
                 else {
-
                     // Add the subheading and description to the div
                     div.appendChild(subheading);
                     div.appendChild(descriptionDiv);
@@ -381,11 +380,19 @@
 //                wrappedMarkers = [];
 
                 wrappedMarkers.forEach(marker => {
-                    if (convertIdToName(marker.aidCategoryEntity.id).includes(keyword) || marker.description.includes(keyword)) {
+                    console.log('curent marker ');
+                    console.log('',keyword);
+                    console.log('marker.aidCategoryEntity.id ', convertIdToName(marker.aidCategoryEntity.id),'>',
+                        convertIdToName(marker.aidCategoryEntity.id).includes(keyword));
+                    console.log('marker.description ',marker.description,'>',
+                        marker.description.includes(keyword));
+                    if (convertIdToName(marker.aidCategoryEntity.id).toLowerCase().includes(keyword.toLowerCase()) ||
+                    marker.description.toLowerCase().includes(keyword.toLowerCase())) {
 
                         addToSidebar(marker);
                         console.log('founded ', marker);
                     }
+
                     else {
 
                     }
