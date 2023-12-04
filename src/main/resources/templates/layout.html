@@ -87,6 +87,28 @@
             .fw-bold {
                 font-weight: bold;
             }
+            .modal {
+                z-index: 1050; /* or a higher value than the modal backdrop */
+            }
+            .modal-backdrop, .fade, .in {
+                z-index: -1 !important;
+            }
+            .btn-circle.btn-xl {
+                width: 70px;
+                height: 70px;
+                padding: 10px 16px;
+                font-size: 24px;
+                line-height: 1.33;
+                border-radius: 35px;
+                margin-left: 104rem;
+                margin-block: 7rem;
+                position: fixed;
+            }
+            .btn-circle {
+                opacity: 83.3%;
+                color: green;
+                background-color: #87AC52 !important;
+            }
         </style>
     </head>
 
@@ -140,7 +162,42 @@
                     <!-- Додайте цей елемент в HTML-файл -->
                         <ol id="sidebarList"></ol>
 
-                    <a th:href="@{/logout}" style="margin-top: 65%;display: flex;">Logout</a>
+
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary btn-circle btn-xl"  data-toggle="modal" data-target="#exampleModal">
+                        <i class="glyphicon glyphicon-home"></i>
+                    </button>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#">My Profile</a></li>
+                                        <!--                        <li><a href="#">My Profile</a></li>-->
+                                        <li><a href="#">My Aid Requests</a></li>
+                                        <li><a href="#">My Aid Responses</a></li>
+                                    </ul>
+                                    <!--                     <h4>My Aid Request</h4>-->
+                                    <!--                     <h4>My Aid Respons</h4>-->
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <a th:href="@{/logout}" style="display: flex; margin-top: 13rem;">Logout</a>
                 </section>
                 <!-- /.sidebar -->
             </aside>
@@ -159,6 +216,8 @@
             
 		
         <!-- scripts -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
         <script th:src="@{app/jquery-ui/jquery-ui.min.js}"></script>
         <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
@@ -167,6 +226,7 @@
 
         <script>
             $.widget.bridge('uibutton', $.ui.button);
+
 
             // Assuming you have a reference to your button element
             var toggleButton = document.getElementById('toggleMarkerMode');
@@ -242,12 +302,10 @@
             function addToSidebar(marker) {
                 const dataElement = document.getElementById('dataElement');
                 const dataText = dataElement.textContent;
-                console.log('dataText ', dataText);
 
-                //            function addToSidebar(id, description, latitude, longitude) {
                 const sidebarList = document.getElementById('sidebarList');
 
-                const listItem = document.createElement('limarker');
+                const listItem = document.createElement('li');
                 listItem.className = "list-group-item d-flex justify-content-between align-items-start";
 
                 const div = document.createElement('div');
@@ -260,46 +318,17 @@
                 const descriptionDiv = document.createElement('div');
                 descriptionDiv.textContent = marker.description;
 
+                const creatorDiv = document.createElement('div');
+                creatorDiv.textContent = "Volunteer: " + marker.usersAidsEntities[0].userEntity.name; // Adding creator's name
+
                 const removeIcon = document.createElement('i');
                 removeIcon.className = "fa fa-trash-o";
 
-//                wrappedMarkers.push(
-//                    marker
-//                    //                    category: convertIdToName(marker.aidCategoryEntity.id),
-//                    //                    description: marker.description
-//                );
-
-
-                // Add click event listener to list item
                 listItem.addEventListener('click', function(e) {
-                    //                    console.log('outer e ', e.preventDefault());
-
                     const highlightedItems = document.querySelectorAll('.highlight');
                     highlightedItems.forEach(item => item.classList.remove('highlight'));
-
-                    // Highlight the clicked description
                     this.classList.add('highlight');
 
-
-                    //                    // Remove any previously highlighted marker
-                    //                    if (markerMap[marker.aidCategoryEntity.id]) {
-                    //                        map.removeLayer(markerMap[marker.aidCategoryEntity.id]);
-                    //                    }
-
-                    //                    map.removeLayer(markerMap[marker.aidCategoryEntity.id]);
-                    // Get the text content of the element with ID 'dataElement'
-
-
-                    // Highlight the marker associated with this description
-                    //                    const highlightedMarker = L.marker([marker.latitude, marker.longitude], {
-                    //                        icon: markerIcons[convertIdToColor(marker.aidCategoryEntity.id)]
-                    //                    }).addTo(map);
-                    //                    highlightedMarker.bindPopup(marker.description).openPopup();
-                    // Center the map on the clicked marker's location
-                    //                    marker.openPopup();
-                    //                    point_layers.removeLayer(highlightedMarker);
-                    //                    map.removeLayer(highlightedMarker);
-                    //                    point_layers.clearLayers(markerlist[0]);
                     for (var i  = 0; i < markerlist.length; i++) {
                         if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
                             //                                point_layers.removeLayer(markerlist[i]);
@@ -311,28 +340,18 @@
                         }
 
                     }
-
-
-
                 });
-                // Check if the first userEntity ID associated with the marker matches dataText
-                console.log('id id',marker.usersAidsEntities[0].userEntity.email,' ', dataText);
+
                 if (marker.usersAidsEntities[0].userEntity.email == dataText) {
-                    // Add the subheading and description to the div
                     div.appendChild(subheading);
                     div.appendChild(descriptionDiv);
+                    div.appendChild(creatorDiv); // Add creator's name to the div
 
-                    // Add the div and badge to the  list item
                     listItem.appendChild(div);
-                    listItem.appendChild(removeIcon); // Add the removeIcon to the list item
+                    listItem.appendChild(removeIcon);
 
-
-                    // Add the list item to the sidebar list
                     sidebarList.appendChild(listItem);
 
-                    // Add click event listener to the trash icon (similar to your existing code)
-
-                    // Add click event listener to the trash icon
                     removeIcon.addEventListener('click', function(event) {
 
 
@@ -349,7 +368,7 @@
                                     deleteAidDataFromServer(marker.usersAidsEntities[0].id, marker.id);
                                     map.removeLayer(markerlist[i]);
                                     sidebarList.removeChild(listItem);
-//                                    removeLayer(marker);
+                                    //                                    removeLayer(marker);
                                     markerCluster.removeLayer(markerlist[i]);
 
                                     break;
@@ -358,16 +377,12 @@
 
                         }
                     });
-                }
-                else {
-                    // Add the subheading and description to the div
+                } else {
                     div.appendChild(subheading);
                     div.appendChild(descriptionDiv);
+                    div.appendChild(creatorDiv); // Add creator's name to the div
 
-                    // Add the div and badge to the  list item
                     listItem.appendChild(div);
-
-                    // Add the list item to the sidebar list
                     sidebarList.appendChild(listItem);
                 }
             }

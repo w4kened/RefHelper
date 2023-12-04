@@ -12,6 +12,7 @@ public interface UsersAidsService {
 //
 //    void saveUserAids();
 
+
     List<UsersAidsEntity> findByAidId(Long id);
 
     List<UsersAidsEntity> findByAid(Long aid);
