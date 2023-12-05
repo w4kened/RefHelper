@@ -109,6 +109,19 @@
                 color: green;
                 background-color: #87AC52 !important;
             }
+            .modal-dialog {
+                margin-left: 50rem !important;
+                width: 57% !important;
+            }
+            .btn-primary {
+                background-color: #87AC52 !important;
+            }
+            .row {
+                color: black !important;
+            }
+            #profile, #aids {
+                width: 100% ;
+            }
         </style>
     </head>
 
@@ -180,13 +193,79 @@
                                 </div>
                                 <div class="modal-body">
                                     <ul class="nav nav-tabs">
-                                        <li class="active"><a href="#">My Profile</a></li>
-                                        <!--                        <li><a href="#">My Profile</a></li>-->
-                                        <li><a href="#">My Aid Requests</a></li>
-                                        <li><a href="#">My Aid Responses</a></li>
+                                        <li class="nav-item active">
+                                            <a class="nav-link active" data-toggle="tab" href="#profile">My Profile</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" data-toggle="tab" href="#aids">Aids offered by me</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" data-toggle="tab" href="#requests">Aid Requests</a>
+                                        </li>
                                     </ul>
-                                    <!--                     <h4>My Aid Request</h4>-->
-                                    <!--                     <h4>My Aid Respons</h4>-->
+                                    <div class="tab-content">
+                                        <div id="profile" class="container tab-pane active">
+                                            <h4>Profile</h4>
+                                            <div class="container-fluid">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <p style="font-weight: bold; color: black;">Name:</p>
+                                                        <p style="font-weight: bold; color: black;">Email:</p>
+                                                        <p style="font-weight: bold; color: black;">Total Offered Aids:</p>
+                                                        <p style="font-weight: bold; color: black;">Role:</p>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <p style="color: black;" th:text="${userFullName}"></p>
+                                                        <p style="color: black;" th:text="${data}"></p>
+                                                        <p style="color: black;" th:text="${aidsOfferedCount}"></p>
+                                                        <p style="color: black;" th:text="${role}"></p>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <p style="color: black;">--</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="aids" class="container tab-pane fade">
+                                            <h4>Aids offered by me</h4>
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <thead>
+                                                    <!-- Implement inserting row row -->
+
+                                                    <tr>
+                                                        <th>Aid Category</th>
+                                                        <th>Aid Description</th>
+                                                        <th>Created Date</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr th:if="${aidsList.empty}">
+                                                        <td colspan="4">No Aids Available</td>
+                                                    </tr>
+                                                    <tr th:each="aid : ${aidsList}">
+                                                        <td><span th:text="${aid.aidCategoryEntity.getName()}">Aid Category</span></td>
+                                                        <td><span th:text="${aid.description}">Aid Description</span></td>
+                                                        <td><span th:text="${aid.createdDate}">Created Date</span></td>
+                                                        <td>
+                                                            <!-- edit -->
+                                                            <!-- delete -->
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                <a th:href="@{/addAid}">Offer Aid</a>
+                                            </div>
+                                        </div>
+
+
+
+                                        <div id="requests" class="container tab-pane fade">
+                                            <h4>Aid Requests</h4>
+                                            <p>Requests content...</p>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -226,6 +305,17 @@
 
         <script>
             $.widget.bridge('uibutton', $.ui.button);
+
+
+//            // Add event listeners to all Delete buttons
+//            document.querySelectorAll('.deleteBtn').forEach((button, index) => {
+//                button.addEventListener('click', () => {
+//                    const row = button.closest('tr'); // Get the closest row to the clicked button
+//
+//                    // You can access and manipulate row elements here for deletion or any other action
+//                    row.remove(); // For example, this would remove the entire row when the Delete button is clicked
+//                });
+//            });
 
 
             // Assuming you have a reference to your button element
@@ -297,9 +387,116 @@
                 });
             }
 
+//            document.getElementById('aidForm').addEventListener('submit', function(event) {
+//                event.preventDefault(); // Prevents the default form submission
+//
+//                // Get values from the form
+//                const aidCategory = document.getElementById('aidCategory').value;
+//                const aidDescription = document.getElementById('aidDescription').value;
+//
+//                // Use the extracted values as needed
+//                console.log('Aid Category:', aidCategory);
+//                console.log('Aid Description:', aidDescription);
+//
+//                // You can perform further actions with the extracted values here
+//            });
+            function sendUpdateAidRequest(aid_Id) {
+                const url = `/updateAidById/${aidId}`;
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.text())
+                    .then(data => {
+                    console.log('Update request sended sucessfull!'); // Вивести результат в консоль
+                    //                    location.reload(
+                })
+                    .catch(error => {
+                    console.error('Error at sending delete data to server:', error);
+                });
+            }
+
+            function editRow(button, aidId) {
+                // Access the row and perform edit operations
+                var row = button.closest('tr');
+                // Use 'aidId' to perform specific actions related to this ID
+                console.log("Edit ID: " + aidId);
+                // Implement edit functionality here
+            }
+
+            function deleteRow(button, aidId) {
+                // Access the row and perform delete operations
+                var row = button.closest('tr');
+                // Use 'aidId' to perform specific actions related to this ID
+                console.log("Delete ID: " + aidId);
+                // Implement delete functionality here
+            }
+//
+//            function handleEdit(aid_id) {
+//                const url = `/editAidById/${aid_id}`;
+//                fetch(url, {
+//                    method: 'POST',
+//                    headers: {
+//                        'Content-Type': 'application/json'
+//                    }
+//                })
+//                    .then(response => response.text())
+//                    .then(data => {
+//                    console.log('Delete modified sucessfull!'); // Вивести результат в консоль
+//                    //                    location.reload(
+//
+//
+//                })
+//                    .catch(error => {
+//                    console.error('Error at sending modifying data to server:', error);
+//                });
+//            }
+
+            function handleDelete(index) {
+
+            }
+
+//            function editAid(event) {
+//                // Find the row with the matching id
+////                var row = $('tr[row_id="' + id + '"]');
+//                console.log('this ',event);
+////                var currentRow = event.currentTarget.closest('tr'); // Get the closest table row
+////                var aidCategory = currentRow.querySelector('td:nth-child(1)').textContent.trim(); // Extract Aid Category
+////                var aidDescription = currentRow.querySelector('td:nth-child(2)').textContent.trim(); // Extract Aid Description
+////                var createdDate = currentRow.querySelector('td:nth-child(3)').textContent.trim(); // Extract Created Date
+////
+////                // Now you can use these variables (aidCategory, aidDescription, createdDate) as needed
+////                // For example, log them to the console
+////                console.log("Aid Category:", aidCategory);
+////                console.log("Aid Description:", aidDescription);
+////                console.log("Created Date:", createdDate);
+//
+//            }
+//
+//            // Add event listeners to all Edit buttons
+//            document.querySelectorAll('.editBtn').forEach((button, index) => {
+//                button.addEventListener('click', () => {
+//                    const row = button.closest('tr'); // Get the closest row to the clicked button
+//                    const aidCategory = row.querySelectorAll('td')[0].textContent.trim(); // Get the Aid Category value
+//                    const aidDescription = row.querySelectorAll('td')[1].textContent.trim(); // Get the Aid Description value
+//                    const createdDate = row.querySelectorAll('td')[2].textContent.trim(); // Get the Created Date value
+//
+//                    // You can use these values as needed, for example:
+//                    console.log('Aid Category:', aidCategory);
+//                    console.log('Aid Description:', aidDescription);
+//                    console.log('Created Date:', createdDate);
+//
+//                });
+//            });
+
+
 
 
             function addToSidebar(marker) {
+
                 const dataElement = document.getElementById('dataElement');
                 const dataText = dataElement.textContent;
 
@@ -317,9 +514,14 @@
 
                 const descriptionDiv = document.createElement('div');
                 descriptionDiv.textContent = marker.description;
+//                descriptionDiv.textContent = marker.description;
 
                 const creatorDiv = document.createElement('div');
+
+                subheading.style.fontWeight = "bold"; // Example: Making subheading bold
+                creatorDiv.style.fontStyle = "italic";
                 creatorDiv.textContent = "Volunteer: " + marker.usersAidsEntities[0].userEntity.name; // Adding creator's name
+
 
                 const removeIcon = document.createElement('i');
                 removeIcon.className = "fa fa-trash-o";
@@ -444,6 +646,8 @@
                     this.classList.add('highlight');
                 });
             });
+
+
 
         </script>
         <script th:src="@{app/bootstrap/dist/js/bootstrap.min.js}"></script>

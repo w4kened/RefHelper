@@ -125,6 +125,11 @@
       <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.0/dist/MarkerCluster.Default.css" />
       <!-- Leaflet.markercluster JS -->
       <script src="https://unpkg.com/leaflet.markercluster@1.5.0/dist/leaflet.markercluster.js"></script>
+
+<!--      <link rel="stylesheet" href="https://unpkg.co/leaflet-control-geocoder/disc/Control.Geocoder.css"></link>-->
+<!--      <script src="https://unpkg.co/leaflet-control-geocoder/disc/Control.Geocoder.js"></script>-->
+      <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+      <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
       <script type="text/javascript">
          // Url Endpoints
          var dataUrl = "http://localhost:8080/aid";
@@ -155,6 +160,27 @@
          var map = L.map('map', {
             layers: [osm_humanitarian] // Default basemap
          }).setView([51.87801, 20.61224], 7);
+
+         var geocoder = L.Control.geocoder({
+            defaultMarkGeocode: false
+         })
+            .on('markgeocode', function (e) {
+            var bbox = e.geocode.bbox;
+            var poly = L.polygon([
+               bbox.getSouthEast(),
+               bbox.getNorthEast(),
+               bbox.getNorthWest(),
+               bbox.getSouthWest()
+            ]).addTo(map);
+            map.fitBounds(poly.getBounds());
+
+            // Get the coordinates from geocode result and add a marker
+            var latlng = e.geocode.center;
+            var marker = L.marker(latlng).addTo(map);
+            marker.bindPopup(e.geocode.name).openPopup(); // Show a popup with the location name
+         })
+            .addTo(map);
+
 
          var markerCluster = L.markerClusterGroup();
 
@@ -299,9 +325,46 @@
             });
          }
 
+         // Define a function to perform reverse geocoding
+         function getAddressFromCoordinates(latitude, longitude) {
+            var apiUrl = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`;
+
+            fetch(apiUrl)
+               .then(response => response.json())
+               .then(data => {
+               // Access the address details from the response
+               const address = data.display_name;
+               console.log('Address:', address);
+               return address;
+
+               // Now you can use the obtained address as needed
+               // For example, display it in an HTML element or use it within your application
+            })
+               .catch(error => {
+               console.error('Error fetching address:', error);
+            });
+         }
+
          var theMarker = null;
          var markerModeEnabled = false;
          let markerlist = [];
+
+
+         function findMarkerByCoordinates(latitude, longitude) {
+            var foundMarker = null;
+
+            map.eachLayer(function(layer) {
+               if (layer instanceof L.Marker) {
+                  // Assuming marker coordinates are stored in a property like _latlng
+                  if (layer.getLatLng().lat === latitude && layer.getLatLng().lng === longitude) {
+                     foundMarker = layer;
+                     return; // Exit the loop if the marker is found
+                  }
+               }
+            });
+
+            return foundMarker;
+         }
 
 
          // Оновлена функція для додавання маркера та побору даних
@@ -352,16 +415,62 @@
 
                      theMarker = L.marker([marker.latitude, marker.longitude], {
                         icon: markerIcons[color]
-                     }) //.addTo(map);
-                     theMarker.bindPopup(marker.description);
+                     }).
+                     on('click',  function(e) {
+
+                        if (!markerModeEnabled) {
+
+                           console.log('clicked :',e.target);
+//                           const address = await getAddressFromCoordinates(marker.latitude, marker.longitude);
+                           // Find and highlig.
+
+
+                        }
+                        //                        let marker = {
+                        //                           description: '',
+                        //                           latitude: e.latlng.lat,
+                        //                           longitude: e.latlng.lng,
+                        //                           aidCategoryEntity: {
+                        //                              id: convertColorToId(selectedColor)
+                        //                           }
+                        //                        };
+                        //                           console.log('currend marker :',marker);
+
+                        //
+//                                                // Find and highlight corresponding list item in sidebar
+//                                                const listItems = document.querySelectorAll('.list-group-item');
+//                                                listItems.forEach(listItem => {
+//                                                   const lat = parseFloat(listItem.dataset.lat);
+//                                                   const lng = parseFloat(listItem.dataset.lng);
+//                                                   console.log('clicked ', listItem);
+//                        //
+//                        //                           if (lat === marker.latitude && lng === marker.longitude) {
+//                        ////                              listItem.classList.add('highlight');
+//                        //                              // Optionally, scroll the highlighted item into view
+//                        //                              listItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+//                        //                           } else {
+//                        //                              listItem.classList.remove('highlight');
+//                        //                           }
+//                                                });
+
+                     });
+
+                     theMarker.bindPopup(
+                        `<strong>${marker.aidCategoryEntity.name}</strong><br>` +
+                        `${marker.description}<br>` +
+                        `<em>Volunteer:  ${marker.usersAidsEntities[0].userEntity.name}</em>`
+//                        `<em>Address:  ${}</em>`
+                     );
+//                     getAddressFromCoordinates(marker.latitude, marker.longitude)
+
                      markerCluster.addLayer(theMarker);
 
                      markerlist.push(theMarker);
                      //                         console.log('marker from map', theMarker);
                      //                         console.log('marker from list', theMarker);
 
-//                     point_layers.addLayer(theMarker);
-//                     point_layers.clearLayers();
+                     //                     point_layers.addLayer(theMarker);
+                     //                     point_layers.clearLayers();
 
                      map.addLayer(markerCluster);
                   }
@@ -386,7 +495,7 @@
                   //                        console.log('--+ ', marker);
 
                   //                         console.log('fetched marker before adding -- ', marker);
-                  console.log('fetched marker before adding -- ', marker);
+                  //                  console.log('fetched marker before adding -- ', marker);
                   addMarker(marker, 2);
                   wrappedMarkers.push(marker);
                });
@@ -399,13 +508,17 @@
          displayAidMarkersFromServer();
 
 
-
          // Обробка клацання по карті з оновленою функцією
          map.on('click', function (e) {
+            var clickedMarker = e.target; // Access the clicked marker
+
+            // Perform actions with the clicked marker
+//            console.log('Clicked Marker:', clickedMarker);
             if (markerModeEnabled) {
 
-               console.log(e.latlng.lat, ' ', e.latlng.lng,);
+               //               console.log(e.latlng.lat, ' ', e.latlng.lng,);
 
+               console.log('clicked address: ', getAddressFromCoordinates(e.latlng.lat, e.latlng.lat));
                const selectedColor = document.getElementById('markerColor').value;
                let marker = {
                   description: '',
@@ -416,23 +529,24 @@
                   }
                };
                addMarker(marker, 1);
-               //                location.reload();
-
-               //                displayAidMarkersFromServer();
-
             }
-            else {
-//               let marker = {
-//                  description: '',
-//                  latitude: e.latlng.lat,
-//                  longitude: e.latlng.lng,
-//                  aidCategoryEntity: {
-//                     id: convertColorToId(selectedColor)
-//                  }
-//               };
-//               console.log(this.getLatLng());
-
-            }
+            //            else {
+            //               //               console.log('clicked marker = ', findMarkerByCoordinates(e.latlng.lat, e.latlng.lng));
+            //               //               var clickedMarker = e.target; // Access the clicked marker
+            //               //
+            //               //               // Perform actions with the clicked marker
+            //               //               console.log('Clicked Marker:', clickedMarker);
+            //               //               let marker = {
+            //               //                  description: '',
+            //               //                  latitude: e.latlng.lat,
+            //               //                  longitude: e.latlng.lng,
+            //               //                  aidCategoryEntity: {
+            //               //                     id: convertColorToId(selectedColor)
+            //               //                  }
+            //               //               };
+            //               //               console.log(this.getLatLng());
+            //
+            //            }
          });
 
          // Toggle marker adding mode
@@ -454,6 +568,7 @@
          function removeLayer(marker) {
             point_layers.removeLayer(marker);
          }
+
          L.control.layers(baseLayers, overlayMaps).addTo(map);
       </script>
    </body>

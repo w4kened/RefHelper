@@ -61,7 +61,7 @@ public class SecurityConfig  extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/login", "/register", "/css/**", "/js/**") // Removed "/home"
                 .permitAll()
-                .antMatchers("/home") // New rule for "/home"
+                .antMatchers("/home","/add_aid") // New rule for "/home"
                 .authenticated() // Requires authentication
                 .and()
                 .formLogin(form -> form

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Leaflet.js -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="https://unpkg.com/leaflet-control-minimap@latest/dist/Control.MiniMap.min.js"></script>
+</head>
+<body style="background-color: #222D32 !important; color: white !important;">
+    <div class="container mt-5">
+        <h2>Offer Aid</h2>
+        <form action="#" id="addAidForm" th:action="@{/addAid}" th:object="${aidDto}" method="POST" onsubmit="return validateForm()">
+            <div class="form-group">
+                <label for="aidCategory">Aid Category:</label>
+                <!-- You might use a select dropdown for aid category selection -->
+                <select th:field="*{selectedCategoryAid}"  class="form-control" id="aidCategory" name="aidCategory">
+                    <!-- Add options here -->
+                    <option value="1">Basic Necessities Aid</option>
+                    <option value="2">Healthcare Aid</option>
+                    <option value="3">Education Aid</option>
+                    <option value="4">Employment Aid</option>
+                    <option value="5">Legal Aid</option>
+                    <option value="6">Community Aid</option>
+                    <!-- Add more options -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea  class="form-control" id="description" name="description" rows="3" placeholder="Enter description"
+                th:field="*{description}" ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="minimap">Address:</label>
+                <div id="minimap" style="height: 180px;"></div>
+
+            </div>
+            <div class="form-group">
+                <input   type="text" class="form-control" id="address" name="address"
+                       th:field="*{address}" readonly placeholder="Address will populate here after founding on map"
+                >
+            </div>
+            <div class="form-group">
+                <input   type="text" class="form-control" id="latitude" name="latitude"
+                         th:field="*{latitude}" readonly style="display: none"
+                >
+            </div>
+            <div class="form-group">
+                <input   type="text" class="form-control" id="longitude" name="longitude"
+                         th:field="*{longitude}" readonly style="display: none"
+                >
+            </div>
+            <button type="submit" style="background-color: #87AC52 !important;" class="btn btn-primary">Submit</button>
+<!--            <button type="reset" class="btn btn-primary">Reset</button>-->
+<!--            <button type="reset" class="btn btn-primary" th:href="@{/home}">Cancel</button>-->
+            <a class="text-danger" th:href="@{/home}">Cancel</a>
+
+        </form>
+        <div class="container mt-5">
+            <h2>Aid Categories</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <h3>Basic Necessities Aid</h3>
+                    <p>Food Aid: Providing refugees with food packages or meal vouchers.</p>
+                    <p>Shelter Aid: Assisting with temporary housing, tents, or shelter materials.</p>
+                    <p>Clothing Aid: Distributing clothing and essential garments to refugees.</p>
+                </div>
+                <div class="col-md-4">
+                    <h3>Healthcare Aid</h3>
+                    <p>Medical Aid: Offering medical supplies, equipment, and access to healthcare facilities.</p>
+                    <p>Mental Health Aid: Providing counseling and support services for mental health issues.</p>
+                    <p>Hygiene Aid: Distributing hygiene kits, sanitary products, and hygiene education.</p>
+                </div>
+                <div class="col-md-4">
+                    <h3>Education Aid</h3>
+                    <p>School Aid: Supporting access to education, including textbooks, uniforms, and school supplies.</p>
+                    <p>Language Aid: Providing language classes and resources for language acquisition.</p>
+                    <p>Scholarship Aid: Offering scholarships for higher education or vocational training.</p>
+                </div>
+                <div class="col-md-4">
+                    <h3>Employment Aid</h3>
+                    <p>Job Training Aid: Providing vocational training and job skills development.</p>
+                    <p>Job Placement Aid: Assisting refugees in finding employment opportunities.</p>
+                    <p>Entrepreneurship Aid: Supporting refugees in starting their own businesses.</p>
+                </div>
+                <div class="col-md-4">
+                    <h3>Legal Aid</h3>
+                    <p>Asylum Aid: Providing legal assistance for asylum applications.</p>
+                    <p>Rights Aid: Offering support to understand and advocate for their legal rights.</p>
+                    <p>Documentation Aid: Assisting in obtaining identification and legal documents.</p>
+                </div>
+                <div class="col-md-4">
+                    <h3>Community Aid</h3>
+                    <p>Social Aid: Creating community support networks and social activities.</p>
+                    <p>Cultural Aid: Preserving cultural traditions and providing cultural integration programs.</p>
+                    <p>Family Aid: Reuniting families and providing support for family members.</p>
+                </div>
+
+                <!-- Add more divs for other categories -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!--</div>-->
+<script>
+//    document.getElementById('address').value = '';
+
+    // Define marker icons
+    var markerIcons = {
+        red: L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        }),
+        green: L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        }),
+        blue: L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        }),
+        violet: L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        }),
+        gold: L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        }),
+        gray: L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        })
+    };
+
+
+    function convertIdToColor(id) {
+        let name = '';
+
+        switch (id) {
+            case '1':
+                name = 'gray';
+                break;
+            case '3':
+                name = 'green';
+                break;
+            case '2':
+                name = 'red';
+                break;
+            case '4':
+                name = 'blue';
+                break;
+            case '5':
+                name = 'violet';
+                break;
+            case '6':
+                name = 'gold';
+                break;
+        }
+        return  name;
+    }
+    var map = L.map('minimap').setView([51.87801, 20.61224],7);
+    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright"></a>',
+        subdomains: ['a','b','c']
+    }).addTo(map);
+
+    var marker;
+//    var address = '';
+    var geocoder = L.Control.geocoder({
+        defaultMarkGeocode: false
+    }).on('markgeocode', function(e) {
+        var latlng = e.geocode.center;
+        if (marker) {
+            map.removeLayer(marker);
+        }
+
+        const categoryId = document.getElementById('aidCategory').value;
+        const color = convertIdToColor(categoryId)
+        marker = L.marker(latlng,{icon: markerIcons[color]}).addTo(map);
+        map.fitBounds(e.geocode.bbox);
+        // Get the address string from the result
+        // Set the value of the address input field to the address string
+        document.getElementById('address').value = e.geocode.name;
+//        console.log(e.geocode.name);
+        document.getElementById('latitude').value = parseFloat(latlng.lat);
+        document.getElementById('longitude').value = parseFloat(latlng.lng);
+//        address = e.geocode.name;
+    }).addTo(map);
+
+    function validateForm() {
+        var addressTmp = document.getElementById('address').value;
+        var descriptionTmp = document.getElementById('description').value;
+        if (addressTmp == "" || descriptionTmp == "") {
+            alert("Please fill out the Description and Address");
+            return false;
+        }
+    }
+</script>
+
+</body>
+</html>

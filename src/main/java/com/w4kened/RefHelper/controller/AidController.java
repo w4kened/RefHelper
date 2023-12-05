@@ -5,11 +5,17 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.w4kened.RefHelper.dto.AidDto;
 import com.w4kened.RefHelper.models.AidEntity;
 import com.w4kened.RefHelper.models.UsersAidsEntity;
+import com.w4kened.RefHelper.repository.AidRepository;
 import com.w4kened.RefHelper.service.AidService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,60 +26,17 @@ import java.util.stream.Collectors;
 public class AidController {
 
     private final AidService aidService;
+    private final AidRepository aidRepository;
 
     @Autowired
-    public AidController(AidService aidService) {
+    public AidController(AidService aidService, AidRepository aidRepository) {
         this.aidService = aidService;
+        this.aidRepository = aidRepository;
     }
 
 
     @GetMapping("/getAllAidMarkers")
     public List<AidEntity> getAllAidMarkers() {
-        //TODO need to provide id of user/creator through the useraidstable
-//        List<AidEntity> aidEntities = aidService.findAll();
-//        List<AidDto> aidDTOs = new ArrayList<>();
-//
-//        for (AidEntity aidEntity : aidEntities) {
-//            AidDto aidDTO = new AidDto();
-//            aidDTO.setAidEntity(aidEntity);
-//
-//            List<Long> userIds = aidEntity
-//                    .getUsersAidsEntities()
-//                    .stream()
-//                    .map(usersAidsEntity ->
-//                            usersAidsEntity
-//                                    .getUserEntity()
-//                                    .getId()
-//                    )
-//                    .collect(Collectors.toList());
-//
-//            aidDTO.setUserIds(userIds);
-//            aidDTOs.add(aidDTO);
-//        }
-//
-//        return aidDTOs;
-//
-//
-//                Map<Long, AidEntity> userIdsAndAids = new HashMap<>();
-//        // Iterate through the AidEntities and fetch associated user IDs
-//        for (AidEntity aidEntity : aidEntities) {
-//            List<UsersAidsEntity> usersAidsEntities = aidEntity.getUsersAidsEntities();
-//            System.out.println("aidEntity "+ aidEntity);
-//            System.out.println("usersAidsEntities "+ usersAidsEntities);
-////
-////            List<Long> userIds = new ArrayList<>();
-////            for (UsersAidsEntity usersAidsEntity : usersAidsEntities) {
-////                if (usersAidsEntity.getAidEntity().getId() == aidEntity.getId()) {
-////                    userIdsAndAids.put(usersAidsEntity.getU)
-////                }
-////                Long userId = usersAidsEntity.getUserEntity().getId();
-////                userIds.add(userId);
-////            }
-//
-//            // Set the list of user IDs associated with this AidEntity
-////            aidEntity.setUserIds(userIds);
-//        }
-
         return aidService.findAll();
     }
 
@@ -91,7 +54,7 @@ public class AidController {
         try {
             AidDto aidDto = objectMapper.readValue(jsonData, AidDto.class);
             aidService.saveAid(aidDto);
-            return "Aid successful loaded and saved to database.";
+            return "redirect:/";
         } catch (JsonProcessingException e) {
             return "Error at aid processing from JSON JSON-даних: " + e.getMessage();
         }
@@ -116,9 +79,103 @@ public class AidController {
         aidService.removeAid(usersAidsId, aidId);
 ////        if (deletedRecords > 0) {
         return ResponseEntity.ok().build();
-//        }
-//            return ResponseEntity.internalServerError().body("error with deleting");
     }
+//
+//    @RequestMapping(path = "/{id}", method = RequestMethod.GET)
+//    public String getAid(Model model,@PathVariable("id") Long id){
+//        AidEntity aidEntity = aidService.findByAidId(id);
+//        AidDto aidDto = new AidDto(aidEntity);
+//
+//        model.addAttribute("aidDto",aidDto);
+//        return"home";
+//    }
+
+//    @GetMapping("/create")
+//    public String showCreateForm(Model model) {
+////        AidEntity aidEntity = new AidEntity();
+////        AidDto aidDto = new AidDto();
+//        model.addAttribute("form", )
+//    }
+
+//    @RequestMapping(path = "/{id}", method = RequestMethod.POST)
+//    public RedirectView updateAid(RedirectAttributes redirectAttributes, @PathVariable("id") Integer id, @ModelAttribute UserInfo userInfo){
+////        aidService.updateAid(id,userInfo);
+////        String message=(userInfo.isActive()?"Updated ":"Deleted ")+" user <b>"+userInfo.getFirstName()+" "+userInfo.getLastName()+"</b> ✨.";
+////        RedirectView redirectView=new RedirectView("/",true);
+////        redirectAttributes.addFlashAttribute("userMessage",message);
+//        return redirectView;
+//    }
+//
+//    @GetMapping("/edit/{id}")
+//    public String showUpdateForm(@PathVariable("id") long id, Model model) {
+//        AidEntity aid = aidRepository.findById(id)
+//                .orElseThrow(() -> new IllegalArgumentException("Invalid aid Id:" + id));
+//
+//        model.addAttribute("aidNew", aid);
+//        return "update-aid";
+//    }
+//
+////    @PostMapping("/update/{id}")
+//    public String updateAid(@PathVariable("id") long id, @Valid Aid aid,
+//                            BindingResult result, Model model) {
+//        if (result.hasErrors()) {
+//            aid.setId(id);
+//            return "update-aid";
+//        }
+//
+//        aidRepository.save(aid);
+//        return "redirect:/index";
+//    }
+
+    @GetMapping("/delete/{id}")
+    public String deleteAid(@PathVariable("id") long id, Model model) {
+        AidEntity aid = aidRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid aid Id:" + id));
+        aidRepository.delete(aid);
+        return "redirect:/index";
+    }
+
+//    @PostMapping("/updateAidById/{aidId}")
+//    public ResponseEntity<?>  updateAid(@PathVariable Long aidId) {
+//        System.out.println("find by id "+aidRepository.findById(aidId));
+//
+//        return ResponseEntity.ok().build();
+//    }
+
+//    @RequestMapping(value = "/editAid", method = RequestMethod.GET)
+//    public String showEditAidPage(Model model, @RequestParam("id") Long id) {
+//        AidEntity aid = aidService.findByAidId(id);
+//        model.addAttribute("aid", aid);
+//
+//        return "editAid";
+//    }
+
+
+
+//    @RequestMapping(value = "/editAid", method = RequestMethod.POST)
+//    public String saveAid(@ModelAttribute("aid") AidDto aid) {
+//        aidService.saveAid(aid);
+//        return "redirect:/aids";
+//    }
+
+//     Handler method to display the form for adding a new aid
+
+
+
+//    // Handler method to process the submitted new aid form
+
+
+    // Handler method to process the submitted new aid form
+
+
+//    @GetMapping("/delete/{id}")
+//    public String deleteAid(@PathVariable("id") long id, Model model) {
+//        Aid aid = aidRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid aid Id:" + id));
+//        aidRepository.delete(aid);
+//        model.addAttribute("aidsList", aidRepository.findAll());
+//        return "index";
+//    }
+
 //    @PostMapping("/deleteAidData")
 //    public String deleteAid(@RequestBody String jsonData)  throws JsonProcessingException {
 //        ObjectMapper objectMapper = new ObjectMapper();

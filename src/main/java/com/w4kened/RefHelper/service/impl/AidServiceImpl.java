@@ -45,6 +45,7 @@ public class AidServiceImpl implements AidService {
         this.usersAidsRepository = usersAidsRepository;
     }
 
+
     @Override
     public List<AidEntity> findAll() {
 //        save_csv();
@@ -56,48 +57,41 @@ public class AidServiceImpl implements AidService {
     public void saveAid(AidDto aidDto) {
         AidEntity aidEntity = new AidEntity();
         aidEntity.setDescription(aidDto.getDescription());
+        aidEntity.setAddress(aidDto.getAddress());
         aidEntity.setLatitude(aidDto.getLatitude());
         aidEntity.setLongitude(aidDto.getLongitude());
-        aidEntity.setCreatedDate(aidDto.getCreatedDate());
+//        aidEntity.setCreatedDate(aidDto.getCreatedDate());
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
         String formattedDateTimeString = now.format(formatter);
         LocalDateTime formattedDateTime = LocalDateTime.parse(formattedDateTimeString, formatter);
         aidEntity.setCreatedDate(formattedDateTime);
 
-        System.out.println("coordinates " + aidEntity.getLatitude() + aidEntity.getLongitude());
+//        System.out.println("coordinates " + aidEntity.getLatitude() + aidEntity.getLongitude());
 
         AidCategoryEntity aidCategory;
-        switch (aidDto.getSelectedCategoryAid()) {
-            case 1 -> {
-                aidCategory = aidCategoryRepository.findByName("Basic Necessities Aid");
-                aidEntity.setAidCategoryEntity(aidCategory);
-            }
-            case 2 -> {
-                aidCategory = aidCategoryRepository.findByName("Healthcare Aid");
-                aidEntity.setAidCategoryEntity(aidCategory);
-            }
-            case 3 -> {
-                aidCategory = aidCategoryRepository.findByName("Education Aid");
-                aidEntity.setAidCategoryEntity(aidCategory);
-            }
-            case 4 -> {
-                aidCategory = aidCategoryRepository.findByName("Employment Aid");
-                aidEntity.setAidCategoryEntity(aidCategory);
-            }
-            case 5 -> {
-                aidCategory = aidCategoryRepository.findByName("Legal Aid");
-                aidEntity.setAidCategoryEntity(aidCategory);
-            }
-            case 6 -> {
-                aidCategory = aidCategoryRepository.findByName("Community Aid");
-                aidEntity.setAidCategoryEntity(aidCategory);
-            }
+        if (aidDto.getSelectedCategoryAid() == 1L) {
+            aidCategory = aidCategoryRepository.findByName("Basic Necessities Aid");
+            aidEntity.setAidCategoryEntity(aidCategory);
+        } else if (aidDto.getSelectedCategoryAid() == 2L) {
+            aidCategory = aidCategoryRepository.findByName("Healthcare Aid");
+            aidEntity.setAidCategoryEntity(aidCategory);
+        } else if (aidDto.getSelectedCategoryAid() == 3L) {
+            aidCategory = aidCategoryRepository.findByName("Education Aid");
+            aidEntity.setAidCategoryEntity(aidCategory);
+        } else if (aidDto.getSelectedCategoryAid() == 4L) {
+            aidCategory = aidCategoryRepository.findByName("Employment Aid");
+            aidEntity.setAidCategoryEntity(aidCategory);
+        } else if (aidDto.getSelectedCategoryAid() == 5L) {
+            aidCategory = aidCategoryRepository.findByName("Legal Aid");
+            aidEntity.setAidCategoryEntity(aidCategory);
+        } else if (aidDto.getSelectedCategoryAid() == 6L) {
+            aidCategory = aidCategoryRepository.findByName("Community Aid");
+            aidEntity.setAidCategoryEntity(aidCategory);
         }
-        System.out.println("saving from service->repository " );
-        System.out.println(aidEntity.getAidCategoryEntity());
+//        System.out.println("saving from service->repository " );
+//        System.out.println(aidEntity.getAidCategoryEntity());
         aidRepository.save(aidEntity);
-
         UserEntity userEntity = userService.findByEmail(SecurityUtil.getSessionUser());
         UsersAidsEntity usersAidsEntity  = new UsersAidsEntity();
 //        List<UsersAidsEntity> usersAidsEntities = usersAidsRepository.findByAidId(aidEntity.getId());
@@ -119,6 +113,7 @@ public class AidServiceImpl implements AidService {
     public void removeAid(Long usersAidsId, Long aidId) {
 
         usersAidsRepository.removeUsersAidsById(usersAidsId);
+        usersAidsRepository.removeUsersAidsById(usersAidsId);
         aidRepository.deleteById(aidId);
     }
 
@@ -126,4 +121,19 @@ public class AidServiceImpl implements AidService {
     public AidEntity findByCategoryName(String name) {
         return null;
     }
+
+    @Override
+    public AidEntity findByAidId(Long aidId) {
+        return aidRepository.findByAidId(aidId);
+    }
+
+    @Override
+    public List<AidEntity> findByCreatorUserId(Long userId) {
+        return aidRepository.findByCreatorUserId(userId);
+    }
+
+//    @Override
+//    public List<AidEntity> findByCreator(Long userId) {
+//        return aidRepository.findByCreatorUserId(userId);
+//    }
 }

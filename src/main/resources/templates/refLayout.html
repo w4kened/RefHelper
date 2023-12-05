@@ -156,9 +156,9 @@
             <option value="gold">Community Aid</option>
             <option value="gray">Basic Necessities Aid</option>
          </select>
-<!--         <button id="toggleMarkerMode" class="btn btncls" type="button">-->
-<!--            Add aid-->
-<!--         </button>-->
+         <button id="toggleMarkerMode" class="btn btncls" disabled type="button">
+            Add aid
+         </button>
 
          <p>REFUGEE LAYOUT</p>
          <input type="text" id="searchField" name="keyword">
@@ -186,8 +186,8 @@
                      <ul class="nav nav-tabs">
                         <li class="active"><a href="#">My Profile</a></li>
 <!--                        <li><a href="#">My Profile</a></li>-->
-                        <li><a href="#">My Aid Requests</a></li>
-                        <li><a href="#">My Aid Responses</a></li>
+                        <li><a href="#">My Aid Request</a></li>
+                        <li><a href="#">Aid Responses</a></li>
                      </ul>
 <!--                     <h4>My Aid Request</h4>-->
 <!--                     <h4>My Aid Respons</h4>-->
@@ -231,21 +231,21 @@
    $.widget.bridge('uibutton', $.ui.button);
 
    // Assuming you have a reference to your button element
-//   var toggleButton = document.getElementById('toggleMarkerMode');
+   var toggleButton = document.getElementById('toggleMarkerMode');
 
    // Toggle the 'active' class on button click
-//   toggleButton.addEventListener('click', function () {
-//      this.classList.toggle('active');
-//
-//
-//      // Update the button text based on the presence of the 'active' class
-//      if (this.classList.contains('active')) {
-//         toggleButton.textContent = 'Cancel';
-//      } else {
-//         toggleButton.textContent = 'Add aid';
-//      }
-//
-//   });
+   toggleButton.addEventListener('click', function () {
+      this.classList.toggle('active');
+
+
+      // Update the button text based on the presence of the 'active' class
+      if (this.classList.contains('active')) {
+         toggleButton.textContent = 'Cancel';
+      } else {
+         toggleButton.textContent = 'Add aid';
+      }
+
+   });
 
 
 
@@ -302,6 +302,7 @@
 
 
    function addToSidebar(marker) {
+
       const dataElement = document.getElementById('dataElement');
       const dataText = dataElement.textContent;
 
@@ -321,6 +322,9 @@
       descriptionDiv.textContent = marker.description;
 
       const creatorDiv = document.createElement('div');
+
+      subheading.style.fontWeight = "bold"; // Example: Making subheading bold
+      creatorDiv.style.fontStyle = "italic";
       creatorDiv.textContent = "Volunteer: " + marker.usersAidsEntities[0].userEntity.name; // Adding creator's name
 
       const removeIcon = document.createElement('i');

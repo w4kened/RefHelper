@@ -17,6 +17,8 @@ public interface UsersAidsService {
 
     List<UsersAidsEntity> findByAid(Long aid);
 
+//    List<UsersAidsEntity> findByUser
+
     List<UsersAidsEntity> findByAidInteraction(AidInteraction aidInteraction);
 //
 

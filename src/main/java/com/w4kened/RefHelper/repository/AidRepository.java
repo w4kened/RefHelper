@@ -1,6 +1,7 @@
 package com.w4kened.RefHelper.repository;
 
 import com.w4kened.RefHelper.models.AidEntity;
+import com.w4kened.RefHelper.models.UserEntity;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -29,4 +30,10 @@ public interface AidRepository extends CrudRepository<AidEntity, Long> {
     @Query(value = "delete from aid_table where id = ?1")
     void deleteById(Long id);
 
+//    findByCreator
+    @Query(value = "SELECT * from aid_table where id in (SELECT aid_id from users_aids_table WHERE aid_interaction = 'CREATING' AND user_id = ?1)", nativeQuery = true)
+    List<AidEntity> findByCreatorUserId(Long userId);
+
+    @Query(value = "SELECT * FROM aid_table where id = ?1", nativeQuery = true)
+    AidEntity findByAidId(Long id);
 }

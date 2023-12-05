@@ -5,6 +5,7 @@ import com.w4kened.RefHelper.models.AidEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -15,23 +16,37 @@ import java.util.List;
 @Data
 @Getter
 @Setter
+@NoArgsConstructor
 public class AidDto {
-    private int selectedCategoryAid;
 
-    String description;
+
+    public AidDto(AidEntity aidEntity) {
+        this.selectedCategoryAid = aidEntity.getAidCategoryEntity().getId();
+        this.description = aidEntity.getDescription();
+        this.address = aidEntity.getAddress();
+    }
 
     @NotEmpty
+    private Long selectedCategoryAid;
+
+    @NotEmpty
+    String description;
+
+//    @NotEmpty
     @Column(name = "latitude", precision = 10, scale = 6) // Adjust precision and scale accordingly
     private Double latitude;
 
-    @NotEmpty
+//    @NotEmpty
     @Column(name = "longitude", precision = 10, scale = 6) // Adjust precision and scale accordingly
     private Double longitude;
 
 
-    @NotEmpty
+//    @NotEmpty
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(updatable = false)
     private LocalDateTime createdDate;
 
+    private String address;
+
+    private AidEntity aidEntity;
 }

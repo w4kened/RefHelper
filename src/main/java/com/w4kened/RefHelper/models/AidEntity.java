@@ -26,6 +26,8 @@ public class AidEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+//    @Lob
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "latitude", precision = 10, scale = 6) // Adjust precision and scale accordingly
@@ -34,6 +36,8 @@ public class AidEntity {
 
     @Column(name = "longitude", precision = 10, scale = 6) // Adjust precision and scale accordingly
     private Double longitude;
+
+    private String address;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(updatable = false)
