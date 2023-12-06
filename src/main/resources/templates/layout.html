@@ -101,7 +101,7 @@
                 line-height: 1.33;
                 border-radius: 35px;
                 margin-left: 104rem;
-                margin-block: 7rem;
+                margin-block: 14rem;
                 position: fixed;
             }
             .btn-circle {
@@ -138,7 +138,7 @@
             <aside class="main-sidebar">
                 <!-- sidebar: style can be found in sidebar.less -->
                 <section class="sidebar" id="sidebar">
-                    <p id="dataElement" th:text="${data}"></p>
+<!--                    <p id="dataElement" th:text="${data}"></p>-->
 <!--                -->
 <!--                    &lt;!&ndash; sidebar menu: : style can be found in sidebar.less &ndash;&gt;-->
 <!--                    <ul class="sidebar-menu" data-widget="tree">-->
@@ -157,25 +157,21 @@
 <!--                    </ul>-->
 
 
-                    <select class="form-select" id="markerColor" aria-label="Default select example">
-                        <option value="red">Healthcare Aid</option>
-                        <option value="green">Education Aid</option>
-                        <option value="blue">Employment Aid</option>
-                        <option value="violet">Legal Aid</option>
-                        <option value="gold">Community Aid</option>
-                        <option value="gray">Basic Necessities Aid</option>
+                    <select class="form-select" id="markerColor" aria-label="Default select example" onchange="findMarkers(this)">
+                        <option value="all">All Aids</option>
+                        <option value="2">Healthcare Aid</option>
+                        <option value="3">Education Aid</option>
+                        <option value="4">Employment Aid</option>
+                        <option value="5">Legal Aid</option>
+                        <option value="6">Community Aid</option>
+                        <option value="1">Basic Necessities Aid</option>
                     </select>
-                    <button id="toggleMarkerMode" class="btn btncls" type="button">
-                        Add aid
-                    </button>
+<!--                    <button id="toggleMarkerMode" class="btn btncls" type="button">-->
+<!--                        Add aid-->
+<!--                    </button>-->
 
                     <input type="text" id="searchField" name="keyword">
-
-
-                    <!-- Додайте цей елемент в HTML-файл -->
-                        <ol id="sidebarList"></ol>
-
-
+                    <ol id="sidebarList"></ol>
                     <!-- Button trigger modal -->
                     <button type="button" class="btn btn-primary btn-circle btn-xl"  data-toggle="modal" data-target="#exampleModal">
                         <i class="glyphicon glyphicon-home"></i>
@@ -234,8 +230,6 @@
                                             <div class="table-responsive">
                                                 <table class="table">
                                                     <thead>
-                                                    <!-- Implement inserting row row -->
-
                                                     <tr>
                                                         <th>Aid Category</th>
                                                         <th>Aid Description</th>
@@ -259,7 +253,7 @@
 <!--                                                            <button type="button" class="btn btn-danger">-->
 <!--                                                                Delete-->
 <!--                                                            </button>-->
-                                                            <a style="color: white !important;" th:href="@{'/deleteAid/'+ ${aid.id}}" class="btn btn-danger" onclick="return confirmDelete()">DELETE</a>
+                                                            <a style="color: white !important;" th:href="@{'/deleteAid/'+ ${aid.id}}" class="btn btn-danger" onclick="return confirmDelete()">Delete</a>
 
                                                             <!-- delete -->
                                                         </td>
@@ -269,9 +263,6 @@
 
                                             </div>
                                         </div>
-
-
-
                                         <div id="requests" class="container tab-pane fade">
                                             <h4>Aid Requests</h4>
                                             <p>Requests content...</p>
@@ -285,25 +276,15 @@
                             </div>
                         </div>
                     </div>
-
-
-                    <a th:href="@{/logout}" style="display: flex; margin-top: 13rem;">Logout</a>
+                    <a th:href="@{/logout}" style="display: flex; margin-top: 21rem;">Logout</a>
                 </section>
-                <!-- /.sidebar -->
             </aside>
-            <!-- Content Wrapper. Contains page content -->
             <div class="content-wrapper">
-                <!-- Content Header (Page header) -->
-
-                <!-- Main content -->
                 <section class="content" layout:fragment="content">
-                    
                 </section>
-                <!-- /.content -->
             </div>
         </div>
-		<!-- end wrapper -->   
-            
+
 		
         <!-- scripts -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -321,35 +302,35 @@
                 return confirm("Are you sure you want to delete aid?");
             }
 
-
-
-//            // Add event listeners to all Delete buttons
-//            document.querySelectorAll('.deleteBtn').forEach((button, index) => {
-//                button.addEventListener('click', () => {
-//                    const row = button.closest('tr'); // Get the closest row to the clicked button
+//            listItems.forEach(item => {
+//                item.addEventListener('click', function() {
+//                    // Remove the 'highlight' class from all items
+//                    listItems.forEach(item => {
+//                        item.classList.remove('highlight');
+//                    });
 //
-//                    // You can access and manipulate row elements here for deletion or any other action
-//                    row.remove(); // For example, this would remove the entire row when the Delete button is clicked
+//                    // Add the 'highlight' class to the clicked item
+//                    this.classList.add('highlight');
 //                });
 //            });
 
 
             // Assuming you have a reference to your button element
-            var toggleButton = document.getElementById('toggleMarkerMode');
+//            var toggleButton = document.getElementById('toggleMarkerMode');
 
             // Toggle the 'active' class on button click
-            toggleButton.addEventListener('click', function () {
-                this.classList.toggle('active');
-
-
-                // Update the button text based on the presence of the 'active' class
-                if (this.classList.contains('active')) {
-                    toggleButton.textContent = 'Cancel';
-                } else {
-                    toggleButton.textContent = 'Add aid';
-                }
-
-            });
+//            toggleButton.addEventListener('click', function () {
+//                this.classList.toggle('active');
+//
+//
+//                // Update the button text based on the presence of the 'active' class
+//                if (this.classList.contains('active')) {
+//                    toggleButton.textContent = 'Cancel';
+//                } else {
+//                    toggleButton.textContent = 'Add aid';
+//                }
+//
+//            });
 
 
 
@@ -383,25 +364,25 @@
             // Функція для додавання маркера до списку на бічній панелі
             var markerMap = {};
 
-            function deleteAidDataFromServer(usersAidsId, aidId) {
-                const url = `/deleteAidById/${usersAidsId}/${aidId}`;
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                    .then(response => response.text())
-                    .then(data => {
-                    console.log('Delete request sended sucessfull!'); // Вивести результат в консоль
-                    //                    location.reload(
-
-
-                })
-                    .catch(error => {
-                    console.error('Error at sending delete data to server:', error);
-                });
-            }
+//            function deleteAidDataFromServer(usersAidsId, aidId) {
+//                const url = `/deleteAidById/${usersAidsId}/${aidId}`;
+//                fetch(url, {
+//                    method: 'POST',
+//                    headers: {
+//                        'Content-Type': 'application/json'
+//                    }
+//                })
+//                    .then(response => response.text())
+//                    .then(data => {
+//                    console.log('Delete request sended sucessfull!'); // Вивести результат в консоль
+//                    //                    location.reload(
+//
+//
+//                })
+//                    .catch(error => {
+//                    console.error('Error at sending delete data to server:', error);
+//                });
+//            }
 
 //            document.getElementById('aidForm').addEventListener('submit', function(event) {
 //                event.preventDefault(); // Prevents the default form submission
@@ -416,40 +397,40 @@
 //
 //                // You can perform further actions with the extracted values here
 //            });
-            function sendUpdateAidRequest(aid_Id) {
-                const url = `/updateAidById/${aidId}`;
+//            function sendUpdateAidRequest(aid_Id) {
+//                const url = `/updateAidById/${aidId}`;
+//
+//                fetch(url, {
+//                    method: 'POST',
+//                    headers: {
+//                        'Content-Type': 'application/json'
+//                    }
+//                })
+//                    .then(response => response.text())
+//                    .then(data => {
+//                    console.log('Update request sended sucessfull!'); // Вивести результат в консоль
+//                    //                    location.reload(
+//                })
+//                    .catch(error => {
+//                    console.error('Error at sending delete data to server:', error);
+//                });
+//            }
 
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                    .then(response => response.text())
-                    .then(data => {
-                    console.log('Update request sended sucessfull!'); // Вивести результат в консоль
-                    //                    location.reload(
-                })
-                    .catch(error => {
-                    console.error('Error at sending delete data to server:', error);
-                });
-            }
-
-            function editRow(button, aidId) {
-                // Access the row and perform edit operations
-                var row = button.closest('tr');
-                // Use 'aidId' to perform specific actions related to this ID
-                console.log("Edit ID: " + aidId);
-                // Implement edit functionality here
-            }
-
-            function deleteRow(button, aidId) {
-                // Access the row and perform delete operations
-                var row = button.closest('tr');
-                // Use 'aidId' to perform specific actions related to this ID
-                console.log("Delete ID: " + aidId);
-                // Implement delete functionality here
-            }
+//            function editRow(button, aidId) {
+//                // Access the row and perform edit operations
+//                var row = button.closest('tr');
+//                // Use 'aidId' to perform specific actions related to this ID
+//                console.log("Edit ID: " + aidId);
+//                // Implement edit functionality here
+//            }
+//
+//            function deleteRow(button, aidId) {
+//                // Access the row and perform delete operations
+//                var row = button.closest('tr');
+//                // Use 'aidId' to perform specific actions related to this ID
+//                console.log("Delete ID: " + aidId);
+//                // Implement delete functionality here
+//            }
 //
 //            function handleEdit(aid_id) {
 //                const url = `/editAidById/${aid_id}`;
@@ -470,10 +451,10 @@
 //                    console.error('Error at sending modifying data to server:', error);
 //                });
 //            }
-
-            function handleDelete(index) {
-
-            }
+//
+//            function handleDelete(index) {
+//
+//            }
 
 //            function editAid(event) {
 //                // Find the row with the matching id
@@ -512,9 +493,8 @@
 
 
             function addToSidebar(marker) {
-
-                const dataElement = document.getElementById('dataElement');
-                const dataText = dataElement.textContent;
+//                const dataElement = document.getElementById('dataElement');
+//                const dataText = dataElement.textContent;
 
                 const sidebarList = document.getElementById('sidebarList');
 
@@ -526,21 +506,24 @@
 
                 const subheading = document.createElement('div');
                 subheading.className = "fw-bold";
+                subheading.style.fontWeight = "bold"; // Example: Making subheading bold
                 subheading.textContent = convertIdToName(marker.aidCategoryEntity.id);
 
                 const descriptionDiv = document.createElement('div');
                 descriptionDiv.textContent = marker.description;
+                descriptionDiv.innerHTML = marker.description.replace(/\n/g, '<br>'); // Replace newlines with HTML line breaks
 //                descriptionDiv.textContent = marker.description;
 
                 const creatorDiv = document.createElement('div');
-
-                subheading.style.fontWeight = "bold"; // Example: Making subheading bold
                 creatorDiv.style.fontStyle = "italic";
                 creatorDiv.textContent = "Volunteer: " + marker.usersAidsEntities[0].userEntity.name; // Adding creator's name
 
+                const addressDiv = document.createElement('div');
+                addressDiv.textContent = "Address: "+ marker.address;
 
-                const removeIcon = document.createElement('i');
-                removeIcon.className = "fa fa-trash-o";
+
+//                const removeIcon = document.createElement('i');
+//                removeIcon.className = "fa fa-trash-o";
 
                 listItem.addEventListener('click', function(e) {
                     const highlightedItems = document.querySelectorAll('.highlight');
@@ -560,49 +543,50 @@
                     }
                 });
 
-                if (marker.usersAidsEntities[0].userEntity.email == dataText) {
+//                if (marker.usersAidsEntities[0].userEntity.email == dataText) {
+//                    div.appendChild(subheading);
+//                    div.appendChild(descriptionDiv);
+//                    div.appendChild(creatorDiv); // Add creator's name to the div
+//
+//                    listItem.appendChild(div);
+//                    listItem.appendChild(removeIcon);
+//
+//                    sidebarList.appendChild(listItem);
+//
+//                    removeIcon.addEventListener('click', function(event) {
+//
+//
+//                        console.log('delete evenet');
+//                        var result = confirm("Want to delete?");
+//
+//                        if (result) {
+//                            console.log('list item ', listItem);
+//                            console.log('our data [',marker.description.trim(),']');
+//
+//                            //                            point_layers.clearLayers();
+//                            for (var i  = 0; i < markerlist.length; i++) {
+//                                if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
+//                                    deleteAidDataFromServer(marker.usersAidsEntities[0].id, marker.id);
+//                                    map.removeLayer(markerlist[i]);
+//                                    sidebarList.removeChild(listItem);
+//                                    //                                    removeLayer(marker);
+//                                    markerCluster.removeLayer(markerlist[i]);
+//
+//                                    break;
+//                                }
+//                            }
+//
+//                        }
+//                    });
+//                } else {
                     div.appendChild(subheading);
                     div.appendChild(descriptionDiv);
                     div.appendChild(creatorDiv); // Add creator's name to the div
-
-                    listItem.appendChild(div);
-                    listItem.appendChild(removeIcon);
-
-                    sidebarList.appendChild(listItem);
-
-                    removeIcon.addEventListener('click', function(event) {
-
-
-                        console.log('delete evenet');
-                        var result = confirm("Want to delete?");
-
-                        if (result) {
-                            console.log('list item ', listItem);
-                            console.log('our data [',marker.description.trim(),']');
-
-                            //                            point_layers.clearLayers();
-                            for (var i  = 0; i < markerlist.length; i++) {
-                                if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
-                                    deleteAidDataFromServer(marker.usersAidsEntities[0].id, marker.id);
-                                    map.removeLayer(markerlist[i]);
-                                    sidebarList.removeChild(listItem);
-                                    //                                    removeLayer(marker);
-                                    markerCluster.removeLayer(markerlist[i]);
-
-                                    break;
-                                }
-                            }
-
-                        }
-                    });
-                } else {
-                    div.appendChild(subheading);
-                    div.appendChild(descriptionDiv);
-                    div.appendChild(creatorDiv); // Add creator's name to the div
+                    div.appendChild(addressDiv); // Add creator's name to the div
 
                     listItem.appendChild(div);
                     sidebarList.appendChild(listItem);
-                }
+//                }
             }
 
             // Function to filter aids based on the keyw ord
@@ -661,6 +645,41 @@
                     this.classList.add('highlight');
                 });
             });
+
+            function findMarkers() {
+                const selectedCategory = document.getElementById('markerColor').value;
+
+//                const sidebarList = document.getElementById('sidebarList');
+//
+                document.getElementById("sidebarList").innerHTML = "";
+
+
+
+
+
+                // Clear the map before displaying markers based on the selected category
+                map.removeLayer(markerCluster); // Assuming `markerCluster` is your marker cluster layer
+                markerCluster.clearLayers();
+                //
+//                //                // Display markers based on the selected category
+                                wrappedMarkers.forEach(marker => {
+                                    if (selectedCategory === 'all') {
+                                        console.log('all')
+                                        addMarker(marker, 2); // Adding markers based on the category
+                                    }
+                                    else if (marker.aidCategoryEntity.id.toString() === selectedCategory) {
+                                        addMarker(marker, 2); // Adding markers based on the category
+
+                                    }
+//                                    else (marker.aidCategoryEntity.id.toString() === selectedCategory) {
+//                //                        console.log(marker.aidCategoryEntity.id.toString());
+//                //                        console.log(marker.aidCategoryEntity.id.toString());
+//                                        addMarker(marker, 2); // Adding markers based on the category
+//                                    }
+                                });
+//
+                map.addLayer(markerCluster); // Add the updated marker cluster to the map
+            }
 
 
 

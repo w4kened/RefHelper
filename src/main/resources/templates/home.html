@@ -376,33 +376,32 @@
             switch (flagOption) {
                case 1:
                   //                     point_layers.clearLayers();
-
-                  marker.description = prompt("Enter describe of aid:");
-                  if (marker.description) {
-                     marker.description = marker.description.trim();
-                     //                     let regexPattern = /^[0-9a-zA-Z$_]+$/;
-                     let regexPattern = /^[0-9a-zA-Z$_\u0400-\u04FF\s]+$/;
-                     if (marker.description !== null && marker.description.trim().length > 0 && regexPattern.test(marker.description)) {
-                        //                         theMarker = L.marker([marker.latitude, marker.longitude], {
-                        //                             icon: markerIcons[color]
-                        //                         });
-                        //                         theMarker.bindPopup(marker.description);
-                        //                         markerlist.push(theMarker);
-                        //                         point_layers.addLayer(theMarker);
-                        //                         console.log('before adding marker, ', marker   );
-
-                        //                         addToSidebar(marker);
-
-                        const markerData = {
-                           selectedCategoryAid: marker.aidCategoryEntity.id,
-                           description: marker.description,
-                           latitude: marker.latitude,
-                           longitude: marker.longitude
-                        };
-                        //                         console.log('prepared aid for sending:', markerData);
-                        sendAidDataToServer(markerData);
-                     }
-                  }
+//                  marker.description = prompt("Enter describe of aid:");
+//                  if (marker.description) {
+//                     marker.description = marker.description.trim();
+//                     //                     let regexPattern = /^[0-9a-zA-Z$_]+$/;
+//                     let regexPattern = /^[0-9a-zA-Z$_\u0400-\u04FF\s]+$/;
+//                     if (marker.description !== null && marker.description.trim().length > 0 && regexPattern.test(marker.description)) {
+//                        //                         theMarker = L.marker([marker.latitude, marker.longitude], {
+//                        //                             icon: markerIcons[color]
+//                        //                         });
+//                        //                         theMarker.bindPopup(marker.description);
+//                        //                         markerlist.push(theMarker);
+//                        //                         point_layers.addLayer(theMarker);
+//                        //                         console.log('before adding marker, ', marker   );
+//
+//                        //                         addToSidebar(marker);
+//
+//                        const markerData = {
+//                           selectedCategoryAid: marker.aidCategoryEntity.id,
+//                           description: marker.description,
+//                           latitude: marker.latitude,
+//                           longitude: marker.longitude
+//                        };
+//                        //                         console.log('prepared aid for sending:', markerData);
+//                        sendAidDataToServer(markerData);
+//                     }
+//                  }
                   break;
                case 2:
                   if (marker.description) {
@@ -413,10 +412,17 @@
                      addToSidebar(marker);
                      //                         addToSidebar(marker.aidCategoryEntity.id, marker.description, marker.latitude, marker.longitude);
 
+//                     // Inside the loop where markers are created
+//                     const listItem = document.createElement('li');
+//                     listItem.setAttribute('data-lat', marker.latitude);
+//                     listItem.setAttribute('data-lng', marker.longitude);
+
                      theMarker = L.marker([marker.latitude, marker.longitude], {
                         icon: markerIcons[color]
                      }).
                      on('click',  function(e) {
+                        console.log
+
 
                         if (!markerModeEnabled) {
 
@@ -457,9 +463,9 @@
 
                      theMarker.bindPopup(
                         `<strong>${marker.aidCategoryEntity.name}</strong><br>` +
-                        `${marker.description}<br>` +
-                        `<em>Volunteer:  ${marker.usersAidsEntities[0].userEntity.name}</em>`
-//                        `<em>Address:  ${}</em>`
+                        `${marker.description.replace(/\n/g, '<br>')}<br>` + // Replace newlines with HTML line breaks
+                        `<em>Volunteer: ${marker.usersAidsEntities[0].userEntity.name}</em><br>` +
+                        `Address: ${marker.address.replace(/\n/g, '<br>')}<br>`
                      );
 //                     getAddressFromCoordinates(marker.latitude, marker.longitude)
 
@@ -495,7 +501,7 @@
                   //                        console.log('--+ ', marker);
 
                   //                         console.log('fetched marker before adding -- ', marker);
-                  //                  console.log('fetched marker before adding -- ', marker);
+                                    console.log('fetched marker before adding -- ', marker);
                   addMarker(marker, 2);
                   wrappedMarkers.push(marker);
                });
@@ -506,53 +512,70 @@
          }
          // Викликати цю функцію, коли ви хочете відобразити всі маркери з сервера
          displayAidMarkersFromServer();
+         // Loop through each marker in the markerlist array
+//         markerlist.forEach(marker => {
+//         marker.on('click', function (e) {
+//            // Perform actions when a marker is clicked
+//            // For example, centering the map on the clicked marker and opening a popup
+//            const lat = e.latlng.lat;
+//            const lng = e.latlng.lng;
+//
+//
+//            const selectedListItem = document.querySelector(`[data-lat="${lat}"][data-lng="${lng}"]`);
+//            if (selectedListItem) {
+//               const highlightedItems = document.querySelectorAll('.highlight');
+//               highlightedItems.forEach(item => item.classList.remove('highlight'));
+//               selectedListItem.classList.add('highlight');
+//            }
+//         });
+//         });
 
 
-         // Обробка клацання по карті з оновленою функцією
-         map.on('click', function (e) {
-            var clickedMarker = e.target; // Access the clicked marker
-
-            // Perform actions with the clicked marker
-//            console.log('Clicked Marker:', clickedMarker);
-            if (markerModeEnabled) {
-
-               //               console.log(e.latlng.lat, ' ', e.latlng.lng,);
-
-               console.log('clicked address: ', getAddressFromCoordinates(e.latlng.lat, e.latlng.lat));
-               const selectedColor = document.getElementById('markerColor').value;
-               let marker = {
-                  description: '',
-                  latitude: e.latlng.lat,
-                  longitude: e.latlng.lng,
-                  aidCategoryEntity: {
-                     id: convertColorToId(selectedColor)
-                  }
-               };
-               addMarker(marker, 1);
-            }
-            //            else {
-            //               //               console.log('clicked marker = ', findMarkerByCoordinates(e.latlng.lat, e.latlng.lng));
-            //               //               var clickedMarker = e.target; // Access the clicked marker
-            //               //
-            //               //               // Perform actions with the clicked marker
-            //               //               console.log('Clicked Marker:', clickedMarker);
-            //               //               let marker = {
-            //               //                  description: '',
-            //               //                  latitude: e.latlng.lat,
-            //               //                  longitude: e.latlng.lng,
-            //               //                  aidCategoryEntity: {
-            //               //                     id: convertColorToId(selectedColor)
-            //               //                  }
-            //               //               };
-            //               //               console.log(this.getLatLng());
-            //
-            //            }
-         });
+//         // Обробка клацання по карті з оновленою функцією
+//         map.on('click', function (e) {
+//            var clickedMarker = e.target; // Access the clicked marker
+//
+//            // Perform actions with the clicked marker
+////            console.log('Clicked Marker:', clickedMarker);
+////            if (markerModeEnabled) {
+////
+////               //               console.log(e.latlng.lat, ' ', e.latlng.lng,);
+////
+////               console.log('clicked address: ', getAddressFromCoordinates(e.latlng.lat, e.latlng.lat));
+////               const selectedColor = document.getElementById('markerColor').value;
+////               let marker = {
+////                  description: '',
+////                  latitude: e.latlng.lat,
+////                  longitude: e.latlng.lng,
+////                  aidCategoryEntity: {
+////                     id: convertColorToId(selectedColor)
+////                  }
+////               };
+////               addMarker(marker, 1);
+////            }
+//            //            else {
+//            //               //               console.log('clicked marker = ', findMarkerByCoordinates(e.latlng.lat, e.latlng.lng));
+//            //               //               var clickedMarker = e.target; // Access the clicked marker
+//            //               //
+//            //               //               // Perform actions with the clicked marker
+//            //               //               console.log('Clicked Marker:', clickedMarker);
+//            //               //               let marker = {
+//            //               //                  description: '',
+//            //               //                  latitude: e.latlng.lat,
+//            //               //                  longitude: e.latlng.lng,
+//            //               //                  aidCategoryEntity: {
+//            //               //                     id: convertColorToId(selectedColor)
+//            //               //                  }
+//            //               //               };
+//            //               //               console.log(this.getLatLng());
+//            //
+//            //            }
+//         });
 
          // Toggle marker adding mode
-         document.getElementById('toggleMarkerMode').addEventListener('click', function () {
-            markerModeEnabled = !markerModeEnabled;
-         });
+//         document.getElementById('toggleMarkerMode').addEventListener('click', function () {
+//            markerModeEnabled = !markerModeEnabled;
+//         });
          //         // Configure cluster behavior
          //         markerCluster.options = {
          //            maxClusterRadius: 40, // Set the maximum radius of a cluster in pixels

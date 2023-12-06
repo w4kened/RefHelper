@@ -60,19 +60,19 @@ public class AidServiceImpl implements AidService {
         if (aidDto.getSelectedCategoryAid() == 1L) {
             return aidCategoryRepository.findByName("Basic Necessities Aid");
         } else if (aidDto.getSelectedCategoryAid() == 2L) {
-            return aidCategoryRepository.findByName("Basic Necessities Aid");
+            return aidCategoryRepository.findByName("Healthcare Aid");
 
         } else if (aidDto.getSelectedCategoryAid() == 3L) {
-            return aidCategoryRepository.findByName("Basic Necessities Aid");
+            return aidCategoryRepository.findByName("Education Aid");
 
         } else if (aidDto.getSelectedCategoryAid() == 4L) {
-            return aidCategoryRepository.findByName("Basic Necessities Aid");
+            return aidCategoryRepository.findByName("Employment Aid");
 
         } else if (aidDto.getSelectedCategoryAid() == 5L) {
-            return aidCategoryRepository.findByName("Basic Necessities Aid");
+            return aidCategoryRepository.findByName("Legal Aid");
 
         } else if (aidDto.getSelectedCategoryAid() == 6L) {
-            return aidCategoryRepository.findByName("Basic Necessities Aid");
+            return aidCategoryRepository.findByName("Community Aid");
         }
         return null;
     }

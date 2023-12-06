@@ -26,7 +26,7 @@
             <div class="form-group">
                 <label for="aidCategory">Aid Category:</label>
                 <!-- You might use a select dropdown for aid category selection -->
-                <select th:field="*{selectedCategoryAid}"  class="form-control" id="aidCategory" name="aidCategory">
+                <select th:field="*{selectedCategoryAid}"  class="form-control" id="aidCategory" name="aidCategory" onchange="changeMarkerColor(this)">
                     <!-- Add options here -->
                     <option value="1">Basic Necessities Aid</option>
                     <option value="2">Healthcare Aid</option>
@@ -235,6 +235,10 @@
             alert("Please fill out the Description and Address");
             return false;
         }
+    }
+    function changeMarkerColor(select) {
+        var selectedValue = select.value;
+        marker.setIcon(markerIcons[convertIdToColor(selectedValue)]);
     }
 //    map.on('click', function (e) {
 //        var clickedMarker = e.target; // Access the clicked marker

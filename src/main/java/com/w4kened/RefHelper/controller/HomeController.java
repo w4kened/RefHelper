@@ -77,6 +77,10 @@ public class HomeController {
             model.addAttribute("layout", "layout");
 
         } else {
+            List<AidEntity> aids = new ArrayList<>();
+            aids = aidService.findByCreatorUserId(userService.findByEmail(email).getId());
+            model.addAttribute("aidsOfferedCount", aids.toArray().length);
+            model.addAttribute("aidsList", aids);
             model.addAttribute("layout", "refLayout");
         }
 
@@ -94,6 +98,8 @@ public class HomeController {
     @PostMapping("/addAid")
     public String addAid(@ModelAttribute("aidDto") AidDto aidDto) {
         // Here, you would save the new aid using the AidService
+        System.out.println("post = "+ aidDto);
+
         aidService.saveAid(aidDto);
         System.out.println(aidDto);
         return "redirect:/home"; // Redirect to the aids page after adding the aid

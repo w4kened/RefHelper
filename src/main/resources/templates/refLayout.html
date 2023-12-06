@@ -101,7 +101,7 @@
          line-height: 1.33;
          border-radius: 35px;
          margin-left: 104rem;
-         margin-block: 7rem;
+         margin-block: 14rem;
          position: fixed;
       }
       .btn-circle {
@@ -110,10 +110,19 @@
          background-color: #87AC52 !important;
       }
       .modal-dialog {
-         margin-left: 78rem !important;
+         margin-left: 50rem !important;
+         width: 57% !important;
+      }
+      .btn-primary {
+         background-color: #87AC52 !important;
+      }
+      .row {
+         color: black !important;
+      }
+      #profile, #aids {
+         width: 100% ;
       }
    </style>
-
 </head>
 
 <body class="hold-transition skin-blue sidebar-mini">
@@ -129,7 +138,7 @@
    <aside class="main-sidebar">
       <!-- sidebar: style can be found in sidebar.less -->
       <section class="sidebar" id="sidebar">
-         <p id="dataElement" th:text="${data}"></p>
+         <!--                    <p id="dataElement" th:text="${data}"></p>-->
          <!--                -->
          <!--                    &lt;!&ndash; sidebar menu: : style can be found in sidebar.less &ndash;&gt;-->
          <!--                    <ul class="sidebar-menu" data-widget="tree">-->
@@ -148,25 +157,21 @@
          <!--                    </ul>-->
 
 
-         <select class="form-select" id="markerColor" aria-label="Default select example">
-            <option value="red">Healthcare Aid</option>
-            <option value="green">Education Aid</option>
-            <option value="blue">Employment Aid</option>
-            <option value="violet">Legal Aid</option>
-            <option value="gold">Community Aid</option>
-            <option value="gray">Basic Necessities Aid</option>
+         <select class="form-select" id="markerColor" aria-label="Default select example" onchange="findMarkers(this)">
+            <option value="all">All Aids</option>
+            <option value="2">Healthcare Aid</option>
+            <option value="3">Education Aid</option>
+            <option value="4">Employment Aid</option>
+            <option value="5">Legal Aid</option>
+            <option value="6">Community Aid</option>
+            <option value="1">Basic Necessities Aid</option>
          </select>
-         <button id="toggleMarkerMode" class="btn btncls" disabled type="button">
-            Add aid
-         </button>
+         <!--                    <button id="toggleMarkerMode" class="btn btncls" type="button">-->
+         <!--                        Add aid-->
+         <!--                    </button>-->
 
-         <p>REFUGEE LAYOUT</p>
          <input type="text" id="searchField" name="keyword">
-
-
-         <!-- Додайте цей елемент в HTML-файл -->
          <ol id="sidebarList"></ol>
-
          <!-- Button trigger modal -->
          <button type="button" class="btn btn-primary btn-circle btn-xl"  data-toggle="modal" data-target="#exampleModal">
             <i class="glyphicon glyphicon-home"></i>
@@ -177,20 +182,92 @@
             <div class="modal-dialog" role="document">
                <div class="modal-content">
                   <div class="modal-header">
-                     <h5 class="modal-title" id="exampleModalLabel">Home</h5>
+                     <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                      </button>
                   </div>
                   <div class="modal-body">
                      <ul class="nav nav-tabs">
-                        <li class="active"><a href="#">My Profile</a></li>
-<!--                        <li><a href="#">My Profile</a></li>-->
-                        <li><a href="#">My Aid Request</a></li>
-                        <li><a href="#">Aid Responses</a></li>
+                        <li class="nav-item active">
+                           <a class="nav-link active" data-toggle="tab" href="#profile">My Profile</a>
+                        </li>
+                        <li class="nav-item">
+                           <a class="nav-link" data-toggle="tab" href="#aids">Aids offered by me</a>
+                        </li>
+                        <li class="nav-item">
+                           <a class="nav-link" data-toggle="tab" href="#requests">Aid Requests</a>
+                        </li>
                      </ul>
-<!--                     <h4>My Aid Request</h4>-->
-<!--                     <h4>My Aid Respons</h4>-->
+                     <div class="tab-content">
+                        <div id="profile" class="container tab-pane active">
+                           <h4>Profile</h4>
+                           <div class="container-fluid">
+                              <div class="row">
+                                 <div class="col-md-4">
+                                    <p style="font-weight: bold; color: black;">Name:</p>
+                                    <p style="font-weight: bold; color: black;">Email:</p>
+                                    <p style="font-weight: bold; color: black;">Total Offered Aids:</p>
+                                    <p style="font-weight: bold; color: black;">Role:</p>
+                                 </div>
+                                 <div class="col-md-4">
+                                    <p style="color: black;" th:text="${userFullName}"></p>
+                                    <p style="color: black;" th:text="${data}"></p>
+                                    <p style="color: black;" th:text="${aidsOfferedCount}"></p>
+                                    <p style="color: black;" th:text="${role}"></p>
+                                 </div>
+                                 <div class="col-md-4">
+                                    <p style="color: black;">--</p>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div id="aids" class="container tab-pane fade">
+                           <h4>Aids offered by me</h4>
+                           <!--                                            <button type="button" class="btn btn-primary">-->
+                           <a style="color: white !important;"  class="btn btn-primary" th:href="@{/addAid}">Offer Aid</a>
+                           <!--                                            </button>-->
+                           <div class="table-responsive">
+                              <table class="table">
+                                 <thead>
+                                 <tr>
+                                    <th>Aid Category</th>
+                                    <th>Aid Description</th>
+                                    <th>Created Date</th>
+                                    <th>Action</th>
+                                 </tr>
+                                 </thead>
+                                 <tbody>
+                                 <tr th:if="${aidsList.empty}">
+                                    <td colspan="4">No Aids Available</td>
+                                 </tr>
+                                 <tr th:each="aid : ${aidsList}">
+                                    <td><span th:text="${aid.aidCategoryEntity.getName()}">Aid Category</span></td>
+                                    <td><span th:text="${aid.description}">Aid Description</span></td>
+                                    <td><span th:text="${aid.createdDate}">Created Date</span></td>
+                                    <td>
+                                       <!-- edit -->
+                                       <!--                                                            <button type="button" class="btn btn-primary edit-aid">-->
+                                       <a style="color: white !important;" th:href="@{'/editAid/'+ ${aid.id}}" class="btn btn-primary">Edit</a>
+                                       <!--                                                            </button>-->
+                                       <!--                                                            <button type="button" class="btn btn-danger">-->
+                                       <!--                                                                Delete-->
+                                       <!--                                                            </button>-->
+                                       <a style="color: white !important;" th:href="@{'/deleteAid/'+ ${aid.id}}" class="btn btn-danger" onclick="return confirmDelete()">Delete</a>
+
+                                       <!-- delete -->
+                                    </td>
+                                 </tr>
+                                 </tbody>
+                              </table>
+
+                           </div>
+                        </div>
+                        <div id="requests" class="container tab-pane fade">
+                           <h4>Aid Requests</h4>
+                           <p>Requests content...</p>
+                        </div>
+                     </div>
                   </div>
                   <div class="modal-footer">
                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -199,53 +276,61 @@
                </div>
             </div>
          </div>
-
-         <a th:href="@{/logout}" style="margin-top: 65%;display: flex;">Logout</a>
+         <a th:href="@{/logout}" style="display: flex; margin-top: 21rem;">Logout</a>
       </section>
-      <!-- /.sidebar -->
    </aside>
-   <!-- Content Wrapper. Contains page content -->
    <div class="content-wrapper">
-      <!-- Content Header (Page header) -->
-
-      <!-- Main content -->
       <section class="content" layout:fragment="content">
-
       </section>
-      <!-- /.content -->
    </div>
 </div>
-<!-- end wrapper -->
 
 
 <!-- scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<script th:src="@{app/jquery-ui/jquery-ui.min.js}"></script>
 
+<script th:src="@{app/jquery-ui/jquery-ui.min.js}"></script>
 <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
 
 
 
 <script>
-   $.widget.bridge('uibutton', $.ui.button);
+   $.widget.bridge('uibutton', $.ui.button)
+
+   function confirmDelete() {
+      return confirm("Are you sure you want to delete aid?");
+   }
+
+   //            listItems.forEach(item => {
+   //                item.addEventListener('click', function() {
+   //                    // Remove the 'highlight' class from all items
+   //                    listItems.forEach(item => {
+   //                        item.classList.remove('highlight');
+   //                    });
+   //
+   //                    // Add the 'highlight' class to the clicked item
+   //                    this.classList.add('highlight');
+   //                });
+   //            });
+
 
    // Assuming you have a reference to your button element
-   var toggleButton = document.getElementById('toggleMarkerMode');
+   //            var toggleButton = document.getElementById('toggleMarkerMode');
 
    // Toggle the 'active' class on button click
-   toggleButton.addEventListener('click', function () {
-      this.classList.toggle('active');
-
-
-      // Update the button text based on the presence of the 'active' class
-      if (this.classList.contains('active')) {
-         toggleButton.textContent = 'Cancel';
-      } else {
-         toggleButton.textContent = 'Add aid';
-      }
-
-   });
+   //            toggleButton.addEventListener('click', function () {
+   //                this.classList.toggle('active');
+   //
+   //
+   //                // Update the button text based on the presence of the 'active' class
+   //                if (this.classList.contains('active')) {
+   //                    toggleButton.textContent = 'Cancel';
+   //                } else {
+   //                    toggleButton.textContent = 'Add aid';
+   //                }
+   //
+   //            });
 
 
 
@@ -279,32 +364,137 @@
    // Функція для додавання маркера до списку на бічній панелі
    var markerMap = {};
 
-   function deleteAidDataFromServer(usersAidsId, aidId) {
-      const url = `/deleteAidById/${usersAidsId}/${aidId}`;
-      fetch(url, {
-         method: 'POST',
-         headers: {
-            'Content-Type': 'application/json'
-         }
-      })
-         .then(response => response.text())
-         .then(data => {
-         console.log('Delete request sended sucessfull!'); // Вивести результат в консоль
-         //                    location.reload(
+   //            function deleteAidDataFromServer(usersAidsId, aidId) {
+   //                const url = `/deleteAidById/${usersAidsId}/${aidId}`;
+   //                fetch(url, {
+   //                    method: 'POST',
+   //                    headers: {
+   //                        'Content-Type': 'application/json'
+   //                    }
+   //                })
+   //                    .then(response => response.text())
+   //                    .then(data => {
+   //                    console.log('Delete request sended sucessfull!'); // Вивести результат в консоль
+   //                    //                    location.reload(
+   //
+   //
+   //                })
+   //                    .catch(error => {
+   //                    console.error('Error at sending delete data to server:', error);
+   //                });
+   //            }
 
+   //            document.getElementById('aidForm').addEventListener('submit', function(event) {
+   //                event.preventDefault(); // Prevents the default form submission
+   //
+   //                // Get values from the form
+   //                const aidCategory = document.getElementById('aidCategory').value;
+   //                const aidDescription = document.getElementById('aidDescription').value;
+   //
+   //                // Use the extracted values as needed
+   //                console.log('Aid Category:', aidCategory);
+   //                console.log('Aid Description:', aidDescription);
+   //
+   //                // You can perform further actions with the extracted values here
+   //            });
+   //            function sendUpdateAidRequest(aid_Id) {
+   //                const url = `/updateAidById/${aidId}`;
+   //
+   //                fetch(url, {
+   //                    method: 'POST',
+   //                    headers: {
+   //                        'Content-Type': 'application/json'
+   //                    }
+   //                })
+   //                    .then(response => response.text())
+   //                    .then(data => {
+   //                    console.log('Update request sended sucessfull!'); // Вивести результат в консоль
+   //                    //                    location.reload(
+   //                })
+   //                    .catch(error => {
+   //                    console.error('Error at sending delete data to server:', error);
+   //                });
+   //            }
 
-      })
-         .catch(error => {
-         console.error('Error at sending delete data to server:', error);
-      });
-   }
+   //            function editRow(button, aidId) {
+   //                // Access the row and perform edit operations
+   //                var row = button.closest('tr');
+   //                // Use 'aidId' to perform specific actions related to this ID
+   //                console.log("Edit ID: " + aidId);
+   //                // Implement edit functionality here
+   //            }
+   //
+   //            function deleteRow(button, aidId) {
+   //                // Access the row and perform delete operations
+   //                var row = button.closest('tr');
+   //                // Use 'aidId' to perform specific actions related to this ID
+   //                console.log("Delete ID: " + aidId);
+   //                // Implement delete functionality here
+   //            }
+   //
+   //            function handleEdit(aid_id) {
+   //                const url = `/editAidById/${aid_id}`;
+   //                fetch(url, {
+   //                    method: 'POST',
+   //                    headers: {
+   //                        'Content-Type': 'application/json'
+   //                    }
+   //                })
+   //                    .then(response => response.text())
+   //                    .then(data => {
+   //                    console.log('Delete modified sucessfull!'); // Вивести результат в консоль
+   //                    //                    location.reload(
+   //
+   //
+   //                })
+   //                    .catch(error => {
+   //                    console.error('Error at sending modifying data to server:', error);
+   //                });
+   //            }
+   //
+   //            function handleDelete(index) {
+   //
+   //            }
+
+   //            function editAid(event) {
+   //                // Find the row with the matching id
+   ////                var row = $('tr[row_id="' + id + '"]');
+   //                console.log('this ',event);
+   ////                var currentRow = event.currentTarget.closest('tr'); // Get the closest table row
+   ////                var aidCategory = currentRow.querySelector('td:nth-child(1)').textContent.trim(); // Extract Aid Category
+   ////                var aidDescription = currentRow.querySelector('td:nth-child(2)').textContent.trim(); // Extract Aid Description
+   ////                var createdDate = currentRow.querySelector('td:nth-child(3)').textContent.trim(); // Extract Created Date
+   ////
+   ////                // Now you can use these variables (aidCategory, aidDescription, createdDate) as needed
+   ////                // For example, log them to the console
+   ////                console.log("Aid Category:", aidCategory);
+   ////                console.log("Aid Description:", aidDescription);
+   ////                console.log("Created Date:", createdDate);
+   //
+   //            }
+   //
+   //            // Add event listeners to all Edit buttons
+   //            document.querySelectorAll('.editBtn').forEach((button, index) => {
+   //                button.addEventListener('click', () => {
+   //                    const row = button.closest('tr'); // Get the closest row to the clicked button
+   //                    const aidCategory = row.querySelectorAll('td')[0].textContent.trim(); // Get the Aid Category value
+   //                    const aidDescription = row.querySelectorAll('td')[1].textContent.trim(); // Get the Aid Description value
+   //                    const createdDate = row.querySelectorAll('td')[2].textContent.trim(); // Get the Created Date value
+   //
+   //                    // You can use these values as needed, for example:
+   //                    console.log('Aid Category:', aidCategory);
+   //                    console.log('Aid Description:', aidDescription);
+   //                    console.log('Created Date:', createdDate);
+   //
+   //                });
+   //            });
+
 
 
 
    function addToSidebar(marker) {
-
-      const dataElement = document.getElementById('dataElement');
-      const dataText = dataElement.textContent;
+      //                const dataElement = document.getElementById('dataElement');
+      //                const dataText = dataElement.textContent;
 
       const sidebarList = document.getElementById('sidebarList');
 
@@ -316,19 +506,24 @@
 
       const subheading = document.createElement('div');
       subheading.className = "fw-bold";
+      subheading.style.fontWeight = "bold"; // Example: Making subheading bold
       subheading.textContent = convertIdToName(marker.aidCategoryEntity.id);
 
       const descriptionDiv = document.createElement('div');
       descriptionDiv.textContent = marker.description;
+      descriptionDiv.innerHTML = marker.description.replace(/\n/g, '<br>'); // Replace newlines with HTML line breaks
+      //                descriptionDiv.textContent = marker.description;
 
       const creatorDiv = document.createElement('div');
-
-      subheading.style.fontWeight = "bold"; // Example: Making subheading bold
       creatorDiv.style.fontStyle = "italic";
       creatorDiv.textContent = "Volunteer: " + marker.usersAidsEntities[0].userEntity.name; // Adding creator's name
 
-      const removeIcon = document.createElement('i');
-      removeIcon.className = "fa fa-trash-o";
+      const addressDiv = document.createElement('div');
+      addressDiv.textContent = "Address: "+ marker.address;
+
+
+      //                const removeIcon = document.createElement('i');
+      //                removeIcon.className = "fa fa-trash-o";
 
       listItem.addEventListener('click', function(e) {
          const highlightedItems = document.querySelectorAll('.highlight');
@@ -348,51 +543,51 @@
          }
       });
 
-      if (marker.usersAidsEntities[0].userEntity.email == dataText) {
-         div.appendChild(subheading);
-         div.appendChild(descriptionDiv);
-         div.appendChild(creatorDiv); // Add creator's name to the div
+      //                if (marker.usersAidsEntities[0].userEntity.email == dataText) {
+      //                    div.appendChild(subheading);
+      //                    div.appendChild(descriptionDiv);
+      //                    div.appendChild(creatorDiv); // Add creator's name to the div
+      //
+      //                    listItem.appendChild(div);
+      //                    listItem.appendChild(removeIcon);
+      //
+      //                    sidebarList.appendChild(listItem);
+      //
+      //                    removeIcon.addEventListener('click', function(event) {
+      //
+      //
+      //                        console.log('delete evenet');
+      //                        var result = confirm("Want to delete?");
+      //
+      //                        if (result) {
+      //                            console.log('list item ', listItem);
+      //                            console.log('our data [',marker.description.trim(),']');
+      //
+      //                            //                            point_layers.clearLayers();
+      //                            for (var i  = 0; i < markerlist.length; i++) {
+      //                                if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
+      //                                    deleteAidDataFromServer(marker.usersAidsEntities[0].id, marker.id);
+      //                                    map.removeLayer(markerlist[i]);
+      //                                    sidebarList.removeChild(listItem);
+      //                                    //                                    removeLayer(marker);
+      //                                    markerCluster.removeLayer(markerlist[i]);
+      //
+      //                                    break;
+      //                                }
+      //                            }
+      //
+      //                        }
+      //                    });
+      //                } else {
+      div.appendChild(subheading);
+      div.appendChild(descriptionDiv);
+      div.appendChild(creatorDiv); // Add creator's name to the div
+      div.appendChild(addressDiv); // Add creator's name to the div
 
-         listItem.appendChild(div);
-         listItem.appendChild(removeIcon);
-
-         sidebarList.appendChild(listItem);
-
-         removeIcon.addEventListener('click', function(event) {
-
-
-            console.log('delete evenet');
-            var result = confirm("Want to delete?");
-
-            if (result) {
-               console.log('list item ', listItem);
-               console.log('our data [',marker.description.trim(),']');
-
-               //                            point_layers.clearLayers();
-               for (var i  = 0; i < markerlist.length; i++) {
-                  if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
-                     deleteAidDataFromServer(marker.usersAidsEntities[0].id, marker.id);
-                     map.removeLayer(markerlist[i]);
-                     sidebarList.removeChild(listItem);
-                     //                                    removeLayer(marker);
-                     markerCluster.removeLayer(markerlist[i]);
-
-                     break;
-                  }
-               }
-
-            }
-         });
-      } else {
-         div.appendChild(subheading);
-         div.appendChild(descriptionDiv);
-         div.appendChild(creatorDiv); // Add creator's name to the div
-
-         listItem.appendChild(div);
-         sidebarList.appendChild(listItem);
-      }
+      listItem.appendChild(div);
+      sidebarList.appendChild(listItem);
+      //                }
    }
-
 
    // Function to filter aids based on the keyw ord
    function filterAidsByKeyword(keyword) {
@@ -410,7 +605,6 @@
             marker.description.includes(keyword));
          if (convertIdToName(marker.aidCategoryEntity.id).toLowerCase().includes(keyword.toLowerCase()) ||
          marker.description.toLowerCase().includes(keyword.toLowerCase())) {
-
             addToSidebar(marker);
             console.log('founded ', marker);
          }
@@ -451,6 +645,43 @@
          this.classList.add('highlight');
       });
    });
+
+   function findMarkers() {
+      const selectedCategory = document.getElementById('markerColor').value;
+
+      //                const sidebarList = document.getElementById('sidebarList');
+      //
+      document.getElementById("sidebarList").innerHTML = "";
+
+
+
+
+
+      // Clear the map before displaying markers based on the selected category
+      map.removeLayer(markerCluster); // Assuming `markerCluster` is your marker cluster layer
+      markerCluster.clearLayers();
+      //
+      //                //                // Display markers based on the selected category
+      wrappedMarkers.forEach(marker => {
+         if (selectedCategory === 'all') {
+            console.log('all')
+            addMarker(marker, 2); // Adding markers based on the category
+         }
+         else if (marker.aidCategoryEntity.id.toString() === selectedCategory) {
+            addMarker(marker, 2); // Adding markers based on the category
+
+         }
+         //                                    else (marker.aidCategoryEntity.id.toString() === selectedCategory) {
+         //                //                        console.log(marker.aidCategoryEntity.id.toString());
+         //                //                        console.log(marker.aidCategoryEntity.id.toString());
+         //                                        addMarker(marker, 2); // Adding markers based on the category
+         //                                    }
+      });
+      //
+      map.addLayer(markerCluster); // Add the updated marker cluster to the map
+   }
+
+
 
 </script>
 <script th:src="@{app/bootstrap/dist/js/bootstrap.min.js}"></script>
