@@ -30,7 +30,13 @@ public interface AidRepository extends CrudRepository<AidEntity, Long> {
     @Query(value = "delete from aid_table where id = ?1")
     void deleteById(Long id);
 
-//    findByCreator
+    @Modifying
+    @Transactional
+    @Query(value = "update aid_table set address = ?1, description = ?2, latitude = ?3, longitude = ?4, category_id = ?5 where id = ?6")
+    void updateById(String address, String description, Double latitude, Double longitude, Long category_id, Long id);
+
+
+    //    findByCreator
     @Query(value = "SELECT * from aid_table where id in (SELECT aid_id from users_aids_table WHERE aid_interaction = 'CREATING' AND user_id = ?1)", nativeQuery = true)
     List<AidEntity> findByCreatorUserId(Long userId);
 

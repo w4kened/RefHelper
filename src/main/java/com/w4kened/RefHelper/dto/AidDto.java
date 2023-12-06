@@ -19,12 +19,15 @@ import java.util.List;
 @NoArgsConstructor
 public class AidDto {
 
-
     public AidDto(AidEntity aidEntity) {
         this.selectedCategoryAid = aidEntity.getAidCategoryEntity().getId();
         this.description = aidEntity.getDescription();
+        this.latitude = aidEntity.getLatitude();
+        this.longitude = aidEntity.getLongitude();
         this.address = aidEntity.getAddress();
+        this.id = aidEntity.getId();
     }
+
 
     @NotEmpty
     private Long selectedCategoryAid;
@@ -49,4 +52,5 @@ public class AidDto {
     private String address;
 
     private AidEntity aidEntity;
+    private Long id;
 }

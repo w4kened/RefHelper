@@ -9,6 +9,8 @@ import com.w4kened.RefHelper.repository.UsersAidsRepository;
 import com.w4kened.RefHelper.security.SecurityUtil;
 import com.w4kened.RefHelper.service.AidService;
 import com.w4kened.RefHelper.service.UserService;
+import com.w4kened.RefHelper.service.UsersAidsService;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
@@ -17,10 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class AidServiceImpl implements AidService {
@@ -35,14 +34,19 @@ public class AidServiceImpl implements AidService {
     private  UsersAidsRepository usersAidsRepository;
 
     @Autowired
+    UsersAidsService usersAidsService;
+
+    @Autowired
     public AidServiceImpl(AidRepository aidRepository,
                           AidCategoryRepository aidCategoryRepository,
                           UserService userService,
-                          UsersAidsRepository usersAidsRepository) {
+                          UsersAidsRepository usersAidsRepository,
+                          UsersAidsService usersAidsService) {
         this.userService = userService;
         this.aidRepository = aidRepository;
         this.aidCategoryRepository = aidCategoryRepository;
         this.usersAidsRepository = usersAidsRepository;
+        this.usersAidsService = usersAidsService;
     }
 
 
@@ -50,6 +54,27 @@ public class AidServiceImpl implements AidService {
     public List<AidEntity> findAll() {
 //        save_csv();
         return aidRepository.findAll();
+    }
+
+    public AidCategoryEntity convertAndFindCategory(AidDto aidDto) {
+        if (aidDto.getSelectedCategoryAid() == 1L) {
+            return aidCategoryRepository.findByName("Basic Necessities Aid");
+        } else if (aidDto.getSelectedCategoryAid() == 2L) {
+            return aidCategoryRepository.findByName("Basic Necessities Aid");
+
+        } else if (aidDto.getSelectedCategoryAid() == 3L) {
+            return aidCategoryRepository.findByName("Basic Necessities Aid");
+
+        } else if (aidDto.getSelectedCategoryAid() == 4L) {
+            return aidCategoryRepository.findByName("Basic Necessities Aid");
+
+        } else if (aidDto.getSelectedCategoryAid() == 5L) {
+            return aidCategoryRepository.findByName("Basic Necessities Aid");
+
+        } else if (aidDto.getSelectedCategoryAid() == 6L) {
+            return aidCategoryRepository.findByName("Basic Necessities Aid");
+        }
+        return null;
     }
 
 
@@ -69,26 +94,8 @@ public class AidServiceImpl implements AidService {
 
 //        System.out.println("coordinates " + aidEntity.getLatitude() + aidEntity.getLongitude());
 
-        AidCategoryEntity aidCategory;
-        if (aidDto.getSelectedCategoryAid() == 1L) {
-            aidCategory = aidCategoryRepository.findByName("Basic Necessities Aid");
-            aidEntity.setAidCategoryEntity(aidCategory);
-        } else if (aidDto.getSelectedCategoryAid() == 2L) {
-            aidCategory = aidCategoryRepository.findByName("Healthcare Aid");
-            aidEntity.setAidCategoryEntity(aidCategory);
-        } else if (aidDto.getSelectedCategoryAid() == 3L) {
-            aidCategory = aidCategoryRepository.findByName("Education Aid");
-            aidEntity.setAidCategoryEntity(aidCategory);
-        } else if (aidDto.getSelectedCategoryAid() == 4L) {
-            aidCategory = aidCategoryRepository.findByName("Employment Aid");
-            aidEntity.setAidCategoryEntity(aidCategory);
-        } else if (aidDto.getSelectedCategoryAid() == 5L) {
-            aidCategory = aidCategoryRepository.findByName("Legal Aid");
-            aidEntity.setAidCategoryEntity(aidCategory);
-        } else if (aidDto.getSelectedCategoryAid() == 6L) {
-            aidCategory = aidCategoryRepository.findByName("Community Aid");
-            aidEntity.setAidCategoryEntity(aidCategory);
-        }
+        AidCategoryEntity aidCategory = convertAndFindCategory(aidDto);
+        aidEntity.setAidCategoryEntity(aidCategory);
 //        System.out.println("saving from service->repository " );
 //        System.out.println(aidEntity.getAidCategoryEntity());
         aidRepository.save(aidEntity);
@@ -110,11 +117,56 @@ public class AidServiceImpl implements AidService {
     }
 
     @Override
-    public void removeAid(Long usersAidsId, Long aidId) {
+    @Transactional
+    public void updateAid(AidDto aidDto, Long id) throws NotFoundException{
 
-        usersAidsRepository.removeUsersAidsById(usersAidsId);
-        usersAidsRepository.removeUsersAidsById(usersAidsId);
-        aidRepository.deleteById(aidId);
+
+        Optional<AidEntity> optionalAidEntity = aidRepository.findById(id);
+
+        if (optionalAidEntity.isPresent()) {
+            AidEntity existingAidEntity = optionalAidEntity.get();
+
+            // Update the attributes of the existing entity with values from the updated DTO
+            existingAidEntity.setDescription(aidDto.getDescription());
+            existingAidEntity.setLatitude(aidDto.getLatitude());
+            existingAidEntity.setLongitude(aidDto.getLongitude());
+            existingAidEntity.setAddress(aidDto.getAddress());
+
+            // Assuming you have a method to convert and set the category in the entity
+            // existingAidEntity.setAidCategoryEntity(convertAndFindCategory(updatedAidDto));
+
+            // Save the updated entity back to the repository
+            aidRepository.save(existingAidEntity);
+
+            UserEntity userEntity = userService.findByEmail(SecurityUtil.getSessionUser());
+            UsersAidsEntity usersAidsEntity  = new UsersAidsEntity();
+            usersAidsEntity.setAidEntity(existingAidEntity);
+            usersAidsEntity.setUserEntity(userEntity);
+            usersAidsEntity.setAidInteraction(AidInteraction.MODIFYING);
+            usersAidsRepository.save(usersAidsEntity);
+            System.out.println("update aid calling ");
+
+        }
+         else {
+            throw new NotFoundException("AidEntity with ID " + id + " not found");
+        }
+    }
+
+//    @Override
+//    public void removeAid(Long usersAidsId, Long aidId) {
+//        usersAidsRepository.removeUsersAidsById(usersAidsId);
+//        aidRepository.deleteById(aidId);
+//    }
+
+    @Override
+    public void deleteAidById(Long id) throws NotFoundException {
+        Optional<AidEntity> optionalAidEntity = aidRepository.findById(id);
+        if (optionalAidEntity.isPresent()) {
+            usersAidsRepository.deleteByAidId(id);
+            aidRepository.deleteById(id); // Delete the aid by its ID
+        } else {
+            throw new NotFoundException("AidEntity with ID " + id + " not found");
+        }
     }
 
     @Override

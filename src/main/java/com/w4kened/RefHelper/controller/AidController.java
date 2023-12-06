@@ -72,14 +72,14 @@ public class AidController {
 ////            return ResponseEntity.internalServerError().body("error with deleting");
 //    }
 
-    @PostMapping("/deleteAidById/{usersAidsId}/{aidId}")
-    public ResponseEntity<?> deleteAid(@PathVariable Long usersAidsId, @PathVariable Long aidId ) {
-        System.out.println("deleting with ["+usersAidsId+"]");
-        System.out.println("deleting with ["+aidId+"]");
-        aidService.removeAid(usersAidsId, aidId);
-////        if (deletedRecords > 0) {
-        return ResponseEntity.ok().build();
-    }
+//    @PostMapping("/deleteAidById/{usersAidsId}/{aidId}")
+//    public ResponseEntity<?> deleteAid(@PathVariable Long usersAidsId, @PathVariable Long aidId ) {
+//        System.out.println("deleting with ["+usersAidsId+"]");
+//        System.out.println("deleting with ["+aidId+"]");
+//        aidService.removeAid(usersAidsId, aidId);
+//////        if (deletedRecords > 0) {
+//        return ResponseEntity.ok().build();
+//    }
 //
 //    @RequestMapping(path = "/{id}", method = RequestMethod.GET)
 //    public String getAid(Model model,@PathVariable("id") Long id){

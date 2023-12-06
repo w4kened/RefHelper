@@ -16,7 +16,13 @@
 <body style="background-color: #222D32 !important; color: white !important;">
     <div class="container mt-5">
         <h2>Offer Aid</h2>
-        <form action="#" id="addAidForm" th:action="@{/addAid}" th:object="${aidDto}" method="POST" onsubmit="return validateForm()">
+<!--        <fieldset th:if="${#fields.hasErrors('${user.*}')}" class="text-warning">-->
+<!--            <legend>Some errors appeared !</legend>-->
+<!--            <ul>-->
+<!--                <li th:each="err : ${#fields.errors('user.*')}" th:text="${err}"></li>-->
+<!--            </ul>-->
+<!--        </fieldset>-->
+        <form action="#" id="editAidForm" th:action="@{/editAid/{id}(id=${aidDto.id})}" th:object="${aidDto}" method="POST" onsubmit="return validateForm()">
             <div class="form-group">
                 <label for="aidCategory">Aid Category:</label>
                 <!-- You might use a select dropdown for aid category selection -->
@@ -60,7 +66,7 @@
             <button type="submit" style="background-color: #87AC52 !important;" class="btn btn-primary">Submit</button>
 <!--            <button type="reset" class="btn btn-primary">Reset</button>-->
 <!--            <button type="reset" class="btn btn-primary" th:href="@{/home}">Cancel</button>-->
-            <a class="btn btn-danger" th:href="@{/home}">Cancel</a>
+            <a class="text-danger" th:href="@{/home}">Cancel</a>
 
         </form>
         <div class="container mt-5">

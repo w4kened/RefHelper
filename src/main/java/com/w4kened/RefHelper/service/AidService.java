@@ -4,6 +4,9 @@ import com.w4kened.RefHelper.dto.AidDto;
 import com.w4kened.RefHelper.dto.UserDto;
 import com.w4kened.RefHelper.models.AidEntity;
 import com.w4kened.RefHelper.models.UserEntity;
+import javassist.NotFoundException;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 
@@ -13,14 +16,19 @@ public interface AidService {
 
     void saveAid(AidDto aidDto);
 
-    void removeAid(Long usersAidsId, Long aidId);
+    void updateAid(AidDto aidDto, Long id) throws NotFoundException;
 
+//    void removeAid(Long usersAidsId, Long aidId);
+
+    void deleteAidById(Long id) throws NotFoundException;
 
     AidEntity findByCategoryName(String name);
 
     AidEntity findByAidId(Long aidId);
 
     List<AidEntity> findByCreatorUserId(Long userId);
+
+
 
 
 }

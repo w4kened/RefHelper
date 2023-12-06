@@ -27,5 +27,10 @@ public interface UsersAidsRepository extends CrudRepository <UsersAidsEntity, Lo
     @Modifying
     @Transactional
     @Query(value = "delete from users_aids_table where id = ?1")
-    void removeUsersAidsById(Long id);
+    void deleteById(Long id);
+
+    @Modifying
+    @Transactional
+    @Query(value = "delete from users_aids_table where aid_id = ?1")
+    void deleteByAidId(Long id);
 }
