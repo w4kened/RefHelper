@@ -1,0 +1,84 @@
+	Create Requests
+			html view or previous form?
+	Rework Aid Category?
+	
+	how Refugge should request aid?
+	
+		REF
+		Aid Offers
+		Aid Responses
+		
+		STATISTICS RAPORTS:
+
+					User 
+					id
+					city_id
+					
+					
+					City
+					id
+					region_id
+					
+					
+					Region
+					
+		SELECT count(*)
+		FROM user_table
+		WHERE city_id
+		IN (
+			SELECT id
+			FROM city
+			WHERE region_id
+			IN (
+				SELECT id
+				FROM region
+				WHERE name = Świętokrzyskie
+			)
+		);
+		
+		rework signup adding extra input for city
+		
+		Rzeszów,
+		Lublin,
+		Kraków
+		Kielce,
+		Warszawa,
+		Białystok,
+		Katowice,
+		Łódź,
+		Bydgoszcz,
+		Olsztyn,
+		Gdańsk,
+		Poznań,
+		Wrocław,
+		Gorzów Wielkopolski,
+		Szczecin
+		
+		  // Function to get user city name
+    function getUserCity() {
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
+
+                // Use reverse geocoding to get the city name
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+                    .then(response => response.json())
+                    .then(data => {
+                    var city = data.address.city;
+                    console.log('Your city:', city);
+                    // Display the city name on the page
+//                    document.getElementById('cityName').innerText = `Your City: ${city}`;
+                })
+                    .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        } else {
+            console.error('Geolocation is not supported by this browser.');
+        }
+    }
+
+    // Call the function to get user city name
+    getUserCity();
+		

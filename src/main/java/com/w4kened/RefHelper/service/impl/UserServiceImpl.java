@@ -1,6 +1,8 @@
 package com.w4kened.RefHelper.service.impl;
 
+import com.w4kened.RefHelper.models.CityEntity;
 import com.w4kened.RefHelper.models.RoleEntity;
+import com.w4kened.RefHelper.repository.CityRepository;
 import com.w4kened.RefHelper.repository.UserRepository;
 import com.w4kened.RefHelper.repository.RoleRepository;
 import com.w4kened.RefHelper.dto.UserDto;
@@ -17,16 +19,18 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
+    private CityRepository cityRepository;
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
 
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder, CityRepository cityRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.cityRepository  = cityRepository;
     }
 
 
@@ -61,6 +65,9 @@ public class UserServiceImpl implements UserService {
                 userEntity.setRoleEntity(roleEntity);
             }
         }
+
+        CityEntity cityEntity = cityRepository.findByName(userDto.getCityName());
+        userEntity.setCityEntity(cityEntity);
         userRepository.save(userEntity);
     }
 

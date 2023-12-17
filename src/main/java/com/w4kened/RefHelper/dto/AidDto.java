@@ -28,6 +28,18 @@ public class AidDto {
         this.id = aidEntity.getId();
     }
 
+    public AidDto(AidEntity aidEntity, String refugeeName, String refugeePhoneNumber, String refugeeEmail) {
+        this.selectedCategoryAid = aidEntity.getAidCategoryEntity().getId();
+        this.description = aidEntity.getDescription();
+        this.latitude = aidEntity.getLatitude();
+        this.longitude = aidEntity.getLongitude();
+        this.address = aidEntity.getAddress();
+        this.id = aidEntity.getId();
+        this.refugeeName = refugeeName;
+        this.refugeePhoneNumber = refugeePhoneNumber;
+        this.refugeeEmail = refugeeEmail;
+    }
+
 
     @NotEmpty
     private Long selectedCategoryAid;
@@ -53,4 +65,8 @@ public class AidDto {
 
     private AidEntity aidEntity;
     private Long id;
+
+    String refugeeName;
+    String refugeePhoneNumber;
+    String refugeeEmail;
 }

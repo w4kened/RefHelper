@@ -19,6 +19,10 @@ public class UserDto {
     @NotEmpty(message = "Password should not be empty")
     private String password;
 
+    @NotEmpty(message = "Password should not be empty")
+    private String repeatPassword;
+
+
     @NotEmpty
     private String firstName;
 
@@ -27,6 +31,9 @@ public class UserDto {
 
     @NotEmpty
     private String phoneNumber;
+
+    @NotEmpty
+    private String cityName;
 
     private int selectedRole;
 

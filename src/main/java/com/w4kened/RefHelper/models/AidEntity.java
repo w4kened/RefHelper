@@ -25,8 +25,7 @@ public class AidEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-//    @Lob
+    
     @Column(columnDefinition = "TEXT")
     private String description;
 
@@ -47,6 +46,8 @@ public class AidEntity {
     @JoinColumn(name = "category_id")
     @JsonManagedReference
     private AidCategoryEntity aidCategoryEntity;
+
+
 
     @OneToMany(mappedBy = "aidEntity", cascade=CascadeType.ALL,orphanRemoval=true)
     @JsonManagedReference

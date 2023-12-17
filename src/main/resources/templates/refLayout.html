@@ -103,6 +103,7 @@
          margin-left: 104rem;
          margin-block: 14rem;
          position: fixed;
+         z-index: -1;
       }
       .btn-circle {
          opacity: 83.3%;
@@ -182,7 +183,7 @@
             <div class="modal-dialog" role="document">
                <div class="modal-content">
                   <div class="modal-header">
-                     <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                     <h5 class="modal-title" id="exampleModalLabel">Home Menu</h5>
                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                      </button>
@@ -193,10 +194,10 @@
                            <a class="nav-link active" data-toggle="tab" href="#profile">My Profile</a>
                         </li>
                         <li class="nav-item">
-                           <a class="nav-link" data-toggle="tab" href="#aids">Aids offered by me</a>
+                           <a class="nav-link" data-toggle="tab" href="#aids">Aid Offers</a>
                         </li>
                         <li class="nav-item">
-                           <a class="nav-link" data-toggle="tab" href="#requests">Aid Requests</a>
+                           <a class="nav-link" data-toggle="tab" href="#requests">Aid Responses</a>
                         </li>
                      </ul>
                      <div class="tab-content">
@@ -207,13 +208,12 @@
                                  <div class="col-md-4">
                                     <p style="font-weight: bold; color: black;">Name:</p>
                                     <p style="font-weight: bold; color: black;">Email:</p>
-                                    <p style="font-weight: bold; color: black;">Total Offered Aids:</p>
+<!--                                    <p style="font-weight: bold; color: black;">Total Offered Aids:</p>-->
                                     <p style="font-weight: bold; color: black;">Role:</p>
                                  </div>
                                  <div class="col-md-4">
                                     <p style="color: black;" th:text="${userFullName}"></p>
                                     <p style="color: black;" th:text="${data}"></p>
-                                    <p style="color: black;" th:text="${aidsOfferedCount}"></p>
                                     <p style="color: black;" th:text="${role}"></p>
                                  </div>
                                  <div class="col-md-4">
@@ -223,45 +223,92 @@
                            </div>
                         </div>
                         <div id="aids" class="container tab-pane fade">
-                           <h4>Aids offered by me</h4>
-                           <!--                                            <button type="button" class="btn btn-primary">-->
-                           <a style="color: white !important;"  class="btn btn-primary" th:href="@{/addAid}">Offer Aid</a>
-                           <!--                                            </button>-->
+                           <h4>Aid Requests</h4>
+                           <select id="categorySelect" class="custom-select form-select" style="  width: 100% !important;   margin-block: 1rem;">
+                              <option value="All">All Aids</option>
+                              <option value="Healthcare Aid">Healthcare Aid</option>
+                              <option value="Education Aid">Education Aid</option>
+                              <option value="Employment Aid">Employment Aid</option>
+                              <option value="Legal Aid">Legal Aid</option>
+                              <option value="Community Aid">Community Aid</option>
+                              <option value="Basic Necessities Aid">Basic Necessities Aid</option>
+                           </select>
+
+                           <input type="text" class="form-control" id="menuSearchField" placeholder="Enter keyword..." name="keyword" >
+
+<!--                           <button type="button" oncomplete="sortByDistance();" class="btn btn-primary">Sort by distance</button>-->
+<!--                           <button type="button" onclick="createAidReq();" class="btn btn-primary">Create Request</button>-->
                            <div class="table-responsive">
                               <table class="table">
                                  <thead>
                                  <tr>
+                                    <th>Distance</th>
                                     <th>Aid Category</th>
                                     <th>Aid Description</th>
+                                    <th>Aid Address</th>
                                     <th>Created Date</th>
                                     <th>Action</th>
                                  </tr>
                                  </thead>
-                                 <tbody>
+                                 <tbody id="tableBody">
                                  <tr th:if="${aidsList.empty}">
                                     <td colspan="4">No Aids Available</td>
                                  </tr>
-                                 <tr th:each="aid : ${aidsList}">
+                                 <tr th:each="aid, stat : ${aidsList}">
+                                    <td th:id="'distId-' + ${aid.latitude} + '-' + ${aid.longitude}"><span>kilometers away</span></td>
                                     <td><span th:text="${aid.aidCategoryEntity.getName()}">Aid Category</span></td>
-                                    <td><span th:text="${aid.description}">Aid Description</span></td>
-                                    <td><span th:text="${aid.createdDate}">Created Date</span></td>
-                                    <td>
-                                       <!-- edit -->
-                                       <!--                                                            <button type="button" class="btn btn-primary edit-aid">-->
-                                       <a style="color: white !important;" th:href="@{'/editAid/'+ ${aid.id}}" class="btn btn-primary">Edit</a>
-                                       <!--                                                            </button>-->
-                                       <!--                                                            <button type="button" class="btn btn-danger">-->
-                                       <!--                                                                Delete-->
-                                       <!--                                                            </button>-->
-                                       <a style="color: white !important;" th:href="@{'/deleteAid/'+ ${aid.id}}" class="btn btn-danger" onclick="return confirmDelete()">Delete</a>
-
-                                       <!-- delete -->
+                                    <td><span id="descId" th:text="${aid.description}">Aid Description</span></td>
+                                    <td><span id="addressId" th:text="${aid.address}">Aid Address</span></td>
+                                    <td> <span th:text="${#temporals.format(aid.createdDate, 'yyyy-MM-dd')}">Created Date</span></td>
+                                    <td style="display: grid; width: 50%;gap: 0.5rem;">
+                                       <a style="color: white !important;" th:onclick="'showOnMap(' + ${aid.latitude} + ', ' + ${aid.longitude} + ');'" class="btn btn-primary" data-dismiss="modal">Show On Map</a>
+                                       <a style="color: white !important;" th:href="@{'/requestAid/'+ ${aid.id}}" onclick="return confirmRequest() " class="btn btn-primary">Request</a>
                                     </td>
                                  </tr>
                                  </tbody>
                               </table>
 
                            </div>
+<!--                           <div id='itemList'></div>-->
+
+                           <!--                           &lt;!&ndash;                                            <button type="button" class="btn btn-primary">&ndash;&gt;-->
+<!--                           <a style="color: white !important;"  class="btn btn-primary" th:href="@{/addAid}">Offer Aid</a>-->
+<!--                           &lt;!&ndash;                                            </button>&ndash;&gt;-->
+<!--                           <div class="table-responsive">-->
+<!--                              <table class="table">-->
+<!--                                 <thead>-->
+<!--                                 <tr>-->
+<!--                                    <th>Aid Category</th>-->
+<!--                                    <th>Aid Description</th>-->
+<!--                                    <th>Created Date</th>-->
+<!--                                    <th>Action</th>-->
+<!--                                 </tr>-->
+<!--                                 </thead>-->
+<!--                                 <tbody>-->
+<!--                                 <tr th:if="${aidsList.empty}">-->
+<!--                                    <td colspan="4">No Aids Available</td>-->
+<!--                                 </tr>-->
+<!--                                 <tr th:each="aid : ${aidsList}">-->
+<!--                                    <td><span th:text="${aid.aidCategoryEntity.getName()}">Aid Category</span></td>-->
+<!--                                    <td><span th:text="${aid.description}">Aid Description</span></td>-->
+<!--                                    <td><span th:text="${aid.createdDate}">Created Date</span></td>-->
+<!--                                    <td>-->
+<!--                                       &lt;!&ndash; edit &ndash;&gt;-->
+<!--                                       &lt;!&ndash;                                                            <button type="button" class="btn btn-primary edit-aid">&ndash;&gt;-->
+<!--                                       <a style="color: white !important;" th:href="@{'/editAid/'+ ${aid.id}}" class="btn btn-primary">Edit</a>-->
+<!--                                       &lt;!&ndash;                                                            </button>&ndash;&gt;-->
+<!--                                       &lt;!&ndash;                                                            <button type="button" class="btn btn-danger">&ndash;&gt;-->
+<!--                                       &lt;!&ndash;                                                                Delete&ndash;&gt;-->
+<!--                                       &lt;!&ndash;                                                            </button>&ndash;&gt;-->
+<!--                                       <a style="color: white !important;" th:href="@{'/deleteAid/'+ ${aid.id}}" class="btn btn-danger" onclick="return confirmDelete()">Delete</a>-->
+
+<!--                                       &lt;!&ndash; delete &ndash;&gt;-->
+<!--                                    </td>-->
+<!--                                 </tr>-->
+<!--                                 </tbody>-->
+<!--                              </table>-->
+
+<!--                           </div>-->
                         </div>
                         <div id="requests" class="container tab-pane fade">
                            <h4>Aid Requests</h4>
@@ -271,11 +318,20 @@
                   </div>
                   <div class="modal-footer">
                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                     <button type="button" class="btn btn-primary">Save changes</button>
+<!--                     <button type="button" class="btn btn-primary">Save changes</button>-->
                   </div>
                </div>
             </div>
          </div>
+         <div th:if="${param.AidRequestedSuccessfull}" style="margin-bottom: -9rem;" class="alert alert-success">
+
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+            Aid Requested Successfully!
+
+         </div>
+
          <a th:href="@{/logout}" style="display: flex; margin-top: 21rem;">Logout</a>
       </section>
    </aside>
@@ -295,12 +351,76 @@
 
 
 
-<script>
+<script th:inline="javascript">
    $.widget.bridge('uibutton', $.ui.button)
 
-   function confirmDelete() {
-      return confirm("Are you sure you want to delete aid?");
+
+
+   function sortByDistance() {
+      var tableBody = document.getElementById('tableBody');
+      var rows = Array.from(tableBody.getElementsByTagName('tr'));
+            rows.sort(function(rowA, rowB) {
+               var distanceA = parseFloat(rowA.cells[0].innerText);
+               var distanceB = parseFloat(rowB.cells[0].innerText);
+
+               return distanceA - distanceB;
+            });
+
+            rows.forEach(function(row) {
+               table.tBodies[0].appendChild(row);
+            });
+//
+//      // Extract distances and associate them with rows
+//      var distances = rows.map(row => {
+//         var distanceCell = row.querySelector('[id^="distId-"]');
+//         var distance = parseFloat(distanceCell.innerText.split(' ')[0]); // Extract distance value
+//         return { distance, row };
+//      });
+//
+//      // Sort rows based on distances
+//      distances.sort((a, b) => a.distance - b.distance);
+//
+//      // Clear the current table body
+//      tableBody.innerHTML = '';
+//
+//      // Re-append sorted rows to the table
+//      distances.forEach(distance => {
+//         tableBody.appendChild(distance.row);
+//      });
    }
+
+   function confirmRequest() {
+      return confirm("Are you sure you want to request aid?");
+   }
+
+   document.addEventListener("DOMContentLoaded", function() {
+      // Get the element containing the aid description
+      let aidDescriptionElement = document.getElementById("descId");
+
+
+      // Replace newline characters with HTML line breaks
+      let aidDescriptionText = aidDescriptionElement.innerText.replace(/\n/g, '<br>');
+
+      // Set the modified content back to the element
+      aidDescriptionElement.innerHTML = aidDescriptionText;
+
+      aidDescriptionElement = document.getElementById("addressId");
+
+      aidDescriptionText = aidDescriptionElement.innerText.replace(/\n/g, '<br>');
+
+      // Set the modified content back to the element
+      aidDescriptionElement.innerHTML = aidDescriptionText;
+   });
+
+   function showOnMap(latitude, longitude) {
+      for (var i = 0; i < markerlist.length; i++) {
+         if (markerlist[i]._latlng.lat === latitude && markerlist[i]._latlng.lng === longitude) {
+            map.setView([latitude, longitude], 17); // Change the map.getZoom() according to your requirement
+            markerlist[i].openPopup();
+         }
+      }
+   }
+
 
    //            listItems.forEach(item => {
    //                item.addEventListener('click', function() {
@@ -630,6 +750,75 @@
       }
    });
 
+   document.getElementById('menuSearchField').addEventListener('input', function(event) {
+      var rows = document.querySelector("#aids .table tbody").getElementsByTagName("tr");
+      var categorySelect = document.getElementById('categorySelect');
+
+      for (var i = 0; i < rows.length; i++) {
+         var rowText = rows[i].textContent.toLowerCase();
+         var keyword = this.value.toLowerCase();
+         var category = categorySelect.value.toLowerCase();
+         console.log('selected category ', categorySelect.value);
+//         console.log('rowText ', rowText);
+
+
+//         if (rowText.includes(keyword)) {
+//            rows[i].style.display = "";
+//         }
+         if (rowText.includes(keyword) && (rowText.includes(category) || categorySelect.value === "All")) {
+            rows[i].style.display = "";
+         } else {
+            rows[i].style.display = "none";
+         }
+      }
+      if (this.value === ""  && categorySelect.value === "All") {
+         for (var i = 0; i < rows.length; i++) {
+            rows[i].style.display = "";
+         }
+      }
+   });
+   document.getElementById('categorySelect').onchange = function() {
+      var rows = document.querySelector("#aids .table tbody").getElementsByTagName("tr");
+
+      for (var i = 0; i < rows.length; i++) {
+         var rowText = rows[i].textContent.toLowerCase();
+         var category = this.value.toLowerCase();
+
+         if (rowText.includes(category) && (rowText.includes(category) || categorySelect.value === "All")) {
+            rows[i].style.display = "";
+         } else {
+            rows[i].style.display = "none";
+         }
+      }
+      if (this.value === "All" && categorySelect.value === "All") {
+         for (var i = 0; i < rows.length; i++) {
+            rows[i].style.display = "";
+         }
+      }
+   };
+//   function searchTable() {
+//      const input = document.getElementById('menuSearchField').value.toUpperCase();
+//      const table = document.getElementById('aidsTable');
+//      const rows = table.getElementsByTagName('tr');
+//
+//      for (let i = 0; i < rows.length; i++) {
+//         let found = false;
+//         const cells = rows[i].getElementsByTagName('td');
+//         for (let j = 0; j < cells.length; j++) {
+//            const cellText = cells[j].textContent || cells[j].innerText;
+//            if (cellText.toUpperCase().indexOf(input) > -1) {
+//               found = true;
+//               break;
+//            }
+//         }
+//         if (found) {
+//            rows[i].style.display = '';
+//         } else {
+//            rows[i].style.display = 'none';
+//         }
+//      }
+//   }
+
 
 
    let listItems = document.querySelectorAll('#sidebarList li');
@@ -671,14 +860,12 @@
             addMarker(marker, 2); // Adding markers based on the category
 
          }
-         //                                    else (marker.aidCategoryEntity.id.toString() === selectedCategory) {
-         //                //                        console.log(marker.aidCategoryEntity.id.toString());
-         //                //                        console.log(marker.aidCategoryEntity.id.toString());
-         //                                        addMarker(marker, 2); // Adding markers based on the category
-         //                                    }
       });
       //
       map.addLayer(markerCluster); // Add the updated marker cluster to the map
+   }
+
+   function createAidReq() {
    }
 
 

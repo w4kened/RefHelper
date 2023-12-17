@@ -103,6 +103,7 @@
                 margin-left: 104rem;
                 margin-block: 14rem;
                 position: fixed;
+                z-index: -1;
             }
             .btn-circle {
                 opacity: 83.3%;
@@ -122,6 +123,9 @@
             #profile, #aids {
                 width: 100% ;
             }
+/*            td {*/
+/*                display: block ruby;*/
+/*            }*/
         </style>
     </head>
 
@@ -182,7 +186,7 @@
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                                    <h5 class="modal-title" id="exampleModalLabel">Home Menu</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
@@ -193,7 +197,7 @@
                                             <a class="nav-link active" data-toggle="tab" href="#profile">My Profile</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" data-toggle="tab" href="#aids">Aids offered by me</a>
+                                            <a class="nav-link" data-toggle="tab" href="#aids">Aids Offered By Me</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link" data-toggle="tab" href="#requests">Aid Requests</a>
@@ -233,6 +237,7 @@
                                                     <tr>
                                                         <th>Aid Category</th>
                                                         <th>Aid Description</th>
+                                                        <th>Aid Address</th>
                                                         <th>Created Date</th>
                                                         <th>Action</th>
                                                     </tr>
@@ -243,9 +248,10 @@
                                                     </tr>
                                                     <tr th:each="aid : ${aidsList}">
                                                         <td><span th:text="${aid.aidCategoryEntity.getName()}">Aid Category</span></td>
-                                                        <td><span th:text="${aid.description}">Aid Description</span></td>
-                                                        <td><span th:text="${aid.createdDate}">Created Date</span></td>
-                                                        <td>
+                                                        <td><span id="descId" th:text="${aid.description}">Aid Description</span></td>
+                                                        <td><span id="addressId" th:text="${aid.address}">Aid Address</span></td>
+                                                        <td> <span th:text="${#temporals.format(aid.createdDate, 'yyyy-MM-dd')}">Created Date</span></td>
+                                                        <td style="display: block ruby;">
                                                             <!-- edit -->
 <!--                                                            <button type="button" class="btn btn-primary edit-aid">-->
                                                                 <a style="color: white !important;" th:href="@{'/editAid/'+ ${aid.id}}" class="btn btn-primary">Edit</a>
@@ -265,16 +271,73 @@
                                         </div>
                                         <div id="requests" class="container tab-pane fade">
                                             <h4>Aid Requests</h4>
-                                            <p>Requests content...</p>
+                                            <div class="table-responsive" style="max-width:100rem">
+                                                <table class="table">
+                                                    <thead>
+                                                    <tr>
+<!--                                                        <th>Distance</th>-->
+                                                        <th>Aid Category</th>
+                                                        <th>Aid Description</th>
+                                                        <th>Refugee name</th>
+                                                        <th>Refugee phone</th>
+                                                        <th>Refugee email</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody id="tableBody">
+                                                    <!-- Check if requestedAidsList is empty -->
+                                                    <tr th:if="${requestedAidsList.empty}">
+                                                        <td colspan="6">No Aid Request Available</td>
+                                                    </tr>
+                                                    <!-- Iterate through requestedAidsList -->
+                                                    <tr th:each="req, stat : ${requestedAidsList}">
+                                                        <td><span th:text="${req.aidEntity != null ? req.aidEntity.aidCategoryEntity.name : ''}" >Aid Category</span></td>
+                                                        <td><span th:text="${req.aidEntity != null ? req.aidEntity.description : ''}">Aid Description</span></td>
+                                                        <td><span th:text="${req.userEntity != null ? req.userEntity.name : ''}">Refugee Name</span></td>
+                                                        <td><span th:text="${req.userEntity != null ? req.userEntity.phoneNumber : ''}">Refugee Phone Number</span></td>
+                                                        <td><span th:text="${req.userEntity != null ? req.userEntity.email : ''}">Refugee Email</span></td>
+<!--                                                        <td><span th:text="${aid.description}">Aid Description</span></td>-->
+<!--                                                        <td>-->
+<!--            <span th:each="userAid : ${aid.usersAidsEntities}"-->
+<!--                  th:if="${userAid.aidInteraction.getLabel() == 'Requesting' and userAid.aidEntity.id == aid.id}">-->
+<!--                <span th:text="${userAid.userEntity.name}"></span>-->
+<!--            </span>-->
+<!--                                                        </td>-->
+<!--                                                        <td>-->
+<!--            <span th:each="userAid : ${aid.usersAidsEntities}"-->
+<!--                  th:if="${userAid.aidInteraction.getLabel() == 'Requesting' and userAid.aidEntity.id == aid.id}">-->
+<!--                <span th:text="${userAid.userEntity.phoneNumber}"></span>-->
+<!--            </span>-->
+<!--                                                        </td>-->
+<!--                                                        <td>-->
+<!--            <span th:each="userAid : ${aid.usersAidsEntities}"-->
+<!--                  th:if="${userAid.aidInteraction.getLabel() == 'Requesting' and userAid.aidEntity.id == aid.id}">-->
+<!--                <span th:text="${userAid.userEntity.email}"></span>-->
+<!--            </span>-->
+<!--                                                        </td>-->
+                                                        <td style="display: grid; width: 50%; gap: 0.5rem;">
+                                                            <a style="color: white !important;"  th:href="@{'/acceptAidRequest/' + ${req.aidEntity.id} + '/' +${req.userEntity.id}}" onclick="return confirmRequest()" class="btn btn-primary">Accept</a>
+                                                            <a style="color: white !important;"  th:href="@{'/rejectAidRequest/' + ${req.aidEntity.id}+ '/' +${req.userEntity.id}}"  onclick="return rejectRequest()" class="btn btn-danger">Reject</a>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="button" class="btn btn-primary">Save changes</button>
+<!--                                    <button type="button" class="btn btn-primary">Save changes</button>-->
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div th:if="${param.AidRequestedAccepted}" style="margin-bottom: -9rem;" class="alert alert-success">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        Aid Request Accepted!
                     </div>
                     <a th:href="@{/logout}" style="display: flex; margin-top: 21rem;">Logout</a>
                 </section>
@@ -297,10 +360,47 @@
 
         <script>
             $.widget.bridge('uibutton', $.ui.button)
+            function confirmRequest() {
+                return confirm("Are you sure you want to accept aid request?");
+            }
+            function rejectRequest() {
+                return confirm("Are you sure you want to reject aid request?");
+            }
 
             function confirmDelete() {
-                return confirm("Are you sure you want to delete aid?");
+//                return confirm("Are you sure you want to delete aid?");
+                var word = prompt("Type word 'delete' to delete aid");
+
+                if (word === 'delete') {
+                    return true;
+                } else {
+//                    alert("Incorrect word. The aid was not deleted.");
+                    return false;
+                }
             }
+
+            document.addEventListener("DOMContentLoaded", function() {
+                // Get the element containing the aid description
+                let aidDescriptionElement = document.getElementById("descId");
+
+                console.log('aidDescriptionElement ', aidDescriptionElement)
+
+
+                // Replace newline characters with HTML line breaks
+                let aidDescriptionText = aidDescriptionElement.innerText.replace(/\n/g, '<br>');
+                console.log('aidDescriptionText ', aidDescriptionText)
+
+
+                // Set the modified content back to the element
+                aidDescriptionElement.innerHTML = aidDescriptionText;
+
+//                aidDescriptionElement = document.getElementById("addressId");
+//
+//                aidDescriptionText = aidDescriptionElement.innerText.replace(/\n/g, '<br>');
+//
+//                // Set the modified content back to the element
+//                aidDescriptionElement.innerHTML = aidDescriptionText;
+            });
 
 //            listItems.forEach(item => {
 //                item.addEventListener('click', function() {

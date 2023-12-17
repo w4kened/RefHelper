@@ -6,6 +6,7 @@ import com.w4kened.RefHelper.models.UsersAidsEntity;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -19,6 +20,14 @@ public interface UsersAidsRepository extends CrudRepository <UsersAidsEntity, Lo
 //    List<UsersAidsEntity> findByAidId(Long id);
     @Query(value = "select * from users_aids_table where aid_id = ?1", nativeQuery = true)
     List<UsersAidsEntity> findByAidId(Long id);
+
+    @Query(value = "select * from users_aids_table where user_id = ?1", nativeQuery = true)
+    List<UsersAidsEntity> findByUserId(Long id);
+
+    @Query(value = "select * from users_aids_table where user_id = ?1 and aid_id = ?2", nativeQuery = true)
+    List<UsersAidsEntity> findByUserIdAndAidId(Long userId, Long aidId);
+
+
 //
 //    @Modifying
 //    @Transactional
@@ -33,4 +42,15 @@ public interface UsersAidsRepository extends CrudRepository <UsersAidsEntity, Lo
     @Transactional
     @Query(value = "delete from users_aids_table where aid_id = ?1")
     void deleteByAidId(Long id);
+
+    @Query(value = "SELECT * FROM users_aids_table uat " +
+            "INNER JOIN aid_table at ON uat.aid_id = at.id " +
+            "INNER JOIN user_table ut ON ut.id = uat.user_id " +
+            "WHERE uat.aid_interaction = 'REQUESTING' " +
+            "AND uat.aid_id NOT IN (" +
+            "   SELECT aid_id FROM users_aids_table uat2 " +
+            "   WHERE uat2.aid_interaction = 'ACCEPTED'" +
+            ")", nativeQuery = true)
+    List<UsersAidsEntity> findRequestedAidsByAidIds(@Param("aidIds") List<Long> aidIds);
+
 }

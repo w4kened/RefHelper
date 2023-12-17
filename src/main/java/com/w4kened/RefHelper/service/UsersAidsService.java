@@ -23,6 +23,10 @@ public interface UsersAidsService {
 //    List<UsersAidsEntity> findByUser
 
     List<UsersAidsEntity> findByAidInteraction(AidInteraction aidInteraction);
+
+    List<UsersAidsEntity> findByUserId(Long id);
+
+    List<UsersAidsEntity> findByUserIdAndAidId(Long userId, Long aidId);
 //
 
 //    UserAids

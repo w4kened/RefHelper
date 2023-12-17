@@ -3,7 +3,10 @@ package com.w4kened.RefHelper.models;
 public enum AidInteraction {
     CREATING("Creating"),
     REQUESTING("Requesting"),
-    MODIFYING("Modifying");
+    MODIFYING("Modifying"),
+    ACCEPTED("Accepted");
+
+
 
     private final String label;
 

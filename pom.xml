@@ -78,7 +78,9 @@
 			<groupId>nz.net.ultraq.thymeleaf</groupId>
 			<artifactId>thymeleaf-layout-dialect</artifactId>
 		</dependency>
-<!--		<dependency>-->
+
+
+		<!--		<dependency>-->
 <!--			<groupId>org.hibernate</groupId>-->
 <!--			<artifactId>hibernate-spatial</artifactId>-->
 <!--		</dependency>-->

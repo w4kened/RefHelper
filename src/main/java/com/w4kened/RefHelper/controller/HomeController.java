@@ -4,6 +4,7 @@ import com.w4kened.RefHelper.dto.AidDto;
 import com.w4kened.RefHelper.models.AidCategoryEntity;
 import com.w4kened.RefHelper.models.AidEntity;
 import com.w4kened.RefHelper.models.UserEntity;
+import com.w4kened.RefHelper.models.UsersAidsEntity;
 import com.w4kened.RefHelper.repository.AidCategoryRepository;
 import com.w4kened.RefHelper.repository.AidRepository;
 import com.w4kened.RefHelper.repository.UsersAidsRepository;
@@ -26,8 +27,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 public class HomeController {
@@ -51,7 +55,7 @@ public class HomeController {
 
 
     @GetMapping("/home")
-    public String getHomePage(Model model) {
+    public String getHomePage(Model model) throws NotFoundException {
         UserEntity user = new UserEntity();
 
         String email = SecurityUtil.getSessionUser();
@@ -59,28 +63,68 @@ public class HomeController {
 //        userService.findByEmail(email).getRoleEntity();
         model.addAttribute("data", email);
 
-        String roleName = userService.findByEmail(email).getRoleEntity().getName();
+        UserEntity userEntity = userService.findByEmail(email);
+
+        String roleName = userEntity.getRoleEntity().getName();
         model.addAttribute("role", roleName);
 
-        String userFullName = userService.findByEmail(email).getName();
+        String userFullName = userEntity.getName();
         model.addAttribute("userFullName", userFullName);
 
 //        System.out.println("username = "+email);
 //        System.out.println("role = "+userService.findByEmail(email).getId());
 
-        if (Objects.equals(userService.findByEmail(email).getRoleEntity().getName(), "ROLE_VOLUNTEER")) {
+        if (Objects.equals(userEntity.getRoleEntity().getName(), "ROLE_VOLUNTEER")) {
             List<AidEntity> aids = new ArrayList<>();
-            aids = aidService.findByCreatorUserId(userService.findByEmail(email).getId());
+            //
+            aids = aidService.findByCreatorUserId(userEntity.getId());
+
+            System.out.println("aids= "+aids);
+
+            List<Long> aidIds = aids.stream()
+                                            .map(AidEntity::getId)
+                                            .toList();
+//            requestedAids = aidService.findAll()
+            //find requested by aid Id
+            System.out.println("ids= "+aidIds);
+            List<UsersAidsEntity> requests = new ArrayList<>();
+
+            if (!aids.isEmpty()) {
+                requests = aidService.findRequestedAidsByAidIds(aidIds);
+            }
+
+//            System.out.println("requests "+requests.get(0).getId());
+//            requestedAids.get(0).getUsersAidsEntities().get()
+
+//            List<AidDto> aidDtos  = new ArrayList<>();
+
+            // Convert list to array
+//            String[] stringArray = requestedAids.toArray(new AidEntity[0]);
+
+            // Using Arrays.toString() to print array elements
+//            System.out.println("Array as string: " + Arrays.toString(stringArray));
+
+//            System.out.print("requestedAids=[");
+//                for (Integer i = 0; i < requestedAids.size(); i++) {
+//                    System.out.println(requestedAids.get(i).getClass() );
+//                }
+//            System.out.print("]\n");
+
+
+
 //            System.out.println("cout: "+aids.toArray().length);
             model.addAttribute("aidsOfferedCount", aids.toArray().length);
             model.addAttribute("aidsList", aids);
+            model.addAttribute("requestedAidsList", requests);
             model.addAttribute("layout", "layout");
 
         } else {
             List<AidEntity> aids = new ArrayList<>();
-            aids = aidService.findByCreatorUserId(userService.findByEmail(email).getId());
-            model.addAttribute("aidsOfferedCount", aids.toArray().length);
+            aids = aidService.findAll();
+//            model.addAttribute("aidsOfferedCount", aids.toArray().length);
             model.addAttribute("aidsList", aids);
+//            model.addAttribute("aidsOfferedCount", aids.toArray().length);
+//            model.addAttribute("aidsList", aids);
             model.addAttribute("layout", "refLayout");
         }
 
@@ -120,6 +164,8 @@ public class HomeController {
         return editView; // Assuming addAidForm.html is the Thymeleaf template
     }
 
+
+
     @PostMapping("/editAid/{id}")
     public ModelAndView editAid(@PathVariable("id") Long id, @ModelAttribute("aidDto") AidDto aidDto) throws NotFoundException {
         ModelAndView editView = new ModelAndView();
@@ -134,6 +180,26 @@ public class HomeController {
     public String deleteAid(@PathVariable("id") Long id) throws NotFoundException {
         aidService.deleteAidById(id);
         return "redirect:/home";
+    }
+
+    @GetMapping("/requestAid/{id}")
+    public String requestAid(@PathVariable("id") Long id) throws NotFoundException  {
+        if (aidService.countRequestedAidByUser(id) < 1) {
+            aidService.requestAid(id);
+            return "redirect:/home?AidRequestedSuccessfull";
+        }
+            return "redirect:/home";
+    }
+
+    @GetMapping("/acceptAidRequest/{aidId}/{userId}")
+    public String acceptAidRequest(@PathVariable("aidId") Long aidId, @PathVariable("userId") Long userId) throws NotFoundException {
+        // Use the 'id' and 'otherId' values in your method logic
+        try {
+            aidService.acceptAidRequest(aidId, userId);
+            return "redirect:/home?AidRequestedAccepted";
+        } catch (Exception ex) {
+            return ex.getMessage();
+        }
     }
 //
 //    @PostMapping("/deleteAid/{id}")

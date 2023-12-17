@@ -5,6 +5,7 @@ import com.w4kened.RefHelper.dto.UserDto;
 import com.w4kened.RefHelper.models.*;
 import com.w4kened.RefHelper.repository.AidCategoryRepository;
 import com.w4kened.RefHelper.repository.AidRepository;
+import com.w4kened.RefHelper.repository.UserRepository;
 import com.w4kened.RefHelper.repository.UsersAidsRepository;
 import com.w4kened.RefHelper.security.SecurityUtil;
 import com.w4kened.RefHelper.service.AidService;
@@ -35,6 +36,8 @@ public class AidServiceImpl implements AidService {
 
     @Autowired
     UsersAidsService usersAidsService;
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     public AidServiceImpl(AidRepository aidRepository,
@@ -54,6 +57,12 @@ public class AidServiceImpl implements AidService {
     public List<AidEntity> findAll() {
 //        save_csv();
         return aidRepository.findAll();
+    }
+
+    @Override
+    public List<UsersAidsEntity> findRequestedAidsByAidIds(List<Long> aidIds) throws NotFoundException {
+
+        return usersAidsRepository.findRequestedAidsByAidIds(aidIds);
     }
 
     public AidCategoryEntity convertAndFindCategory(AidDto aidDto) {
@@ -169,6 +178,7 @@ public class AidServiceImpl implements AidService {
         }
     }
 
+
     @Override
     public AidEntity findByCategoryName(String name) {
         return null;
@@ -182,6 +192,97 @@ public class AidServiceImpl implements AidService {
     @Override
     public List<AidEntity> findByCreatorUserId(Long userId) {
         return aidRepository.findByCreatorUserId(userId);
+    }
+
+    @Override
+    public void requestAid(Long id) throws NotFoundException {
+        Optional<AidEntity> optionalAidEntity = aidRepository.findById(id);
+
+        if (optionalAidEntity.isPresent()) {
+            //aid founded
+            AidEntity existingAidEntity = optionalAidEntity.get();
+            //geting user entity
+            UserEntity userEntity = userService.findByEmail(SecurityUtil.getSessionUser());
+            //creating interaction?
+            UsersAidsEntity usersAidsEntity  = new UsersAidsEntity();
+//
+//            if (usersAidsService.findByAid())
+//            if (usersAidsService.findByUserIdAndAidId(userEntity.getId(), 25L).size() > 0) {
+//                return;
+//
+//            }
+//            if (usersAidsService.findByUserId(userEntity.getId());
+
+//            if (usersAidsService.findAll())
+            usersAidsEntity.setAidEntity(existingAidEntity);
+            usersAidsEntity.setUserEntity(userEntity);
+            usersAidsEntity.setAidInteraction(AidInteraction.REQUESTING);
+            usersAidsRepository.save(usersAidsEntity);
+            System.out.println("request aid calling ");
+
+        }
+        else {
+            throw new NotFoundException("AidEntity with ID " + id + " not found");
+        }
+    }
+
+    @Override
+    public void acceptAidRequest(Long aidId, Long userId) throws NotFoundException {
+        Optional<AidEntity> optionalAidEntity = aidRepository.findById(aidId);
+
+        if (optionalAidEntity.isPresent()) {
+            //aid founded
+            AidEntity existingAidEntity = optionalAidEntity.get();
+            //geting user entity
+            Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
+            if (optionalUserEntity.isPresent()) {
+                          //creating interaction?
+                UsersAidsEntity usersAidsEntity = new UsersAidsEntity();
+                UserEntity existingUserEntity = optionalUserEntity.get();
+
+    //
+    //            if (usersAidsService.findByAid())
+    //            if (usersAidsService.findByUserIdAndAidId(userEntity.getId(), 25L).size() > 0) {
+    //                return;
+    //
+    //            }
+    //            if (usersAidsService.findByUserId(userEntity.getId());
+
+    //            if (usersAidsService.findAll())
+                usersAidsEntity.setAidEntity(existingAidEntity);
+                usersAidsEntity.setUserEntity(existingUserEntity);
+                usersAidsEntity.setAidInteraction(AidInteraction.ACCEPTED);
+                usersAidsRepository.save(usersAidsEntity);
+                System.out.println("accept aid calling ");
+            }
+        }
+        else {
+            throw new NotFoundException("user or aid ids not found");
+        }
+    }
+
+    @Override
+    public Long countRequestedAidByUser(Long aidId) throws NotFoundException {
+        Optional<AidEntity> optionalAidEntity = aidRepository.findById(aidId);
+
+        if (optionalAidEntity.isPresent()) {
+            //aid founded
+            AidEntity existingAidEntity = optionalAidEntity.get();
+            //geting user entity
+            UserEntity userEntity = userService.findByEmail(SecurityUtil.getSessionUser());
+            return aidRepository.countRequestedAidByAidIdAndUserId(existingAidEntity.getId(), userEntity.getId());
+
+
+        }
+        else {
+            throw new NotFoundException("AidEntity with ID " + aidId + " not found");
+        }
+
+    }
+
+    @Override
+    public Long countAcceptedAidByUser(Long userId) throws NotFoundException {
+        return null;
     }
 
 //    @Override

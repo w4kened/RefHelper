@@ -58,5 +58,15 @@ public class UsersAidsServiceImpl implements UsersAidsService {
         return usersAidsRepository.findByAidInteraction(aidInteraction);
     }
 
+    @Override
+    public List<UsersAidsEntity> findByUserId(Long id) {
+        return usersAidsRepository.findByAidId(id);
+    }
+
+    @Override
+    public List<UsersAidsEntity> findByUserIdAndAidId(Long userId, Long aidId) {
+        return usersAidsRepository.findByUserIdAndAidId(userId, aidId);
+    }
+
 
 }

@@ -44,6 +44,11 @@ public class UserEntity {
     @JsonManagedReference
     private RoleEntity roleEntity;
 
+    @ManyToOne
+    @JoinColumn(name = "city_id")
+    @JsonManagedReference
+    private CityEntity cityEntity;
+
 //    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    @JoinTable(
 //            name = "users_aids",
