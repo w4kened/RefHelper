@@ -17,6 +17,7 @@ public interface AidService {
 
     List<UsersAidsEntity> findRequestedAidsByAidIds(List<Long> id) throws NotFoundException;
 
+//    findResponsesByUserId
 
     void saveAid(AidDto aidDto);
 
@@ -34,6 +35,8 @@ public interface AidService {
 
     void requestAid(Long aidId) throws NotFoundException;
     void acceptAidRequest(Long aidId, Long userId) throws NotFoundException;
+
+    void rejectAidRequest(Long aidId, Long userId) throws NotFoundException;
 
     Long countRequestedAidByUser(Long userId) throws NotFoundException;
     Long countAcceptedAidByUser(Long userId) throws NotFoundException;

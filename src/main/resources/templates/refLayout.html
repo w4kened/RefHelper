@@ -255,7 +255,7 @@
                                     <td colspan="4">No Aids Available</td>
                                  </tr>
                                  <tr th:each="aid, stat : ${aidsList}">
-                                    <td th:id="'distId-' + ${aid.latitude} + '-' + ${aid.longitude}"><span>kilometers away</span></td>
+                                    <td th:id="'distId-' + ${aid.latitude} + '-' + ${aid.longitude}"><span></span></td>
                                     <td><span th:text="${aid.aidCategoryEntity.getName()}">Aid Category</span></td>
                                     <td><span id="descId" th:text="${aid.description}">Aid Description</span></td>
                                     <td><span id="addressId" th:text="${aid.address}">Aid Address</span></td>
@@ -311,8 +311,43 @@
 <!--                           </div>-->
                         </div>
                         <div id="requests" class="container tab-pane fade">
-                           <h4>Aid Requests</h4>
-                           <p>Requests content...</p>
+                           <h4>Aid Responses</h4>
+                           <div class="table-responsive" style="max-width:100rem">
+                              <table class="table">
+                                 <thead>
+                                 <tr>
+                                    <th>Distance</th>
+<!--                                    <th>Aid Category</th>-->
+                                    <th>Aid Description</th>
+                                    <th>Aid Address</th>
+                                    <th>Response</th>
+<!--                                    <th>Created Date</th>-->
+                                    <th>Action</th>
+                                 </tr>
+                                 </thead>
+                                 <tbody id="responsesTableBody">
+                                 <tr th:if="${responsesAidsList.empty}">
+                                    <td colspan="4">No Responses</td>
+                                 </tr>
+                                 <tr th:each="resp, stat : ${responsesAidsList}">
+                                    <td th:id="'respDistId-' + ${resp.aidEntity.latitude} + '-' + ${resp.aidEntity.longitude}">
+                                       <span></span>
+                                    </td>
+<!--                                    <td><span th:text="${resp.aidEntity.aidCategoryEntity.name}">Aid Category</span></td>-->
+                                    <td><span id="descId2" th:text="${resp.aidEntity.description}">Aid Description</span></td>
+                                    <td><span id="addressId2" th:text="${resp.aidEntity.address}">Aid Address</span></td>
+                                    <td><span id="responseId2" th:text="${resp.aidInteraction}">Response</span></td>
+                                    <!-- You can format the date using temporals.format -->
+<!--                                    <td><span th:text="${#temporals.format(aid.aidEntity.createdDate, 'yyyy-MM-dd')}">Created Date</span></td>-->
+                                    <td style="display: grid; width: 50%; gap: 0.5rem;">
+                                       <!-- Add your action buttons or links here -->
+                                    </td>
+                                 </tr>
+                                 </tbody>
+                              </table>
+
+
+                           </div>
                         </div>
                      </div>
                   </div>
@@ -325,10 +360,12 @@
          </div>
          <div th:if="${param.AidRequestedSuccessfull}" style="margin-bottom: -9rem;" class="alert alert-success">
 
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-               <span aria-hidden="true">&times;</span>
-            </button>
+<!--            <button type="button" class="close" data-dismiss="alert" aria-label="Close">-->
+<!--               <span aria-hidden="true">&times;</span>-->
+<!--            </button>-->
+
             Aid Requested Successfully!
+            <a style="color: white !important;"  th:href="@{'/home'}" class="btn btn-primary">OK</a>
 
          </div>
 
@@ -737,7 +774,7 @@
 
    document.getElementById('searchField').addEventListener('input', function(event) {
       const keyword = event.target.value.trim(); // Get the entered keyword
-      console.log('inputed >',keyword,'<');
+
       if (keyword != '') {
          filterAidsByKeyword(keyword);
       }

@@ -334,10 +334,13 @@
                         </div>
                     </div>
                     <div th:if="${param.AidRequestedAccepted}" style="margin-bottom: -9rem;" class="alert alert-success">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        Aid Request Accepted!
+<!--                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">-->
+<!--                            <span aria-hidden="true">&times;</span>-->
+<!--                        </button>-->
+<!--                        <a></a>-->
+                        Aid Request Accepted!<br>
+                        <a style="color: white !important;"  th:href="@{'/home'}" class="btn btn-primary">OK</a>
+
                     </div>
                     <a th:href="@{/logout}" style="display: flex; margin-top: 21rem;">Logout</a>
                 </section>

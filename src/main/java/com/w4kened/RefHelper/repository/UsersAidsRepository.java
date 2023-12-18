@@ -47,13 +47,19 @@ public interface UsersAidsRepository extends CrudRepository <UsersAidsEntity, Lo
             "INNER JOIN aid_table at ON uat.aid_id = at.id " +
             "INNER JOIN user_table ut ON ut.id = uat.user_id " +
             "WHERE uat.aid_interaction = 'REQUESTING' " +
-            "AND ut.id NOT IN (" +
-            "   SELECT ut2.id FROM user_table ut2 " +
-            "   INNER JOIN users_aids_table uat2 ON uat2.user_id = ut2.id " +
-            "   WHERE uat2.aid_interaction = 'ACCEPTED'" +
-            " " +
-            ")" +
+            "AND uat.aid_id  NOT IN (" +
+            "   SELECT uat2.aid_id FROM users_aids_table uat2 " +
+            "   WHERE uat2.aid_interaction = 'ACCEPTANCE' " +
+            "   OR    uat2.aid_interaction = 'REJECTION'" +
+            ") " +
             "AND uat.aid_id IN :aidIds", nativeQuery = true)
     List<UsersAidsEntity> findRequestedAidsByAidIds(@Param("aidIds") List<Long> aidIds);
+
+    @Query(value = "SELECT * FROM users_aids_table uat " +
+            "INNER JOIN aid_table at ON uat.aid_id = at.id " +
+            "WHERE uat.user_id = ?1 " +
+            "AND uat.aid_interaction = 'ACCEPTANCE' " +
+            "OR  uat.aid_interaction = 'REJECTION' ", nativeQuery = true)
+    List<UsersAidsEntity> findResponsesByUserId(Long userId);
 
 }

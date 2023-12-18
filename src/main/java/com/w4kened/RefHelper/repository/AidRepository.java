@@ -2,6 +2,8 @@ package com.w4kened.RefHelper.repository;
 
 import com.w4kened.RefHelper.models.AidEntity;
 import com.w4kened.RefHelper.models.UserEntity;
+import com.w4kened.RefHelper.models.UsersAidsEntity;
+import javassist.NotFoundException;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -77,6 +79,9 @@ public interface AidRepository extends CrudRepository<AidEntity, Long> {
             "ON at.id = uat.aid_id " +
             "WHERE uat.aid_interaction = 'REQUESTING' " +
             "AND at.id = ?1 " + // Added space before AND
-            "AND uat.user_id = ?2", nativeQuery = true)
+            "AND uat.user_id = ?2 ", nativeQuery = true)
     Long countRequestedAidByAidIdAndUserId(Long aidId, Long userId);
+
+
+//    List<UsersAidsEntity> findsResponsedAidsByAidIds(Long userId) throws NotFoundException;
 }

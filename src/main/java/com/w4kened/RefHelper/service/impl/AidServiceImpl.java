@@ -65,6 +65,17 @@ public class AidServiceImpl implements AidService {
         return usersAidsRepository.findRequestedAidsByAidIds(aidIds);
     }
 
+//    @Override
+//    public List<UsersAidsEntity> findsResponsedAidsByAidIds(List<Long> id) throws NotFoundException {
+//        return null;
+//    }
+//
+//    @Override
+//    public List<UsersAidsEntity> findsResponsedAidsByAidIds(Long userId) throws NotFoundException {
+//        return usersAidsRepository.findResponsesByUserId(userId);
+
+//    }
+
     public AidCategoryEntity convertAndFindCategory(AidDto aidDto) {
         if (aidDto.getSelectedCategoryAid() == 1L) {
             return aidCategoryRepository.findByName("Basic Necessities Aid");
@@ -286,9 +297,9 @@ public class AidServiceImpl implements AidService {
                 //            if (usersAidsService.findAll())
                 usersAidsEntity.setAidEntity(existingAidEntity);
                 usersAidsEntity.setUserEntity(existingUserEntity);
-                usersAidsEntity.setAidInteraction(AidInteraction.RE);
+                usersAidsEntity.setAidInteraction(AidInteraction.REJECTION);
                 usersAidsRepository.save(usersAidsEntity);
-                System.out.println("accept aid calling ");
+                System.out.println("reject aid calling ");
             }
         }
         else {
@@ -306,6 +317,7 @@ public class AidServiceImpl implements AidService {
             AidEntity existingAidEntity = optionalAidEntity.get();
             //geting user entity
             UserEntity userEntity = userService.findByEmail(SecurityUtil.getSessionUser());
+            System.out.println();
             return aidRepository.countRequestedAidByAidIdAndUserId(existingAidEntity.getId(), userEntity.getId());
 
 

@@ -27,6 +27,9 @@ public interface UsersAidsService {
     List<UsersAidsEntity> findByUserId(Long id);
 
     List<UsersAidsEntity> findByUserIdAndAidId(Long userId, Long aidId);
+
+
+    List<UsersAidsEntity> findResponsesByUserId(Long userId) throws NotFoundException;
 //
 
 //    UserAids

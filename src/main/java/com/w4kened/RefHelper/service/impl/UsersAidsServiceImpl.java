@@ -68,5 +68,10 @@ public class UsersAidsServiceImpl implements UsersAidsService {
         return usersAidsRepository.findByUserIdAndAidId(userId, aidId);
     }
 
+    @Override
+    public List<UsersAidsEntity> findResponsesByUserId(Long userId) throws NotFoundException {
+        return usersAidsRepository.findResponsesByUserId(userId);
+    }
+
 
 }

@@ -45,9 +45,10 @@ public class HomeController {
     private final UsersAidsRepository usersAidsRepository;
 
     @Autowired
-    public HomeController(UserService userService, AidService aidService, AidCategoryRepository aidCategoryRepository, AidRepository aidRepository, UsersAidsRepository usersAidsRepository) {
+    public HomeController(UserService userService, AidService aidService, UsersAidsService usersAidsService, AidCategoryRepository aidCategoryRepository, AidRepository aidRepository, UsersAidsRepository usersAidsRepository) {
         this.userService = userService;
         this.aidService = aidService;
+        this.usersAidsService = usersAidsService;
         this.aidCategoryRepository = aidCategoryRepository;
         this.aidRepository = aidRepository;
         this.usersAidsRepository = usersAidsRepository;
@@ -86,8 +87,12 @@ public class HomeController {
                                             .toList();
 //            requestedAids = aidService.findAll()
             //find requested by aid Id
+
             System.out.println("ids= "+aidIds);
+
             List<UsersAidsEntity> requests = new ArrayList<>();
+
+
 
             if (!aids.isEmpty()) {
                 requests = aidService.findRequestedAidsByAidIds(aidIds);
@@ -116,6 +121,8 @@ public class HomeController {
 
 
 //            System.out.println("cout: "+aids.toArray().length);
+
+            System.out.println("requests = "+ requests);
             model.addAttribute("aidsOfferedCount", aids.toArray().length);
             model.addAttribute("aidsList", aids);
             model.addAttribute("requestedAidsList", requests);
@@ -124,10 +131,36 @@ public class HomeController {
         } else {
             List<AidEntity> aids = new ArrayList<>();
             aids = aidService.findAll();
-//            model.addAttribute("aidsOfferedCount", aids.toArray().length);
             model.addAttribute("aidsList", aids);
-//            model.addAttribute("aidsOfferedCount", aids.toArray().length);
-//            model.addAttribute("aidsList", aids);
+
+            //need to find responses which related tu refugees
+
+//            aids = aidService.findByCreatorUserId(userEntity.getId());
+
+            System.out.println("aids= "+aids);
+//
+////            List<User>
+//            AidEntity aid = new AidEntity();
+//            aid.getLatitude();
+//            UsersAidsEntity usersAidsEntity = new UsersAidsEntity();
+//            usersAidsEntity.getAidEntity().getLatitude();
+//            usersAidsEntity.getAidEntity().getCreatedDate()
+//            List<AidEntity> aidEntity = new ArrayList<>();
+//            aidEntity.get(1).getAidCategoryEntity()
+
+
+
+            List<UsersAidsEntity> responses = new ArrayList<>();
+            responses = usersAidsService.findResponsesByUserId(userEntity.getId());
+
+//            if (!aids.isEmpty()) {
+//                responses = aidService.findRequestedAidsByAidIds(aidIds);
+//                for (int i = 0; i < responses.size(); i++) {
+//                    System.out.println("requests " + responses.get(i).getAidEntity().getId());
+//                }
+//            }
+            model.addAttribute("responsesAidsList", responses);
+
             model.addAttribute("layout", "refLayout");
         }
 
