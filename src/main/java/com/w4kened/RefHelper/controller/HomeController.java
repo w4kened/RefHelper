@@ -91,6 +91,9 @@ public class HomeController {
 
             if (!aids.isEmpty()) {
                 requests = aidService.findRequestedAidsByAidIds(aidIds);
+                for (int i = 0; i < requests.size(); i++) {
+                    System.out.println("requests " + requests.get(i).getAidEntity().getId());
+                }
             }
 
 //            System.out.println("requests "+requests.get(0).getId());
@@ -200,6 +203,16 @@ public class HomeController {
         } catch (Exception ex) {
             return ex.getMessage();
         }
+    }
+    @GetMapping("/rejectAidRequest/{aidId}/{userId}")
+    public String rejectAidRequest(@PathVariable("aidId") Long aidId, @PathVariable("userId") Long userId) throws NotFoundException {
+        try {
+            aidService.rejectAidRequest(aidId, userId);
+            return "redirect:/home";
+        } catch (Exception ex) {
+            return ex.getMessage();
+        }
+
     }
 //
 //    @PostMapping("/deleteAid/{id}")

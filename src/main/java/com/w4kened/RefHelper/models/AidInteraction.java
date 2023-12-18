@@ -4,7 +4,8 @@ public enum AidInteraction {
     CREATING("Creating"),
     REQUESTING("Requesting"),
     MODIFYING("Modifying"),
-    ACCEPTED("Accepted");
+    ACCEPTANCE("Acceptance"),
+    REJECTION("Rejection");
 
 
 

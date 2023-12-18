@@ -251,7 +251,7 @@ public class AidServiceImpl implements AidService {
     //            if (usersAidsService.findAll())
                 usersAidsEntity.setAidEntity(existingAidEntity);
                 usersAidsEntity.setUserEntity(existingUserEntity);
-                usersAidsEntity.setAidInteraction(AidInteraction.ACCEPTED);
+                usersAidsEntity.setAidInteraction(AidInteraction.ACCEPTANCE);
                 usersAidsRepository.save(usersAidsEntity);
                 System.out.println("accept aid calling ");
             }
@@ -260,6 +260,42 @@ public class AidServiceImpl implements AidService {
             throw new NotFoundException("user or aid ids not found");
         }
     }
+
+    @Override
+    public void rejectAidRequest(Long aidId, Long userId) throws NotFoundException {
+        Optional<AidEntity> optionalAidEntity = aidRepository.findById(aidId);
+
+        if (optionalAidEntity.isPresent()) {
+            //aid founded
+            AidEntity existingAidEntity = optionalAidEntity.get();
+            //geting user entity
+            Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
+            if (optionalUserEntity.isPresent()) {
+                //creating interaction?
+                UsersAidsEntity usersAidsEntity = new UsersAidsEntity();
+                UserEntity existingUserEntity = optionalUserEntity.get();
+
+                //
+                //            if (usersAidsService.findByAid())
+                //            if (usersAidsService.findByUserIdAndAidId(userEntity.getId(), 25L).size() > 0) {
+                //                return;
+                //
+                //            }
+                //            if (usersAidsService.findByUserId(userEntity.getId());
+
+                //            if (usersAidsService.findAll())
+                usersAidsEntity.setAidEntity(existingAidEntity);
+                usersAidsEntity.setUserEntity(existingUserEntity);
+                usersAidsEntity.setAidInteraction(AidInteraction.RE);
+                usersAidsRepository.save(usersAidsEntity);
+                System.out.println("accept aid calling ");
+            }
+        }
+        else {
+            throw new NotFoundException("user or aid ids not found");
+        }
+    }
+
 
     @Override
     public Long countRequestedAidByUser(Long aidId) throws NotFoundException {

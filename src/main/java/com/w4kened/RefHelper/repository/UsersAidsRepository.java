@@ -47,10 +47,13 @@ public interface UsersAidsRepository extends CrudRepository <UsersAidsEntity, Lo
             "INNER JOIN aid_table at ON uat.aid_id = at.id " +
             "INNER JOIN user_table ut ON ut.id = uat.user_id " +
             "WHERE uat.aid_interaction = 'REQUESTING' " +
-            "AND uat.aid_id NOT IN (" +
-            "   SELECT aid_id FROM users_aids_table uat2 " +
+            "AND ut.id NOT IN (" +
+            "   SELECT ut2.id FROM user_table ut2 " +
+            "   INNER JOIN users_aids_table uat2 ON uat2.user_id = ut2.id " +
             "   WHERE uat2.aid_interaction = 'ACCEPTED'" +
-            ")", nativeQuery = true)
+            " " +
+            ")" +
+            "AND uat.aid_id IN :aidIds", nativeQuery = true)
     List<UsersAidsEntity> findRequestedAidsByAidIds(@Param("aidIds") List<Long> aidIds);
 
 }
