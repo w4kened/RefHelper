@@ -1,6 +1,5 @@
 package com.w4kened.RefHelper.service.impl;
 
-import com.w4kened.RefHelper.models.AidEntity;
 import com.w4kened.RefHelper.models.AidInteraction;
 import com.w4kened.RefHelper.models.UsersAidsEntity;
 import com.w4kened.RefHelper.repository.UsersAidsRepository;
@@ -9,8 +8,11 @@ import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UsersAidsServiceImpl implements UsersAidsService {
@@ -73,5 +75,38 @@ public class UsersAidsServiceImpl implements UsersAidsService {
         return usersAidsRepository.findResponsesByUserId(userId);
     }
 
+//    @Override
+//    public List<Object[]> getCountOfAidRequestsByMonthAndYear() {
+//        return usersAidsRepository.getCountOfAidRequestsByMonthAndYear();
+//    }
+
+    @Override
+    public Map<String, Long> getOverallDataForChart() {
+        List<Object[]> result = usersAidsRepository.getCountOfAidRequestsByMonthAndYear();
+        return result
+                .stream()
+                .collect(Collectors.toMap(
+                        row -> (String) row[0],  // Assuming 'date' is in the first position of the row
+                        row -> ((BigInteger) row[1]).longValue() // Cast BigInteger to long
+                ));
+    }
+
+    @Override
+    public Map<String, Long> getMostRequestedDataForChart() {
+        List<Object[]> result = usersAidsRepository.getCountOfAidRequestsByMostRequestedCategory();
+        return result
+                .stream()
+                .collect(Collectors.toMap(
+                        row -> (String) row[0],
+                        row -> ((BigInteger) row[1]).longValue()
+                ));
+    }
+//    getOverallDataForChart
+
+//    private DataPoint mapToDataPoint(Object[] row) {
+//        String date = (String) row[0];
+//        BigInteger count = (BigInteger) row[1]; // Use BigInteger instead of Long
+//        return new DataPoint(date, count.longValue()); // Convert BigInteger to long
+//    }
 
 }

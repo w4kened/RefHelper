@@ -1,7 +1,6 @@
 package com.w4kened.RefHelper.controller;
 
 import com.w4kened.RefHelper.dto.AidDto;
-import com.w4kened.RefHelper.models.AidCategoryEntity;
 import com.w4kened.RefHelper.models.AidEntity;
 import com.w4kened.RefHelper.models.UserEntity;
 import com.w4kened.RefHelper.models.UsersAidsEntity;
@@ -15,23 +14,16 @@ import com.w4kened.RefHelper.service.UserService;
 import com.w4kened.RefHelper.service.UsersAidsService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.*;
 
 @Controller
 public class HomeController {
@@ -60,8 +52,6 @@ public class HomeController {
         UserEntity user = new UserEntity();
 
         String email = SecurityUtil.getSessionUser();
-
-//        userService.findByEmail(email).getRoleEntity();
         model.addAttribute("data", email);
 
         UserEntity userEntity = userService.findByEmail(email);
@@ -72,28 +62,20 @@ public class HomeController {
         String userFullName = userEntity.getName();
         model.addAttribute("userFullName", userFullName);
 
-//        System.out.println("username = "+email);
-//        System.out.println("role = "+userService.findByEmail(email).getId());
+
 
         if (Objects.equals(userEntity.getRoleEntity().getName(), "ROLE_VOLUNTEER")) {
             List<AidEntity> aids = new ArrayList<>();
-            //
             aids = aidService.findByCreatorUserId(userEntity.getId());
-
             System.out.println("aids= "+aids);
-
             List<Long> aidIds = aids.stream()
                                             .map(AidEntity::getId)
                                             .toList();
-//            requestedAids = aidService.findAll()
-            //find requested by aid Id
+
 
             System.out.println("ids= "+aidIds);
 
             List<UsersAidsEntity> requests = new ArrayList<>();
-
-
-
             if (!aids.isEmpty()) {
                 requests = aidService.findRequestedAidsByAidIds(aidIds);
                 for (int i = 0; i < requests.size(); i++) {
@@ -101,29 +83,9 @@ public class HomeController {
                 }
             }
 
-//            System.out.println("requests "+requests.get(0).getId());
-//            requestedAids.get(0).getUsersAidsEntities().get()
-
-//            List<AidDto> aidDtos  = new ArrayList<>();
-
-            // Convert list to array
-//            String[] stringArray = requestedAids.toArray(new AidEntity[0]);
-
-            // Using Arrays.toString() to print array elements
-//            System.out.println("Array as string: " + Arrays.toString(stringArray));
-
-//            System.out.print("requestedAids=[");
-//                for (Integer i = 0; i < requestedAids.size(); i++) {
-//                    System.out.println(requestedAids.get(i).getClass() );
-//                }
-//            System.out.print("]\n");
-
-
-
-//            System.out.println("cout: "+aids.toArray().length);
-
             System.out.println("requests = "+ requests);
             model.addAttribute("aidsOfferedCount", aids.toArray().length);
+            model.addAttribute("aidsRequestedCount", requests.toArray().length);
             model.addAttribute("aidsList", aids);
             model.addAttribute("requestedAidsList", requests);
             model.addAttribute("layout", "layout");
@@ -132,39 +94,41 @@ public class HomeController {
             List<AidEntity> aids = new ArrayList<>();
             aids = aidService.findAll();
             model.addAttribute("aidsList", aids);
-
-            //need to find responses which related tu refugees
-
-//            aids = aidService.findByCreatorUserId(userEntity.getId());
-
-            System.out.println("aids= "+aids);
-//
-////            List<User>
-//            AidEntity aid = new AidEntity();
-//            aid.getLatitude();
-//            UsersAidsEntity usersAidsEntity = new UsersAidsEntity();
-//            usersAidsEntity.getAidEntity().getLatitude();
-//            usersAidsEntity.getAidEntity().getCreatedDate()
-//            List<AidEntity> aidEntity = new ArrayList<>();
-//            aidEntity.get(1).getAidCategoryEntity()
-
-
-
             List<UsersAidsEntity> responses = new ArrayList<>();
             responses = usersAidsService.findResponsesByUserId(userEntity.getId());
 
-//            if (!aids.isEmpty()) {
-//                responses = aidService.findRequestedAidsByAidIds(aidIds);
-//                for (int i = 0; i < responses.size(); i++) {
-//                    System.out.println("requests " + responses.get(i).getAidEntity().getId());
-//                }
-//            }
             model.addAttribute("responsesAidsList", responses);
 
             model.addAttribute("layout", "refLayout");
         }
 
         return "home";
+    }
+
+//    @GetMapping("/getDataForChart")
+//    public Map<String, Long> retrieveOverallCountRequestForChar() {
+//        for (String dateAsKey : usersAidsService.getOverallDataForChart().keySet()) {
+//            System.out.println("date:"+dateAsKey+" count:"+usersAidsService.getOverallDataForChart().get(dateAsKey));
+//        }
+////        System.out.println("retrieving for chart \n "+ usersAidsService.getOverallDataForChart().get(0).getCount());
+//        return usersAidsService.getOverallDataForChart();
+//    }
+    @GetMapping("/getTotalServiceRequests")
+    public ResponseEntity<Map<String, Long>> getTotalServiceRequests() {
+        Map<String, Long> dataForChart = usersAidsService.getOverallDataForChart();
+        return ResponseEntity.ok().body(dataForChart);
+    }
+
+    @GetMapping("/getMostRequestedServices")
+    public ResponseEntity<Map<String, Long>> getMostRequestedServices() {
+        Map<String, Long> dataForChart = usersAidsService.getMostRequestedDataForChart();
+        return ResponseEntity.ok().body(dataForChart);
+    }
+
+    @GetMapping("/getRegionalDistributionOfRefugees")
+    public ResponseEntity<Map<String, Long>> getRegionalDistributionOfRefugees() {
+        Map<String, Long> dataForChart = userService.getRegionalDistributionOfRefugeesForChart();
+        return ResponseEntity.ok().body(dataForChart);
     }
 
     @GetMapping("/addAid")

@@ -28,6 +28,7 @@
 
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 
+
         <style>
             #sidebar {
                 margin-left: 3%;
@@ -100,8 +101,10 @@
                 font-size: 24px;
                 line-height: 1.33;
                 border-radius: 35px;
-                margin-left: 104rem;
-                margin-block: 14rem;
+/*                margin-left: 104rem;*/
+                margin-left: 54vw;
+                bottom: 1vw;
+/*                margin-block: 14rem;*/
                 position: fixed;
                 z-index: -1;
             }
@@ -111,7 +114,9 @@
                 background-color: #87AC52 !important;
             }
             .modal-dialog {
-                margin-left: 50rem !important;
+/*                margin-left: 50rem !important;*/
+                margin-left: 28vw !important;
+                margin-right: auto !important;
                 width: 57% !important;
             }
             .btn-primary {
@@ -205,23 +210,37 @@
                                     </ul>
                                     <div class="tab-content">
                                         <div id="profile" class="container tab-pane active">
-                                            <h4>Profile</h4>
+                                            <h4>Profile:</h4>
                                             <div class="container-fluid">
+
                                                 <div class="row">
                                                     <div class="col-md-4">
                                                         <p style="font-weight: bold; color: black;">Name:</p>
                                                         <p style="font-weight: bold; color: black;">Email:</p>
                                                         <p style="font-weight: bold; color: black;">Total Offered Aids:</p>
+                                                        <p style="font-weight: bold; color: black;">Total Requested Aids:</p>
                                                         <p style="font-weight: bold; color: black;">Role:</p>
+                                                        <h4 style="display: flex; margin-left: -1.5rem;">Service Statistics:</h4>
+                                                        <div id="chartContainer" style="height: 37rem; width: 100%;"></div>
+
                                                     </div>
                                                     <div class="col-md-4">
                                                         <p style="color: black;" th:text="${userFullName}"></p>
                                                         <p style="color: black;" th:text="${data}"></p>
                                                         <p style="color: black;" th:text="${aidsOfferedCount}"></p>
+                                                        <p style="color: black;" th:text="${aidsRequestedCount}"></p>
                                                         <p style="color: black;" th:text="${role}"></p>
+                                                        <br>
+
+                                                        <div id="chartContainer2" style="height: 37rem; width: 100%;"></div>
+
                                                     </div>
                                                     <div class="col-md-4">
-                                                        <p style="color: black;">--</p>
+                                                        <br><br><br><br><br><br><br><br><br>
+                                                        <div id="chartContainer3" style="height: 37rem; width: 100%;"></div>
+
+<!--                                                        <p style="color: black;">&#45;&#45;</p>-->
+<!--                                                        <div id="chartContainer" style="height: 370px; width: 100%;"></div>-->
                                                     </div>
                                                 </div>
                                             </div>
@@ -260,13 +279,16 @@
 <!--                                                                Delete-->
 <!--                                                            </button>-->
                                                             <a style="color: white !important;" th:href="@{'/deleteAid/'+ ${aid.id}}" class="btn btn-danger" onclick="return confirmDelete()">Delete</a>
-
-                                                            <!-- delete -->
                                                         </td>
                                                     </tr>
                                                     </tbody>
-                                                </table>
 
+                                                </table>
+                                                <div class="pagination" id="paginationTable1">
+                                                    <button id="aids-prevBtn">Previous</button>
+                                                    <span id="pageNumbersTable1"></span>
+                                                    <button id="aids-nextBtn">Next</button>
+                                                </div>
                                             </div>
                                         </div>
                                         <div id="requests" class="container tab-pane fade">
@@ -322,6 +344,11 @@
                                                     </tr>
                                                     </tbody>
                                                 </table>
+                                                <div class="pagination" id="paginationTable2">
+                                                    <button id="requests-prevBtn">Previous</button>
+                                                    <span id="pageNumbersTable2"></span>
+                                                    <button id="requests-nextBtn">Next</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -342,7 +369,7 @@
                         <a style="color: white !important;"  th:href="@{'/home'}" class="btn btn-primary">OK</a>
 
                     </div>
-                    <a th:href="@{/logout}" style="display: flex; margin-top: 21rem;">Logout</a>
+                    <a th:href="@{/logout}" style="position:fixed; bottom: 1vw">Logout</a>
                 </section>
             </aside>
             <div class="content-wrapper">
@@ -354,8 +381,7 @@
 		
         <!-- scripts -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-
+        <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
         <script th:src="@{app/jquery-ui/jquery-ui.min.js}"></script>
         <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
 
@@ -369,15 +395,227 @@
             function rejectRequest() {
                 return confirm("Are you sure you want to reject aid request?");
             }
+            $('#exampleModal').on('shown.bs.modal', function (e) {
+                // Initial setup
+                showPageTable1(1);
+                showPageTable2(1);
+                displayPageNumbersTable1();
+                displayPageNumbersTable2();
+                document.getElementById('aids-prevBtn').addEventListener('click', prevPageTable1);
+                document.getElementById('aids-nextBtn').addEventListener('click', nextPageTable1);
+                document.getElementById('requests-prevBtn').addEventListener('click', prevPageTable2);
+                document.getElementById('requests-nextBtn').addEventListener('click', nextPageTable2);
+
+                initializeTotalServiceRequestsChart();
+                initializeMostRequestedServicesChart();
+                initializeRegionalDistributionOfRefugeesChart();
+                // Event listeners for pagination buttons
+            });
+
+            const itemsPerPageTable1 = 5; // Number of items per page for Table 1
+            const tableRowsTable1 = document.querySelectorAll('#aids .table tbody tr'); // Get table rows for Table 1
+            const totalPagesTable1 = Math.ceil(tableRowsTable1.length / itemsPerPageTable1);
+            let currentPageTable1 = 1;
+            // Pagination functions for Table 1
+            function showPageTable1(pageNumber) {
+                const startIndex = (pageNumber - 1) * itemsPerPageTable1;
+                const endIndex = startIndex + itemsPerPageTable1;
+
+                tableRowsTable1.forEach((row, index) => {
+                    if (index >= startIndex && index < endIndex) {
+                        row.style.display = 'table-row';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+            const itemsPerPageTable2 = 5; // Number of items per page for Table 1
+            const tableRowsTable2 = document.querySelectorAll('#requests .table tbody tr'); // Get table rows for Table 1
+            const totalPagesTable2 = Math.ceil(tableRowsTable2.length / itemsPerPageTable2);
+            let currentPageTable2 = 1;
+            function showPageTable2(pageNumber) {
+                const startIndex = (pageNumber - 1) * itemsPerPageTable2;
+                const endIndex = startIndex + itemsPerPageTable2;
+
+                tableRowsTable2.forEach((row, index) => {
+                    if (index >= startIndex && index < endIndex) {
+                        row.style.display = 'table-row';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+            function displayPageNumbersTable1() {
+                let pageNumbersHTML = '';
+                for (let i = 1; i <= totalPagesTable1; i++) {
+                    pageNumbersHTML += `<button onclick="showPageTable1(${i})">${i}</button>`;
+                }
+                document.getElementById('pageNumbersTable1').innerHTML = pageNumbersHTML;
+            }
+            function displayPageNumbersTable2() {
+                let pageNumbersHTML = '';
+                for (let i = 1; i <= totalPagesTable2; i++) {
+                    pageNumbersHTML += `<button onclick="showPageTable2(${i})">${i}</button>`;
+                }
+                document.getElementById('pageNumbersTable2').innerHTML = pageNumbersHTML;
+            }
+            function prevPageTable1() {
+                if (currentPageTable1 > 1) {
+                    currentPageTable1--;
+                    showPageTable1(currentPageTable1);
+                }
+            }
+            function prevPageTable2() {
+                if (currentPageTable2 > 1) {
+                    currentPageTable2--;
+                    showPageTable1(currentPageTable2);
+                }
+            }
+            function nextPageTable1() {
+                if (currentPageTable1 < totalPagesTable1) {
+                    currentPageTable1++;
+                    showPageTable1(currentPageTable1);
+                }
+            }
+            function nextPageTable2() {
+                if (currentPageTable2 < totalPagesTable2) {
+                    currentPageTable2++;
+                    showPageTable1(currentPageTable2);
+                }
+            }
+
+            function initializeTotalServiceRequestsChart() {
+                fetch('/getTotalServiceRequests')
+                    .then(response => response.json())
+                    .then(data => {
+                    console.log(data); // Log the received data
+
+                    const dataPoints = Object.keys(data).map(date => {
+                        const [month, year] = date.split('-');
+                        return {
+                            x: new Date(`${year}-${month}-01`), // Construct Date object with year and month
+                            y: data[date]
+                        };
+                    });
+                    dataPoints.sort((a, b) => a.x - b.x);
+
+                    const chart = new CanvasJS.Chart("chartContainer", {
+                        animationEnabled: true,
+                        theme: "light2",
+                        title: {
+                            fontWeight: "normal",
+                            text: "Total Service Requests",
+                            fontSize: 20
+                        },
+                        axisX: {
+                        },
+                        axisY: {
+                            title: "Request Count"
+                        },
+                        data: [{
+                            type: "spline", // Use 'spline' for a smooth curve line
+                            lineDashType: "solid", // Set lineDashType to 'solid' for a solid line
+                            indexLabelFontSize: 16,
+                            dataPoints: dataPoints,
+                            color: "rgb(254, 26, 103)"
+                        }],
+                    });
+
+                    chart.render();
+                })
+                    .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+            }
+            function initializeMostRequestedServicesChart() {
+                fetch('/getMostRequestedServices')
+                    .then(response => response.json())
+                    .then(data => {
+                    console.log(data); // Log the received data
+
+                    const dataPoints = Object.keys(data).map(category => ({
+                        y: data[category],
+                        name: category
+                    }));
+
+                    const chart = new CanvasJS.Chart("chartContainer2", {
+                        animationEnabled: true,
+                        theme: "light2",
+                        title: {
+                            fontWeight: "normal",
+                            text: "Most Requested Aid Categories",
+                            fontSize: 20
+
+                        },
+                        data: [{
+                            type: "doughnut",
+                            showInLegend: true,
+                            indexLabelPlacement: "inside", // Place the index labels outside the chart
+                            indexLabel: "#percent%",
+                            dataPoints: dataPoints
+                        }]
+                    });
+
+                    chart.render();
+                })
+                    .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+            }
+            function initializeRegionalDistributionOfRefugeesChart() {
+                fetch('/getRegionalDistributionOfRefugees')
+                    .then(response => response.json())
+                    .then(data => {
+                    console.log(data); // Log the received data
+
+                    const dataPoints = Object.keys(data).map(region => ({
+                        label: region,
+                        y: data[region]
+                    }));
+
+                    const chart = new CanvasJS.Chart("chartContainer3", {
+                        animationEnabled: true,
+                        theme: "light2",
+
+                        title: {
+                            fontWeight: "normal",
+                            text: "Regional Distribution of Refugees ",
+                            fontSize: 20 // Set the font size for the chart title
+                        },
+                        axisX: {
+                            interval: 1,
+                        },
+                        axisY: {
+                            interval: 1,
+                            title: "Number of Refugees"
+                        },
+                        data: [{
+                            type: "bar",
+                            indexLabel: "{y}",
+                            indexLabelPlacement: "inside",
+                            indexLabelFontColor: "white",
+                            indexLabelFontSize: 16,
+                            dataPoints: dataPoints
+                        }]
+                    });
+
+                    chart.render();
+                })
+                    .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+
+
+            }
 
             function confirmDelete() {
-//                return confirm("Are you sure you want to delete aid?");
+                //                return confirm("Are you sure you want to delete aid?");
                 var word = prompt("Type word 'delete' to delete aid");
 
                 if (word === 'delete') {
                     return true;
                 } else {
-//                    alert("Incorrect word. The aid was not deleted.");
+                    //                    alert("Incorrect word. The aid was not deleted.");
                     return false;
                 }
             }
@@ -397,43 +635,43 @@
                 // Set the modified content back to the element
                 aidDescriptionElement.innerHTML = aidDescriptionText;
 
-//                aidDescriptionElement = document.getElementById("addressId");
-//
-//                aidDescriptionText = aidDescriptionElement.innerText.replace(/\n/g, '<br>');
-//
-//                // Set the modified content back to the element
-//                aidDescriptionElement.innerHTML = aidDescriptionText;
+                //                aidDescriptionElement = document.getElementById("addressId");
+                //
+                //                aidDescriptionText = aidDescriptionElement.innerText.replace(/\n/g, '<br>');
+                //
+                //                // Set the modified content back to the element
+                //                aidDescriptionElement.innerHTML = aidDescriptionText;
             });
 
-//            listItems.forEach(item => {
-//                item.addEventListener('click', function() {
-//                    // Remove the 'highlight' class from all items
-//                    listItems.forEach(item => {
-//                        item.classList.remove('highlight');
-//                    });
-//
-//                    // Add the 'highlight' class to the clicked item
-//                    this.classList.add('highlight');
-//                });
-//            });
+            //            listItems.forEach(item => {
+            //                item.addEventListener('click', function() {
+            //                    // Remove the 'highlight' class from all items
+            //                    listItems.forEach(item => {
+            //                        item.classList.remove('highlight');
+            //                    });
+            //
+            //                    // Add the 'highlight' class to the clicked item
+            //                    this.classList.add('highlight');
+            //                });
+            //            });
 
 
             // Assuming you have a reference to your button element
-//            var toggleButton = document.getElementById('toggleMarkerMode');
+            //            var toggleButton = document.getElementById('toggleMarkerMode');
 
             // Toggle the 'active' class on button click
-//            toggleButton.addEventListener('click', function () {
-//                this.classList.toggle('active');
-//
-//
-//                // Update the button text based on the presence of the 'active' class
-//                if (this.classList.contains('active')) {
-//                    toggleButton.textContent = 'Cancel';
-//                } else {
-//                    toggleButton.textContent = 'Add aid';
-//                }
-//
-//            });
+            //            toggleButton.addEventListener('click', function () {
+            //                this.classList.toggle('active');
+            //
+            //
+            //                // Update the button text based on the presence of the 'active' class
+            //                if (this.classList.contains('active')) {
+            //                    toggleButton.textContent = 'Cancel';
+            //                } else {
+            //                    toggleButton.textContent = 'Add aid';
+            //                }
+            //
+            //            });
 
 
 
@@ -467,137 +705,137 @@
             // Функція для додавання маркера до списку на бічній панелі
             var markerMap = {};
 
-//            function deleteAidDataFromServer(usersAidsId, aidId) {
-//                const url = `/deleteAidById/${usersAidsId}/${aidId}`;
-//                fetch(url, {
-//                    method: 'POST',
-//                    headers: {
-//                        'Content-Type': 'application/json'
-//                    }
-//                })
-//                    .then(response => response.text())
-//                    .then(data => {
-//                    console.log('Delete request sended sucessfull!'); // Вивести результат в консоль
-//                    //                    location.reload(
-//
-//
-//                })
-//                    .catch(error => {
-//                    console.error('Error at sending delete data to server:', error);
-//                });
-//            }
+            //            function deleteAidDataFromServer(usersAidsId, aidId) {
+            //                const url = `/deleteAidById/${usersAidsId}/${aidId}`;
+            //                fetch(url, {
+            //                    method: 'POST',
+            //                    headers: {
+            //                        'Content-Type': 'application/json'
+            //                    }
+            //                })
+            //                    .then(response => response.text())
+            //                    .then(data => {
+            //                    console.log('Delete request sended sucessfull!'); // Вивести результат в консоль
+            //                    //                    location.reload(
+            //
+            //
+            //                })
+            //                    .catch(error => {
+            //                    console.error('Error at sending delete data to server:', error);
+            //                });
+            //            }
 
-//            document.getElementById('aidForm').addEventListener('submit', function(event) {
-//                event.preventDefault(); // Prevents the default form submission
-//
-//                // Get values from the form
-//                const aidCategory = document.getElementById('aidCategory').value;
-//                const aidDescription = document.getElementById('aidDescription').value;
-//
-//                // Use the extracted values as needed
-//                console.log('Aid Category:', aidCategory);
-//                console.log('Aid Description:', aidDescription);
-//
-//                // You can perform further actions with the extracted values here
-//            });
-//            function sendUpdateAidRequest(aid_Id) {
-//                const url = `/updateAidById/${aidId}`;
-//
-//                fetch(url, {
-//                    method: 'POST',
-//                    headers: {
-//                        'Content-Type': 'application/json'
-//                    }
-//                })
-//                    .then(response => response.text())
-//                    .then(data => {
-//                    console.log('Update request sended sucessfull!'); // Вивести результат в консоль
-//                    //                    location.reload(
-//                })
-//                    .catch(error => {
-//                    console.error('Error at sending delete data to server:', error);
-//                });
-//            }
+            //            document.getElementById('aidForm').addEventListener('submit', function(event) {
+            //                event.preventDefault(); // Prevents the default form submission
+            //
+            //                // Get values from the form
+            //                const aidCategory = document.getElementById('aidCategory').value;
+            //                const aidDescription = document.getElementById('aidDescription').value;
+            //
+            //                // Use the extracted values as needed
+            //                console.log('Aid Category:', aidCategory);
+            //                console.log('Aid Description:', aidDescription);
+            //
+            //                // You can perform further actions with the extracted values here
+            //            });
+            //            function sendUpdateAidRequest(aid_Id) {
+            //                const url = `/updateAidById/${aidId}`;
+            //
+            //                fetch(url, {
+            //                    method: 'POST',
+            //                    headers: {
+            //                        'Content-Type': 'application/json'
+            //                    }
+            //                })
+            //                    .then(response => response.text())
+            //                    .then(data => {
+            //                    console.log('Update request sended sucessfull!'); // Вивести результат в консоль
+            //                    //                    location.reload(
+            //                })
+            //                    .catch(error => {
+            //                    console.error('Error at sending delete data to server:', error);
+            //                });
+            //            }
 
-//            function editRow(button, aidId) {
-//                // Access the row and perform edit operations
-//                var row = button.closest('tr');
-//                // Use 'aidId' to perform specific actions related to this ID
-//                console.log("Edit ID: " + aidId);
-//                // Implement edit functionality here
-//            }
-//
-//            function deleteRow(button, aidId) {
-//                // Access the row and perform delete operations
-//                var row = button.closest('tr');
-//                // Use 'aidId' to perform specific actions related to this ID
-//                console.log("Delete ID: " + aidId);
-//                // Implement delete functionality here
-//            }
-//
-//            function handleEdit(aid_id) {
-//                const url = `/editAidById/${aid_id}`;
-//                fetch(url, {
-//                    method: 'POST',
-//                    headers: {
-//                        'Content-Type': 'application/json'
-//                    }
-//                })
-//                    .then(response => response.text())
-//                    .then(data => {
-//                    console.log('Delete modified sucessfull!'); // Вивести результат в консоль
-//                    //                    location.reload(
-//
-//
-//                })
-//                    .catch(error => {
-//                    console.error('Error at sending modifying data to server:', error);
-//                });
-//            }
-//
-//            function handleDelete(index) {
-//
-//            }
+            //            function editRow(button, aidId) {
+            //                // Access the row and perform edit operations
+            //                var row = button.closest('tr');
+            //                // Use 'aidId' to perform specific actions related to this ID
+            //                console.log("Edit ID: " + aidId);
+            //                // Implement edit functionality here
+            //            }
+            //
+            //            function deleteRow(button, aidId) {
+            //                // Access the row and perform delete operations
+            //                var row = button.closest('tr');
+            //                // Use 'aidId' to perform specific actions related to this ID
+            //                console.log("Delete ID: " + aidId);
+            //                // Implement delete functionality here
+            //            }
+            //
+            //            function handleEdit(aid_id) {
+            //                const url = `/editAidById/${aid_id}`;
+            //                fetch(url, {
+            //                    method: 'POST',
+            //                    headers: {
+            //                        'Content-Type': 'application/json'
+            //                    }
+            //                })
+            //                    .then(response => response.text())
+            //                    .then(data => {
+            //                    console.log('Delete modified sucessfull!'); // Вивести результат в консоль
+            //                    //                    location.reload(
+            //
+            //
+            //                })
+            //                    .catch(error => {
+            //                    console.error('Error at sending modifying data to server:', error);
+            //                });
+            //            }
+            //
+            //            function handleDelete(index) {
+            //
+            //            }
 
-//            function editAid(event) {
-//                // Find the row with the matching id
-////                var row = $('tr[row_id="' + id + '"]');
-//                console.log('this ',event);
-////                var currentRow = event.currentTarget.closest('tr'); // Get the closest table row
-////                var aidCategory = currentRow.querySelector('td:nth-child(1)').textContent.trim(); // Extract Aid Category
-////                var aidDescription = currentRow.querySelector('td:nth-child(2)').textContent.trim(); // Extract Aid Description
-////                var createdDate = currentRow.querySelector('td:nth-child(3)').textContent.trim(); // Extract Created Date
-////
-////                // Now you can use these variables (aidCategory, aidDescription, createdDate) as needed
-////                // For example, log them to the console
-////                console.log("Aid Category:", aidCategory);
-////                console.log("Aid Description:", aidDescription);
-////                console.log("Created Date:", createdDate);
-//
-//            }
-//
-//            // Add event listeners to all Edit buttons
-//            document.querySelectorAll('.editBtn').forEach((button, index) => {
-//                button.addEventListener('click', () => {
-//                    const row = button.closest('tr'); // Get the closest row to the clicked button
-//                    const aidCategory = row.querySelectorAll('td')[0].textContent.trim(); // Get the Aid Category value
-//                    const aidDescription = row.querySelectorAll('td')[1].textContent.trim(); // Get the Aid Description value
-//                    const createdDate = row.querySelectorAll('td')[2].textContent.trim(); // Get the Created Date value
-//
-//                    // You can use these values as needed, for example:
-//                    console.log('Aid Category:', aidCategory);
-//                    console.log('Aid Description:', aidDescription);
-//                    console.log('Created Date:', createdDate);
-//
-//                });
-//            });
+            //            function editAid(event) {
+            //                // Find the row with the matching id
+            ////                var row = $('tr[row_id="' + id + '"]');
+            //                console.log('this ',event);
+            ////                var currentRow = event.currentTarget.closest('tr'); // Get the closest table row
+            ////                var aidCategory = currentRow.querySelector('td:nth-child(1)').textContent.trim(); // Extract Aid Category
+            ////                var aidDescription = currentRow.querySelector('td:nth-child(2)').textContent.trim(); // Extract Aid Description
+            ////                var createdDate = currentRow.querySelector('td:nth-child(3)').textContent.trim(); // Extract Created Date
+            ////
+            ////                // Now you can use these variables (aidCategory, aidDescription, createdDate) as needed
+            ////                // For example, log them to the console
+            ////                console.log("Aid Category:", aidCategory);
+            ////                console.log("Aid Description:", aidDescription);
+            ////                console.log("Created Date:", createdDate);
+            //
+            //            }
+            //
+            //            // Add event listeners to all Edit buttons
+            //            document.querySelectorAll('.editBtn').forEach((button, index) => {
+            //                button.addEventListener('click', () => {
+            //                    const row = button.closest('tr'); // Get the closest row to the clicked button
+            //                    const aidCategory = row.querySelectorAll('td')[0].textContent.trim(); // Get the Aid Category value
+            //                    const aidDescription = row.querySelectorAll('td')[1].textContent.trim(); // Get the Aid Description value
+            //                    const createdDate = row.querySelectorAll('td')[2].textContent.trim(); // Get the Created Date value
+            //
+            //                    // You can use these values as needed, for example:
+            //                    console.log('Aid Category:', aidCategory);
+            //                    console.log('Aid Description:', aidDescription);
+            //                    console.log('Created Date:', createdDate);
+            //
+            //                });
+            //            });
 
 
 
 
             function addToSidebar(marker) {
-//                const dataElement = document.getElementById('dataElement');
-//                const dataText = dataElement.textContent;
+                //                const dataElement = document.getElementById('dataElement');
+                //                const dataText = dataElement.textContent;
 
                 const sidebarList = document.getElementById('sidebarList');
 
@@ -615,7 +853,7 @@
                 const descriptionDiv = document.createElement('div');
                 descriptionDiv.textContent = marker.description;
                 descriptionDiv.innerHTML = marker.description.replace(/\n/g, '<br>'); // Replace newlines with HTML line breaks
-//                descriptionDiv.textContent = marker.description;
+                //                descriptionDiv.textContent = marker.description;
 
                 const creatorDiv = document.createElement('div');
                 creatorDiv.style.fontStyle = "italic";
@@ -625,8 +863,8 @@
                 addressDiv.textContent = "Address: "+ marker.address;
 
 
-//                const removeIcon = document.createElement('i');
-//                removeIcon.className = "fa fa-trash-o";
+                //                const removeIcon = document.createElement('i');
+                //                removeIcon.className = "fa fa-trash-o";
 
                 listItem.addEventListener('click', function(e) {
                     const highlightedItems = document.querySelectorAll('.highlight');
@@ -646,58 +884,58 @@
                     }
                 });
 
-//                if (marker.usersAidsEntities[0].userEntity.email == dataText) {
-//                    div.appendChild(subheading);
-//                    div.appendChild(descriptionDiv);
-//                    div.appendChild(creatorDiv); // Add creator's name to the div
-//
-//                    listItem.appendChild(div);
-//                    listItem.appendChild(removeIcon);
-//
-//                    sidebarList.appendChild(listItem);
-//
-//                    removeIcon.addEventListener('click', function(event) {
-//
-//
-//                        console.log('delete evenet');
-//                        var result = confirm("Want to delete?");
-//
-//                        if (result) {
-//                            console.log('list item ', listItem);
-//                            console.log('our data [',marker.description.trim(),']');
-//
-//                            //                            point_layers.clearLayers();
-//                            for (var i  = 0; i < markerlist.length; i++) {
-//                                if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
-//                                    deleteAidDataFromServer(marker.usersAidsEntities[0].id, marker.id);
-//                                    map.removeLayer(markerlist[i]);
-//                                    sidebarList.removeChild(listItem);
-//                                    //                                    removeLayer(marker);
-//                                    markerCluster.removeLayer(markerlist[i]);
-//
-//                                    break;
-//                                }
-//                            }
-//
-//                        }
-//                    });
-//                } else {
-                    div.appendChild(subheading);
-                    div.appendChild(descriptionDiv);
-                    div.appendChild(creatorDiv); // Add creator's name to the div
-                    div.appendChild(addressDiv); // Add creator's name to the div
+                //                if (marker.usersAidsEntities[0].userEntity.email == dataText) {
+                //                    div.appendChild(subheading);
+                //                    div.appendChild(descriptionDiv);
+                //                    div.appendChild(creatorDiv); // Add creator's name to the div
+                //
+                //                    listItem.appendChild(div);
+                //                    listItem.appendChild(removeIcon);
+                //
+                //                    sidebarList.appendChild(listItem);
+                //
+                //                    removeIcon.addEventListener('click', function(event) {
+                //
+                //
+                //                        console.log('delete evenet');
+                //                        var result = confirm("Want to delete?");
+                //
+                //                        if (result) {
+                //                            console.log('list item ', listItem);
+                //                            console.log('our data [',marker.description.trim(),']');
+                //
+                //                            //                            point_layers.clearLayers();
+                //                            for (var i  = 0; i < markerlist.length; i++) {
+                //                                if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
+                //                                    deleteAidDataFromServer(marker.usersAidsEntities[0].id, marker.id);
+                //                                    map.removeLayer(markerlist[i]);
+                //                                    sidebarList.removeChild(listItem);
+                //                                    //                                    removeLayer(marker);
+                //                                    markerCluster.removeLayer(markerlist[i]);
+                //
+                //                                    break;
+                //                                }
+                //                            }
+                //
+                //                        }
+                //                    });
+                //                } else {
+                div.appendChild(subheading);
+                div.appendChild(descriptionDiv);
+                div.appendChild(creatorDiv); // Add creator's name to the div
+                div.appendChild(addressDiv); // Add creator's name to the div
 
-                    listItem.appendChild(div);
-                    sidebarList.appendChild(listItem);
-//                }
+                listItem.appendChild(div);
+                sidebarList.appendChild(listItem);
+                //                }
             }
 
             // Function to filter aids based on the keyw ord
             function filterAidsByKeyword(keyword) {
                 keyword = keyword.toLowerCase().trim();
                 document.getElementById("sidebarList").innerHTML = "";
-//                let arr = wrappedMarkers;
-//                wrappedMarkers = [];
+                //                let arr = wrappedMarkers;
+                //                wrappedMarkers = [];
 
                 wrappedMarkers.forEach(marker => {
                     console.log('curent marker ');
@@ -725,7 +963,7 @@
                     filterAidsByKeyword(keyword);
                 }
                 else {
-//                    console.log('>',keyword,'<');
+                    //                    console.log('>',keyword,'<');
                     document.getElementById("sidebarList").innerHTML = "";
                     wrappedMarkers.forEach(element => {
                         addToSidebar(element);
@@ -752,8 +990,8 @@
             function findMarkers() {
                 const selectedCategory = document.getElementById('markerColor').value;
 
-//                const sidebarList = document.getElementById('sidebarList');
-//
+                //                const sidebarList = document.getElementById('sidebarList');
+                //
                 document.getElementById("sidebarList").innerHTML = "";
 
 
@@ -764,26 +1002,25 @@
                 map.removeLayer(markerCluster); // Assuming `markerCluster` is your marker cluster layer
                 markerCluster.clearLayers();
                 //
-//                //                // Display markers based on the selected category
-                                wrappedMarkers.forEach(marker => {
-                                    if (selectedCategory === 'all') {
-                                        console.log('all')
-                                        addMarker(marker, 2); // Adding markers based on the category
-                                    }
-                                    else if (marker.aidCategoryEntity.id.toString() === selectedCategory) {
-                                        addMarker(marker, 2); // Adding markers based on the category
+                //                //                // Display markers based on the selected category
+                wrappedMarkers.forEach(marker => {
+                    if (selectedCategory === 'all') {
+                        console.log('all')
+                        addMarker(marker, 2); // Adding markers based on the category
+                    }
+                    else if (marker.aidCategoryEntity.id.toString() === selectedCategory) {
+                        addMarker(marker, 2); // Adding markers based on the category
 
-                                    }
-//                                    else (marker.aidCategoryEntity.id.toString() === selectedCategory) {
-//                //                        console.log(marker.aidCategoryEntity.id.toString());
-//                //                        console.log(marker.aidCategoryEntity.id.toString());
-//                                        addMarker(marker, 2); // Adding markers based on the category
-//                                    }
-                                });
-//
+                    }
+                    //                                    else (marker.aidCategoryEntity.id.toString() === selectedCategory) {
+                    //                //                        console.log(marker.aidCategoryEntity.id.toString());
+                    //                //                        console.log(marker.aidCategoryEntity.id.toString());
+                    //                                        addMarker(marker, 2); // Adding markers based on the category
+                    //                                    }
+                });
+                //
                 map.addLayer(markerCluster); // Add the updated marker cluster to the map
             }
-
 
 
         </script>

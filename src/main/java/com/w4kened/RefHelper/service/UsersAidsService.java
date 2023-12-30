@@ -6,7 +6,9 @@ import com.w4kened.RefHelper.models.UsersAidsEntity;
 import javassist.NotFoundException;
 import org.springframework.data.jpa.repository.Query;
 
+import javax.xml.crypto.Data;
 import java.util.List;
+import java.util.Map;
 
 public interface UsersAidsService {
 //    List<AidEntity> findAll();
@@ -30,6 +32,13 @@ public interface UsersAidsService {
 
 
     List<UsersAidsEntity> findResponsesByUserId(Long userId) throws NotFoundException;
+
+    Map<String, Long> getOverallDataForChart();
+
+    Map<String, Long> getMostRequestedDataForChart();
+
+
+//    List<Object[]> getCountOfAidRequestsByMonthAndYear();
 //
 
 //    UserAids

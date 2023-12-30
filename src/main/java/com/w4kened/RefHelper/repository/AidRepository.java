@@ -4,6 +4,8 @@ import com.w4kened.RefHelper.models.AidEntity;
 import com.w4kened.RefHelper.models.UserEntity;
 import com.w4kened.RefHelper.models.UsersAidsEntity;
 import javassist.NotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -67,8 +69,14 @@ public interface AidRepository extends CrudRepository<AidEntity, Long> {
 
 
     //    findByCreator
+    //TODO repository changed
     @Query(value = "SELECT * from aid_table where id in (SELECT aid_id from users_aids_table WHERE aid_interaction = 'CREATING' AND user_id = ?1)", nativeQuery = true)
     List<AidEntity> findByCreatorUserId(Long userId);
+//    @Query(value = "SELECT * from aid_table where id in (SELECT aid_id from users_aids_table WHERE aid_interaction = 'CREATING' AND user_id = ?1)", nativeQuery = true)
+//    Page<AidEntity> findByCreatorUserId(Long userId, Pageable pageable);
+
+
+
 
     @Query(value = "SELECT * FROM aid_table where id = ?1", nativeQuery = true)
     AidEntity findByAidId(Long id);
@@ -81,6 +89,8 @@ public interface AidRepository extends CrudRepository<AidEntity, Long> {
             "AND at.id = ?1 " + // Added space before AND
             "AND uat.user_id = ?2 ", nativeQuery = true)
     Long countRequestedAidByAidIdAndUserId(Long aidId, Long userId);
+
+
 
 
 //    List<UsersAidsEntity> findsResponsedAidsByAidIds(Long userId) throws NotFoundException;

@@ -29,40 +29,14 @@ public class SecurityConfig  extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
-
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-//        http.csrf().disable()
-//                .authorizeRequests()
-//                .antMatchers("/login", "/register","/home", "/css/**", "/js/**","/images/**")
-//                .permitAll()
-//                .and()
-//                .formLogin(form -> form
-//                        .loginPage("/login")
-//                        .defaultSuccessUrl("/home")
-//                        .loginProcessingUrl("/login")
-//                        .failureUrl("/login?error=true")
-//                        .permitAll()
-//                ).logout(
-//                        logout -> logout
-//                                .logoutRequestMatcher(new AntPathRequestMatcher("/logout")).permitAll()
-//                );
-//
-//        return http.build();
-//    }
-//    @Autowired
-//    public void configure(AuthenticationManagerBuilder builder) throws Exception {
-//        builder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-//    }
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/login", "/register", "/css/**", "/js/**") // Removed "/home"
                 .permitAll()
-                .antMatchers("/home","/add_aid") // New rule for "/home"
-                .authenticated() // Requires authentication
+                .antMatchers("/home") // New rule for "/home"
+                .authenticated()
                 .and()
                 .formLogin(form -> form
                     .loginPage("/login")

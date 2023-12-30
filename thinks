@@ -1,84 +1,58 @@
-	Create Requests
-			html view or previous form?
-	Rework Aid Category?
-	
-	how Refugge should request aid?
-	
-		REF
-		Aid Offers
-		Aid Responses
-		
-		STATISTICS RAPORTS:
+vol
+- Overall count requests
+- Count of categories
+- 
 
-					User 
-					id
-					city_id
-					
-					
-					City
-					id
-					region_id
-					
-					
-					Region
-					
-		SELECT count(*)
-		FROM user_table
-		WHERE city_id
-		IN (
-			SELECT id
-			FROM city
-			WHERE region_id
-			IN (
-				SELECT id
-				FROM region
-				WHERE name = Świętokrzyskie
-			)
-		);
-		
-		rework signup adding extra input for city
-		
-		Rzeszów,
-		Lublin,
-		Kraków
-		Kielce,
-		Warszawa,
-		Białystok,
-		Katowice,
-		Łódź,
-		Bydgoszcz,
-		Olsztyn,
-		Gdańsk,
-		Poznań,
-		Wrocław,
-		Gorzów Wielkopolski,
-		Szczecin
-		
-		  // Function to get user city name
-    function getUserCity() {
-        if ('geolocation' in navigator) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                var latitude = position.coords.latitude;
-                var longitude = position.coords.longitude;
+ref
+- count 
 
-                // Use reverse geocoding to get the city name
-                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
-                    .then(response => response.json())
-                    .then(data => {
-                    var city = data.address.city;
-                    console.log('Your city:', city);
-                    // Display the city name on the page
-//                    document.getElementById('cityName').innerText = `Your City: ${city}`;
-                })
-                    .catch(error => {
-                    console.error('Error:', error);
-                });
-            });
-        } else {
-            console.error('Geolocation is not supported by this browser.');
-        }
-    }
 
-    // Call the function to get user city name
-    getUserCity();
-		
+-------------
+ generate new data
+ 
+ 
+ W danym projekcie w ramach prezentacji ofert pomocy wykorzystano bezpłatną bibliotekę Leaflet, po pomyślnym zalogowaniu przy pomocy API na stronie głównej inicjalizowana jest mapa interaktywna
+
+modal-dialog {}
+  max-width: 100vw;
+  max-height: 100vh;
+  margin: 0 auto;
+
+btn {}
+margin-left: 54vw;
+bottom: 1vw;
+
+logout {}
+bottom: 1vw;
+position: fixed;
+  
+  if category_id == '1' then "I provide essential food supplies \n for a family of four for two weeks, \n including non-perishable items and toiletries." elsif category_id == '2'  then "Offering free medical consultation and advice  \n via video call for common health concerns \n and minor ailments." elsif category_id == '3' then "Tutoring services available for high school \n students struggling with mathematics or sciences, \n aiming to improve grades and understanding." elsif category_id == '4' then "Resume and cover letter review service \n provided for individuals seeking employment, offering \n guidance on job search strategies." elsif category_id == '5' then "Free legal advice and guidance on tenant \n rights and rental agreements for individuals  \n facing housing issues or disputes." elsif category_id == '6' then "Organizing a community cleanup event \n to help maintain our local parks and streets  \n clean and safe for everyone." end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -62,4 +62,27 @@ public interface UsersAidsRepository extends CrudRepository <UsersAidsEntity, Lo
             "OR  uat.aid_interaction = 'REJECTION' ", nativeQuery = true)
     List<UsersAidsEntity> findResponsesByUserId(Long userId);
 
+    @Query(value = "SELECT DATE_FORMAT(created_date, '%m-%Y') AS date, COUNT(id) AS count " +
+            "FROM users_aids_table " +
+            "WHERE aid_interaction = 'REQUESTING' "+
+            "GROUP BY MONTH(created_date), YEAR(created_date)", nativeQuery = true)
+    List<Object[]> getCountOfAidRequestsByMonthAndYear();
+
+    @Query(value = "SELECT act.name AS Category, count(uat.id) AS count " +
+            "FROM users_aids_table uat " +
+            "INNER JOIN aid_table at ON uat.aid_id  = at.id " +
+            "INNER JOIN aid_category_table act ON at.category_id = act.id " +
+            "WHERE uat.aid_interaction = 'REQUESTING' " +
+            "GROUP BY act.name ",nativeQuery = true)
+    List<Object[]> getCountOfAidRequestsByMostRequestedCategory();
+
+//    SELECT
+//    DATE_FORMAT(created_date, '%m-%Y'),
+//    count(id)
+//    FROM users_aids_table uat
+//    GROUP BY
+//    MONTH(created_date),
+//    YEAR(created_date);
+
+
 }

@@ -13,6 +13,9 @@ import com.w4kened.RefHelper.service.UserService;
 import com.w4kened.RefHelper.service.UsersAidsService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,6 +53,13 @@ public class AidServiceImpl implements AidService {
         this.aidCategoryRepository = aidCategoryRepository;
         this.usersAidsRepository = usersAidsRepository;
         this.usersAidsService = usersAidsService;
+    }
+
+    public static LocalDateTime getCurrentTimeStamp() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        String formattedDateTimeString = now.format(formatter);
+        return LocalDateTime.parse(formattedDateTimeString, formatter);
     }
 
 
@@ -98,6 +108,7 @@ public class AidServiceImpl implements AidService {
     }
 
 
+    //TODO created_date new field on interaction table (create)
     @Override
     public void saveAid(AidDto aidDto) {
         AidEntity aidEntity = new AidEntity();
@@ -105,12 +116,12 @@ public class AidServiceImpl implements AidService {
         aidEntity.setAddress(aidDto.getAddress());
         aidEntity.setLatitude(aidDto.getLatitude());
         aidEntity.setLongitude(aidDto.getLongitude());
-//        aidEntity.setCreatedDate(aidDto.getCreatedDate());
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-        String formattedDateTimeString = now.format(formatter);
-        LocalDateTime formattedDateTime = LocalDateTime.parse(formattedDateTimeString, formatter);
-        aidEntity.setCreatedDate(formattedDateTime);
+////        aidEntity.setCreatedDate(aidDto.getCreatedDate());
+        LocalDateTime now = getCurrentTimeStamp();
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+//        String formattedDateTimeString = now.format(formatter);
+//        LocalDateTime formattedDateTime = LocalDateTime.parse(formattedDateTimeString, formatter);
+        aidEntity.setCreatedDate(now);
 
 //        System.out.println("coordinates " + aidEntity.getLatitude() + aidEntity.getLongitude());
 
@@ -133,9 +144,11 @@ public class AidServiceImpl implements AidService {
         usersAidsEntity.setAidEntity(aidEntity);
         usersAidsEntity.setUserEntity(userEntity);
         usersAidsEntity.setAidInteraction(AidInteraction.CREATING);
+        usersAidsEntity.setCreatedDate(now);
         usersAidsRepository.save(usersAidsEntity);
     }
 
+    //TODO created_date new field on interaction table (update)
     @Override
     @Transactional
     public void updateAid(AidDto aidDto, Long id) throws NotFoundException{
@@ -163,6 +176,13 @@ public class AidServiceImpl implements AidService {
             usersAidsEntity.setAidEntity(existingAidEntity);
             usersAidsEntity.setUserEntity(userEntity);
             usersAidsEntity.setAidInteraction(AidInteraction.MODIFYING);
+//            LocalDateTime now = LocalDateTime.now();
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+//            String formattedDateTimeString = now.format(formatter);
+//            LocalDateTime formattedDateTime = LocalDateTime.parse(formattedDateTimeString, formatter);
+//            aidEntity.setCreatedDate(formattedDateTime);
+
+            usersAidsEntity.setCreatedDate(getCurrentTimeStamp());
             usersAidsRepository.save(usersAidsEntity);
             System.out.println("update aid calling ");
 
@@ -200,10 +220,17 @@ public class AidServiceImpl implements AidService {
         return aidRepository.findByAidId(aidId);
     }
 
+    //TODO repository changed
     @Override
     public List<AidEntity> findByCreatorUserId(Long userId) {
         return aidRepository.findByCreatorUserId(userId);
     }
+//    @Override
+//    public Page<AidEntity> findByCreatorUserId(Long userId, Pageable pageable) {
+//        return aidRepository.findByCreatorUserId(userId, pageable);
+//    }
+
+
 
     @Override
     public void requestAid(Long id) throws NotFoundException {
@@ -228,15 +255,17 @@ public class AidServiceImpl implements AidService {
             usersAidsEntity.setAidEntity(existingAidEntity);
             usersAidsEntity.setUserEntity(userEntity);
             usersAidsEntity.setAidInteraction(AidInteraction.REQUESTING);
+            usersAidsEntity.setCreatedDate(getCurrentTimeStamp());
             usersAidsRepository.save(usersAidsEntity);
             System.out.println("request aid calling ");
-
         }
         else {
             throw new NotFoundException("AidEntity with ID " + id + " not found");
         }
     }
 
+
+    //TODO created_date new field on interaction table (accept)
     @Override
     public void acceptAidRequest(Long aidId, Long userId) throws NotFoundException {
         Optional<AidEntity> optionalAidEntity = aidRepository.findById(aidId);
@@ -263,6 +292,7 @@ public class AidServiceImpl implements AidService {
                 usersAidsEntity.setAidEntity(existingAidEntity);
                 usersAidsEntity.setUserEntity(existingUserEntity);
                 usersAidsEntity.setAidInteraction(AidInteraction.ACCEPTANCE);
+                usersAidsEntity.setCreatedDate(getCurrentTimeStamp());
                 usersAidsRepository.save(usersAidsEntity);
                 System.out.println("accept aid calling ");
             }
@@ -272,6 +302,7 @@ public class AidServiceImpl implements AidService {
         }
     }
 
+    //TODO created_date new field on interaction table (reject)
     @Override
     public void rejectAidRequest(Long aidId, Long userId) throws NotFoundException {
         Optional<AidEntity> optionalAidEntity = aidRepository.findById(aidId);
@@ -298,6 +329,7 @@ public class AidServiceImpl implements AidService {
                 usersAidsEntity.setAidEntity(existingAidEntity);
                 usersAidsEntity.setUserEntity(existingUserEntity);
                 usersAidsEntity.setAidInteraction(AidInteraction.REJECTION);
+                usersAidsEntity.setCreatedDate(getCurrentTimeStamp());
                 usersAidsRepository.save(usersAidsEntity);
                 System.out.println("reject aid calling ");
             }
@@ -332,9 +364,4 @@ public class AidServiceImpl implements AidService {
     public Long countAcceptedAidByUser(Long userId) throws NotFoundException {
         return null;
     }
-
-//    @Override
-//    public List<AidEntity> findByCreator(Long userId) {
-//        return aidRepository.findByCreatorUserId(userId);
-//    }
 }

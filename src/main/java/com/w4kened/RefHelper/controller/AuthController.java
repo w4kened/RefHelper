@@ -36,7 +36,6 @@ public class AuthController {
     @RequestMapping("/register")
     public String getRegisterPage(Model model) {
         UserDto userDto = new UserDto();
-//        List<String> cityNames = {[]}
         model.addAttribute("user", userDto);
 
         List<String> cities = new ArrayList<>();
@@ -104,8 +103,6 @@ public class AuthController {
         UserEntity existingUserEmail = userService.findByEmail(user.getEmail());
         if(existingUserEmail != null && existingUserEmail.getEmail() != null &&
                 !existingUserEmail.getEmail().isEmpty()) {
-//            result.rejectValue("email", null,
-//                    "There is already an account registered with the same email");
             return "redirect:/register?fail";
         }
         if(result.hasErrors()) {

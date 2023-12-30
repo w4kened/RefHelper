@@ -6,6 +6,8 @@ import com.w4kened.RefHelper.models.AidEntity;
 import com.w4kened.RefHelper.models.UserEntity;
 import com.w4kened.RefHelper.models.UsersAidsEntity;
 import javassist.NotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -16,6 +18,7 @@ public interface AidService {
     List<AidEntity> findAll();
 
     List<UsersAidsEntity> findRequestedAidsByAidIds(List<Long> id) throws NotFoundException;
+
 
 //    findResponsesByUserId
 
@@ -31,7 +34,12 @@ public interface AidService {
 
     AidEntity findByAidId(Long aidId);
 
+    // Todo query repository changed
     List<AidEntity> findByCreatorUserId(Long userId);
+
+//    public Page<AidEntity> findByCreatorUserId(Long userId, Pageable pageable);
+
+
 
     void requestAid(Long aidId) throws NotFoundException;
     void acceptAidRequest(Long aidId, Long userId) throws NotFoundException;
