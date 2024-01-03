@@ -2,17 +2,18 @@ package com.w4kened.RefHelper.controller;
 
 import com.w4kened.RefHelper.dto.AidDto;
 import com.w4kened.RefHelper.models.AidEntity;
+import com.w4kened.RefHelper.models.RegionEntity;
 import com.w4kened.RefHelper.models.UserEntity;
 import com.w4kened.RefHelper.models.UsersAidsEntity;
 import com.w4kened.RefHelper.repository.AidCategoryRepository;
 import com.w4kened.RefHelper.repository.AidRepository;
 import com.w4kened.RefHelper.repository.UsersAidsRepository;
 import com.w4kened.RefHelper.security.SecurityUtil;
-
 import com.w4kened.RefHelper.service.AidService;
 import com.w4kened.RefHelper.service.UserService;
 import com.w4kened.RefHelper.service.UsersAidsService;
 import javassist.NotFoundException;
+import javassist.expr.NewArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -53,55 +54,51 @@ public class HomeController {
 
         String email = SecurityUtil.getSessionUser();
         model.addAttribute("data", email);
-
         UserEntity userEntity = userService.findByEmail(email);
 
         String roleName = userEntity.getRoleEntity().getName();
         model.addAttribute("role", roleName);
-
         String userFullName = userEntity.getName();
         model.addAttribute("userFullName", userFullName);
 
-
-
-        if (Objects.equals(userEntity.getRoleEntity().getName(), "ROLE_VOLUNTEER")) {
-            List<AidEntity> aids = new ArrayList<>();
+        List<AidEntity> aids;
+        List<Long> aidIds;
+        if (Objects.equals(roleName, "ROLE_VOLUNTEER")) {
             aids = aidService.findByCreatorUserId(userEntity.getId());
-            System.out.println("aids= "+aids);
-            List<Long> aidIds = aids.stream()
+            aidIds = aids.stream()
                                             .map(AidEntity::getId)
                                             .toList();
-
-
-            System.out.println("ids= "+aidIds);
-
             List<UsersAidsEntity> requests = new ArrayList<>();
             if (!aids.isEmpty()) {
                 requests = aidService.findRequestedAidsByAidIds(aidIds);
-                for (int i = 0; i < requests.size(); i++) {
-                    System.out.println("requests " + requests.get(i).getAidEntity().getId());
+                for (UsersAidsEntity element : requests) {
+                    System.out.println(element.getUserEntity().getName());
                 }
             }
-
-            System.out.println("requests = "+ requests);
             model.addAttribute("aidsOfferedCount", aids.toArray().length);
             model.addAttribute("aidsRequestedCount", requests.toArray().length);
             model.addAttribute("aidsList", aids);
             model.addAttribute("requestedAidsList", requests);
             model.addAttribute("layout", "layout");
-
         } else {
-            List<AidEntity> aids = new ArrayList<>();
             aids = aidService.findAll();
             model.addAttribute("aidsList", aids);
             List<UsersAidsEntity> responses = new ArrayList<>();
+            List<AidEntity> requestedAids = aidService.findByRequesterUserId(userEntity.getId());
+            aidIds = aids.stream()
+                    .map(AidEntity::getId)
+                    .toList();
+
+            List<UsersAidsEntity> unansweredAids = new ArrayList<>();
+            if (!aids.isEmpty()) {
+                unansweredAids = aidService.findRequestedAidsByAidIds(aidIds);
+            }
             responses = usersAidsService.findResponsesByUserId(userEntity.getId());
-
             model.addAttribute("responsesAidsList", responses);
-
+            model.addAttribute("aidsUnansweredCount", unansweredAids.toArray().length);
+            model.addAttribute("aidsResponsedCount", responses.toArray().length);
             model.addAttribute("layout", "refLayout");
         }
-
         return "home";
     }
 
@@ -131,29 +128,29 @@ public class HomeController {
         return ResponseEntity.ok().body(dataForChart);
     }
 
+    @GetMapping("/getRegionalDistributionOfAids")
+    public ResponseEntity<Map<String, Long>> getRegionalDistributionOfAids() {
+        Map<String, Long> dataForChart = aidService.getRegionalDistributionOfAidsForChart();
+        return ResponseEntity.ok().body(dataForChart);
+    }
+
     @GetMapping("/addAid")
     public String showAddAidForm(Model model) {
         model.addAttribute("aidDto", new AidDto());
-        // Add additional attributes needed for the form (e.g., aid categories)
-        // Example: model.addAttribute("aidCategories", aidService.getAllAidCategories());
-        return "addAidForm"; // Assuming addAidForm.html is the Thymeleaf template
+        return "addAidForm";
     }
 
     @PostMapping("/addAid")
     public String addAid(@ModelAttribute("aidDto") AidDto aidDto) {
-        // Here, you would save the new aid using the AidService
-        System.out.println("post = "+ aidDto);
-
         aidService.saveAid(aidDto);
-        System.out.println(aidDto);
-        return "redirect:/home"; // Redirect to the aids page after adding the aid
+        return "redirect:/home";
     }
 
     @GetMapping("/editAid/{id}")
     public ModelAndView showEditAidForm(@PathVariable("id") Long id, Model model) throws NotFoundException {
         AidEntity aidEntity = aidService.findByAidId(id);
         if (aidEntity == null) {
-            throw new NotFoundException("Not aid with ID " + id);
+            throw new NotFoundException("Not aid with   ID " + id);
         }
 
         ModelAndView editView = new ModelAndView();
@@ -161,7 +158,7 @@ public class HomeController {
         AidDto aidDto = new AidDto(aidEntity);
         editView.addObject(aidDto);
 
-        return editView; // Assuming addAidForm.html is the Thymeleaf template
+        return editView;
     }
 
 
@@ -169,7 +166,6 @@ public class HomeController {
     @PostMapping("/editAid/{id}")
     public ModelAndView editAid(@PathVariable("id") Long id, @ModelAttribute("aidDto") AidDto aidDto) throws NotFoundException {
         ModelAndView editView = new ModelAndView();
-        System.out.println("post "+aidDto);
         aidService.updateAid(aidDto, id);
         editView.addObject(aidDto);
         editView.setViewName("redirect:/home");
@@ -209,26 +205,6 @@ public class HomeController {
         } catch (Exception ex) {
             return ex.getMessage();
         }
-
     }
-//
-//    @PostMapping("/deleteAid/{id}")
-//    public String editAid(@PathVariable("id") Long id) throws Exception {
-//        AidEntity aidEntity = aidService.findByAidId(id);
-//        if (aidEntity == null) {
-//            throw new NotFoundException("Not aid with ID " + id);
-//        }
-//        aidService.deleteById(id);
-//        return "redirect:/home";
-//    }
-//
-//    @PostMapping("/editAid/{id}")
-//    public String editForm(@PathVariable("id") Long id, Model model) {
-//        AidEntity aidEntity = aidService.findByAidId(id);
-//        AidDto aidDto = new AidDto(aidEntity);
-//        model.addAttribute("aidDto", new AidDto());
-//        // Add additional attributes needed for the form (e.g., aid categories)
-//        // Example: model.addAttribute("aidCategories", aidService.getAllAidCategories());
-//        return "editAidForm"; // Assuming addAidForm.html is the Thymeleaf template
-//    }
+
 }

@@ -100,8 +100,10 @@
          font-size: 24px;
          line-height: 1.33;
          border-radius: 35px;
-         margin-left: 104rem;
-         margin-block: 14rem;
+         /*                margin-left: 104rem;*/
+         margin-left: 54vw;
+         bottom: 1vw;
+         /*                margin-block: 14rem;*/
          position: fixed;
          z-index: -1;
       }
@@ -111,8 +113,11 @@
          background-color: #87AC52 !important;
       }
       .modal-dialog {
-         margin-left: 50rem !important;
+         margin-left: 28vw !important;
+         margin-right: auto !important;
          width: 57% !important;
+/*         margin-left: 50rem !important;*/
+/*         width: 57% !important;*/
       }
       .btn-primary {
          background-color: #87AC52 !important;
@@ -139,25 +144,6 @@
    <aside class="main-sidebar">
       <!-- sidebar: style can be found in sidebar.less -->
       <section class="sidebar" id="sidebar">
-         <!--                    <p id="dataElement" th:text="${data}"></p>-->
-         <!--                -->
-         <!--                    &lt;!&ndash; sidebar menu: : style can be found in sidebar.less &ndash;&gt;-->
-         <!--                    <ul class="sidebar-menu" data-widget="tree">-->
-         <!--                        <li class="header">MAPS NAVIGATION</li>-->
-         <!--                        <li class="treeview active">-->
-         <!--                        <a href="#">-->
-         <!--                            <i class="fa fa-globe"></i> <span>Maps</span>-->
-         <!--                            <span class="pull-right-container">-->
-         <!--                            <i class="fa fa-angle-left pull-right"></i>-->
-         <!--                            </span>-->
-         <!--                        </a>-->
-         <!--                        <ul class="treeview-menu">-->
-         <!--                            <li><a href="localhost:8080"><i class="fa fa-map"></i> RefHelper (2017)</a></li>-->
-         <!--                        </ul>-->
-         <!--                        </li>-->
-         <!--                    </ul>-->
-
-
          <select class="form-select" id="markerColor" aria-label="Default select example" onchange="findMarkers(this)">
             <option value="all">All Aids</option>
             <option value="2">Healthcare Aid</option>
@@ -197,7 +183,7 @@
                            <a class="nav-link" data-toggle="tab" href="#aids">Aid Offers</a>
                         </li>
                         <li class="nav-item">
-                           <a class="nav-link" data-toggle="tab" href="#requests">Aid Responses</a>
+                           <a class="nav-link" data-toggle="tab" href="#responses">Aid Responses</a>
                         </li>
                      </ul>
                      <div class="tab-content">
@@ -208,22 +194,35 @@
                                  <div class="col-md-4">
                                     <p style="font-weight: bold; color: black;">Name:</p>
                                     <p style="font-weight: bold; color: black;">Email:</p>
-<!--                                    <p style="font-weight: bold; color: black;">Total Offered Aids:</p>-->
                                     <p style="font-weight: bold; color: black;">Role:</p>
+                                    <p style="font-weight: bold; color: black;">Number of Unanswered Requests:</p>
+                                    <p style="font-weight: bold; color: black;">Total Aid Responses:</p>
+                                    <h4 style="display: flex; margin-left: -1.5rem;">Service Statistics:</h4>
+                                    <div id="chartContainer" style="height: 37rem; width: 100%;"></div>
+
                                  </div>
                                  <div class="col-md-4">
                                     <p style="color: black;" th:text="${userFullName}"></p>
                                     <p style="color: black;" th:text="${data}"></p>
                                     <p style="color: black;" th:text="${role}"></p>
+                                    <p style="color: black;" th:text="${aidsUnansweredCount}"></p>
+                                    <p style="color: black;" th:text="${aidsResponsedCount}"></p>
+                                    <br><br>
+                                    <div id="chartContainer2" style="height: 37rem; width: 100%;"></div>
+
                                  </div>
                                  <div class="col-md-4">
-                                    <p style="color: black;">--</p>
+<!--                                    <p style="color: black;">&#45;&#45;</p>-->
+                                    <br><br><br><br><br><br><br><br><br>
+                                    <div id="chartContainer3" style="height: 37rem; width: 100%;"></div>
                                  </div>
                               </div>
                            </div>
                         </div>
                         <div id="aids" class="container tab-pane fade">
-                           <h4>Aid Requests</h4>
+                           <h4>Aid Offers</h4>
+                           <button type="button" onclick="sortByDistance()" class="btn btn-primary">Sort By Distance</button>
+
                            <select id="categorySelect" class="custom-select form-select" style="  width: 100% !important;   margin-block: 1rem;">
                               <option value="All">All Aids</option>
                               <option value="Healthcare Aid">Healthcare Aid</option>
@@ -236,8 +235,9 @@
 
                            <input type="text" class="form-control" id="menuSearchField" placeholder="Enter keyword..." name="keyword" >
 
-<!--                           <button type="button" oncomplete="sortByDistance();" class="btn btn-primary">Sort by distance</button>-->
 <!--                           <button type="button" onclick="createAidReq();" class="btn btn-primary">Create Request</button>-->
+<!--                           <a style="color: white !important;"  class="btn btn-primary" th:href="@{/addAid}">Offer Aid</a>-->
+
                            <div class="table-responsive">
                               <table class="table">
                                  <thead>
@@ -267,6 +267,11 @@
                                  </tr>
                                  </tbody>
                               </table>
+                              <div class="pagination" id="paginationTable1">
+                                 <button id="aids-prevBtn">Previous</button>
+                                 <span id="pageNumbersTable1"></span>
+                                 <button id="aids-nextBtn">Next</button>
+                              </div>
 
                            </div>
 <!--                           <div id='itemList'></div>-->
@@ -310,19 +315,19 @@
 
 <!--                           </div>-->
                         </div>
-                        <div id="requests" class="container tab-pane fade">
+                        <div id="responses" class="container tab-pane fade">
                            <h4>Aid Responses</h4>
                            <div class="table-responsive" style="max-width:100rem">
                               <table class="table">
                                  <thead>
                                  <tr>
-                                    <th>Distance</th>
-<!--                                    <th>Aid Category</th>-->
+                                    <th>Aid Category</th>
                                     <th>Aid Description</th>
                                     <th>Aid Address</th>
+                                    <th>Volunteer Name</th>
+                                    <th>Volunteer Email</th>
                                     <th>Response</th>
-<!--                                    <th>Created Date</th>-->
-                                    <th>Action</th>
+<!--                                    <th>Action</th>-->
                                  </tr>
                                  </thead>
                                  <tbody id="responsesTableBody">
@@ -330,12 +335,14 @@
                                     <td colspan="4">No Responses</td>
                                  </tr>
                                  <tr th:each="resp, stat : ${responsesAidsList}">
-                                    <td th:id="'respDistId-' + ${resp.aidEntity.latitude} + '-' + ${resp.aidEntity.longitude}">
-                                       <span></span>
-                                    </td>
-<!--                                    <td><span th:text="${resp.aidEntity.aidCategoryEntity.name}">Aid Category</span></td>-->
+<!--                                    <td th:id="'respDistId-' + ${resp.aidEntity.latitude} + '-' + ${resp.aidEntity.longitude}">-->
+<!--                                       <span></span>-->
+<!--                                    </td>-->
+                                    <td><span th:text="${resp.aidEntity.aidCategoryEntity.name}">Aid Category</span></td>
                                     <td><span id="descId2" th:text="${resp.aidEntity.description}">Aid Description</span></td>
                                     <td><span id="addressId2" th:text="${resp.aidEntity.address}">Aid Address</span></td>
+                                    <td><span th:text="${resp.aidEntity.usersAidsEntities[0].userEntity.name}">Volunteer Name</span></td>
+                                    <td><span th:text="${resp.aidEntity.usersAidsEntities[0].userEntity.email}">Volunteer Email</span></td>
                                     <td><span id="responseId2" th:text="${resp.aidInteraction}">Response</span></td>
                                     <!-- You can format the date using temporals.format -->
 <!--                                    <td><span th:text="${#temporals.format(aid.aidEntity.createdDate, 'yyyy-MM-dd')}">Created Date</span></td>-->
@@ -345,15 +352,17 @@
                                  </tr>
                                  </tbody>
                               </table>
-
-
+                              <div class="pagination" id="paginationTable2">
+                                 <button id="responses-prevBtn">Previous</button>
+                                 <span id="pageNumbersTable2"></span>
+                                 <button id="responses-nextBtn">Next</button>
+                              </div>
                            </div>
                         </div>
                      </div>
                   </div>
                   <div class="modal-footer">
                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-<!--                     <button type="button" class="btn btn-primary">Save changes</button>-->
                   </div>
                </div>
             </div>
@@ -369,7 +378,7 @@
 
          </div>
 
-         <a th:href="@{/logout}" style="display: flex; margin-top: 21rem;">Logout</a>
+         <a th:href="@{/logout}" style="position:fixed; bottom: 1vw">Logout</a>
       </section>
    </aside>
    <div class="content-wrapper">
@@ -381,8 +390,7 @@
 
 <!-- scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-
+<script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 <script th:src="@{app/jquery-ui/jquery-ui.min.js}"></script>
 <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
 
@@ -390,41 +398,157 @@
 
 <script th:inline="javascript">
    $.widget.bridge('uibutton', $.ui.button)
+   $('#exampleModal').on('shown.bs.modal', function (e) {
+      // Initial setup
+      showPageTable1(1);
+      showPageTable2(1);
+      //      showPageTable2(1);
+      displayPageNumbersTable1();
+      displayPageNumbersTable2();
+      document.getElementById('aids-prevBtn').addEventListener('click', prevPageTable1);
+      document.getElementById('aids-nextBtn').addEventListener('click', nextPageTable1);
+      initializeTotalServiceRequestsChart();
+      initializeRegionalDistributionOfAidsChart()
+      initializeRegionalDistributionOfRefugeesChart();
+
+   });
 
 
 
    function sortByDistance() {
-      var tableBody = document.getElementById('tableBody');
-      var rows = Array.from(tableBody.getElementsByTagName('tr'));
-            rows.sort(function(rowA, rowB) {
-               var distanceA = parseFloat(rowA.cells[0].innerText);
-               var distanceB = parseFloat(rowB.cells[0].innerText);
+      const tableBody = document.getElementById('tableBody');
+      const rows = Array.from(tableBody.querySelectorAll('tr'));
 
-               return distanceA - distanceB;
-            });
+      rows.sort(function(a, b) {
+         const distance1 = parseFloat(a.querySelector('td').innerText.replace(' km away', ''));
+         const distance2 = parseFloat(b.querySelector('td').innerText.replace(' km away', ''));
+         return distance1 - distance2;
+      });
 
-            rows.forEach(function(row) {
-               table.tBodies[0].appendChild(row);
-            });
-//
-//      // Extract distances and associate them with rows
-//      var distances = rows.map(row => {
-//         var distanceCell = row.querySelector('[id^="distId-"]');
-//         var distance = parseFloat(distanceCell.innerText.split(' ')[0]); // Extract distance value
-//         return { distance, row };
-//      });
-//
-//      // Sort rows based on distances
-//      distances.sort((a, b) => a.distance - b.distance);
-//
-//      // Clear the current table body
-//      tableBody.innerHTML = '';
-//
-//      // Re-append sorted rows to the table
-//      distances.forEach(distance => {
-//         tableBody.appendChild(distance.row);
-//      });
+      rows.forEach(function(row) {
+         tableBody.appendChild(row);
+      });
+//      console.log(rows);
+      showPageTable1(pageNumber1);
+//      console.log('rows sorted');
    }
+
+
+
+
+
+   const itemsPerPageTable1 = 5; // Number of items per page for Table 1
+   const tableRowsTable1 = document.querySelectorAll('#aids .table tbody tr'); // Get table rows for Table 1
+   let currentPageTable1 = 1;
+   const totalPagesTable1 = Math.ceil(tableRowsTable1.length / itemsPerPageTable1);
+   let pageNumber1;
+   // Pagination functions for Table 1
+   function showPageTable1(pageNumber) {
+      const startIndex = (pageNumber - 1) * itemsPerPageTable1;
+      const endIndex = startIndex + itemsPerPageTable1;
+      console.log('page number ',pageNumber);
+      pageNumber1 = pageNumber;
+
+      const tableBody = document.getElementById('tableBody');
+
+      const rows = Array.from(tableBody.querySelectorAll('tr'));
+      rows.forEach((row, index) => {
+         if (index >= startIndex && index < endIndex) {
+            row.style.display = 'table-row';
+         } else {
+            row.style.display = 'none';
+         }
+      });
+   }
+   const itemsPerPageTable2 = 5; // Number of items per page for Table 1
+   const tableRowsTable2 = document.querySelectorAll('#responses .table tbody tr'); // Get table rows for Table 1
+   const totalPagesTable2 = Math.ceil(tableRowsTable2.length / itemsPerPageTable2);
+   let currentPageTable2 = 1;
+   function showPageTable2(pageNumber) {
+      const startIndex = (pageNumber - 1) * itemsPerPageTable2;
+      const endIndex = startIndex + itemsPerPageTable2;
+
+      tableRowsTable2.forEach((row, index) => {
+         if (index >= startIndex && index < endIndex) {
+            row.style.display = 'table-row';
+         } else {
+            row.style.display = 'none';
+         }
+      });
+   }
+   function displayPageNumbersTable1() {
+      let pageNumbersHTML = '';
+      for (let i = 1; i <= totalPagesTable1; i++) {
+         pageNumbersHTML += `<button onclick="showPageTable1(${i})">${i}</button>`;
+      }
+      document.getElementById('pageNumbersTable1').innerHTML = pageNumbersHTML;
+   }
+   function displayPageNumbersTable2() {
+      let pageNumbersHTML = '';
+      for (let i = 1; i <= totalPagesTable2; i++) {
+         pageNumbersHTML += `<button onclick="showPageTable2(${i})">${i}</button>`;
+      }
+      document.getElementById('pageNumbersTable2').innerHTML = pageNumbersHTML;
+   }
+   function prevPageTable1() {
+      if (currentPageTable1 > 1) {
+         currentPageTable1--;
+         showPageTable1(currentPageTable1);
+      }
+   }
+   function prevPageTable2() {
+      if (currentPageTable2 > 1) {
+         currentPageTable2--;
+         showPageTable1(currentPageTable2);
+      }
+   }
+   function nextPageTable1() {
+      if (currentPageTable1 < totalPagesTable1) {
+         currentPageTable1++;
+         showPageTable1(currentPageTable1);
+      }
+   }
+   function nextPageTable2() {
+      if (currentPageTable2 < totalPagesTable2) {
+         currentPageTable2++;
+         showPageTable1(currentPageTable2);
+      }
+   }
+
+
+
+   //   function sortByDistance() {
+   //      var tableBody = document.getElementById('tableBody');
+   //      var rows = Array.from(tableBody.getElementsByTagName('tr'));
+   //            rows.sort(function(rowA, rowB) {
+   //               var distanceA = parseFloat(rowA.cells[0].innerText);
+   //               var distanceB = parseFloat(rowB.cells[0].innerText);
+   //
+   //               return distanceA - distanceB;
+   //            });
+   //
+   //            rows.forEach(function(row) {
+   //               table.tBodies[0].appendChild(row);
+   //            });
+   ////
+   //      // Extract distances and associate them with rows
+   //      var distances = rows.map(row => {
+   //         var distanceCell = row.querySelector('[id^="distId-"]');
+   //         var distance = parseFloat(distanceCell.innerText.split(' ')[0]); // Extract distance value
+   //         return { distance, row };
+   //      });
+   //
+   //      // Sort rows based on distances
+   //      distances.sort((a, b) => a.distance - b.distance);
+   //
+   //      // Clear the current table body
+   //      tableBody.innerHTML = '';
+   //
+   //      // Re-append sorted rows to the table
+   //      distances.forEach(distance => {
+   //         tableBody.appendChild(distance.row);
+   //      });
+   //   }
 
    function confirmRequest() {
       return confirm("Are you sure you want to request aid?");
@@ -521,130 +645,6 @@
    // Функція для додавання маркера до списку на бічній панелі
    var markerMap = {};
 
-   //            function deleteAidDataFromServer(usersAidsId, aidId) {
-   //                const url = `/deleteAidById/${usersAidsId}/${aidId}`;
-   //                fetch(url, {
-   //                    method: 'POST',
-   //                    headers: {
-   //                        'Content-Type': 'application/json'
-   //                    }
-   //                })
-   //                    .then(response => response.text())
-   //                    .then(data => {
-   //                    console.log('Delete request sended sucessfull!'); // Вивести результат в консоль
-   //                    //                    location.reload(
-   //
-   //
-   //                })
-   //                    .catch(error => {
-   //                    console.error('Error at sending delete data to server:', error);
-   //                });
-   //            }
-
-   //            document.getElementById('aidForm').addEventListener('submit', function(event) {
-   //                event.preventDefault(); // Prevents the default form submission
-   //
-   //                // Get values from the form
-   //                const aidCategory = document.getElementById('aidCategory').value;
-   //                const aidDescription = document.getElementById('aidDescription').value;
-   //
-   //                // Use the extracted values as needed
-   //                console.log('Aid Category:', aidCategory);
-   //                console.log('Aid Description:', aidDescription);
-   //
-   //                // You can perform further actions with the extracted values here
-   //            });
-   //            function sendUpdateAidRequest(aid_Id) {
-   //                const url = `/updateAidById/${aidId}`;
-   //
-   //                fetch(url, {
-   //                    method: 'POST',
-   //                    headers: {
-   //                        'Content-Type': 'application/json'
-   //                    }
-   //                })
-   //                    .then(response => response.text())
-   //                    .then(data => {
-   //                    console.log('Update request sended sucessfull!'); // Вивести результат в консоль
-   //                    //                    location.reload(
-   //                })
-   //                    .catch(error => {
-   //                    console.error('Error at sending delete data to server:', error);
-   //                });
-   //            }
-
-   //            function editRow(button, aidId) {
-   //                // Access the row and perform edit operations
-   //                var row = button.closest('tr');
-   //                // Use 'aidId' to perform specific actions related to this ID
-   //                console.log("Edit ID: " + aidId);
-   //                // Implement edit functionality here
-   //            }
-   //
-   //            function deleteRow(button, aidId) {
-   //                // Access the row and perform delete operations
-   //                var row = button.closest('tr');
-   //                // Use 'aidId' to perform specific actions related to this ID
-   //                console.log("Delete ID: " + aidId);
-   //                // Implement delete functionality here
-   //            }
-   //
-   //            function handleEdit(aid_id) {
-   //                const url = `/editAidById/${aid_id}`;
-   //                fetch(url, {
-   //                    method: 'POST',
-   //                    headers: {
-   //                        'Content-Type': 'application/json'
-   //                    }
-   //                })
-   //                    .then(response => response.text())
-   //                    .then(data => {
-   //                    console.log('Delete modified sucessfull!'); // Вивести результат в консоль
-   //                    //                    location.reload(
-   //
-   //
-   //                })
-   //                    .catch(error => {
-   //                    console.error('Error at sending modifying data to server:', error);
-   //                });
-   //            }
-   //
-   //            function handleDelete(index) {
-   //
-   //            }
-
-   //            function editAid(event) {
-   //                // Find the row with the matching id
-   ////                var row = $('tr[row_id="' + id + '"]');
-   //                console.log('this ',event);
-   ////                var currentRow = event.currentTarget.closest('tr'); // Get the closest table row
-   ////                var aidCategory = currentRow.querySelector('td:nth-child(1)').textContent.trim(); // Extract Aid Category
-   ////                var aidDescription = currentRow.querySelector('td:nth-child(2)').textContent.trim(); // Extract Aid Description
-   ////                var createdDate = currentRow.querySelector('td:nth-child(3)').textContent.trim(); // Extract Created Date
-   ////
-   ////                // Now you can use these variables (aidCategory, aidDescription, createdDate) as needed
-   ////                // For example, log them to the console
-   ////                console.log("Aid Category:", aidCategory);
-   ////                console.log("Aid Description:", aidDescription);
-   ////                console.log("Created Date:", createdDate);
-   //
-   //            }
-   //
-   //            // Add event listeners to all Edit buttons
-   //            document.querySelectorAll('.editBtn').forEach((button, index) => {
-   //                button.addEventListener('click', () => {
-   //                    const row = button.closest('tr'); // Get the closest row to the clicked button
-   //                    const aidCategory = row.querySelectorAll('td')[0].textContent.trim(); // Get the Aid Category value
-   //                    const aidDescription = row.querySelectorAll('td')[1].textContent.trim(); // Get the Aid Description value
-   //                    const createdDate = row.querySelectorAll('td')[2].textContent.trim(); // Get the Created Date value
-   //
-   //                    // You can use these values as needed, for example:
-   //                    console.log('Aid Category:', aidCategory);
-   //                    console.log('Aid Description:', aidDescription);
-   //                    console.log('Created Date:', createdDate);
-   //
-   //                });
-   //            });
 
 
 
@@ -690,13 +690,10 @@
          for (var i  = 0; i < markerlist.length; i++) {
             if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
                //                                point_layers.removeLayer(markerlist[i]);
-               console.log('finded ', markerlist[i]);
-               map.setView([markerlist[i]._latlng.lat, markerlist[i]._latlng.lng], 12); // Change the map.getZoom() according to your requirement
+               map.setView([marker.latitude, marker.longitude], 12); // Change the map.getZoom() according to your requirement
                markerlist[i].openPopup();
                break;
-
             }
-
          }
       });
 
@@ -738,12 +735,10 @@
       //                } else {
       div.appendChild(subheading);
       div.appendChild(descriptionDiv);
-      div.appendChild(creatorDiv); // Add creator's name to the div
-      div.appendChild(addressDiv); // Add creator's name to the div
-
+      div.appendChild(creatorDiv);
+      div.appendChild(addressDiv);
       listItem.appendChild(div);
       sidebarList.appendChild(listItem);
-      //                }
    }
 
    // Function to filter aids based on the keyw ord
@@ -795,13 +790,13 @@
          var rowText = rows[i].textContent.toLowerCase();
          var keyword = this.value.toLowerCase();
          var category = categorySelect.value.toLowerCase();
-         console.log('selected category ', categorySelect.value);
-//         console.log('rowText ', rowText);
+         //         console.log('selected category ', categorySelect.value);
+         //         console.log('rowText ', rowText);
 
 
-//         if (rowText.includes(keyword)) {
-//            rows[i].style.display = "";
-//         }
+         //         if (rowText.includes(keyword)) {
+         //            rows[i].style.display = "";
+         //         }
          if (rowText.includes(keyword) && (rowText.includes(category) || categorySelect.value === "All")) {
             rows[i].style.display = "";
          } else {
@@ -833,28 +828,28 @@
          }
       }
    };
-//   function searchTable() {
-//      const input = document.getElementById('menuSearchField').value.toUpperCase();
-//      const table = document.getElementById('aidsTable');
-//      const rows = table.getElementsByTagName('tr');
-//
-//      for (let i = 0; i < rows.length; i++) {
-//         let found = false;
-//         const cells = rows[i].getElementsByTagName('td');
-//         for (let j = 0; j < cells.length; j++) {
-//            const cellText = cells[j].textContent || cells[j].innerText;
-//            if (cellText.toUpperCase().indexOf(input) > -1) {
-//               found = true;
-//               break;
-//            }
-//         }
-//         if (found) {
-//            rows[i].style.display = '';
-//         } else {
-//            rows[i].style.display = 'none';
-//         }
-//      }
-//   }
+   //   function searchTable() {
+   //      const input = document.getElementById('menuSearchField').value.toUpperCase();
+   //      const table = document.getElementById('aidsTable');
+   //      const rows = table.getElementsByTagName('tr');
+   //
+   //      for (let i = 0; i < rows.length; i++) {
+   //         let found = false;
+   //         const cells = rows[i].getElementsByTagName('td');
+   //         for (let j = 0; j < cells.length; j++) {
+   //            const cellText = cells[j].textContent || cells[j].innerText;
+   //            if (cellText.toUpperCase().indexOf(input) > -1) {
+   //               found = true;
+   //               break;
+   //            }
+   //         }
+   //         if (found) {
+   //            rows[i].style.display = '';
+   //         } else {
+   //            rows[i].style.display = 'none';
+   //         }
+   //      }
+   //   }
 
 
 
@@ -904,7 +899,6 @@
 
    function createAidReq() {
    }
-
 
 
 </script>

@@ -158,6 +158,7 @@
 //         });
 
 //
+
          var humanitarianLayer = L.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
          });
@@ -488,34 +489,9 @@
                console.error('Wystąpił błąd podczas pobierania ofert pomocy z serwera:', error);
             });
          }
-         displayAidMarkersFromServer();
-         // Loop through each marker in the markerlist array
-         //         markerlist.forEach(marker => {
-         //         marker.on('click', function (e) {
-         //            // Perform actions when a marker is clicked
-         //            // For example, centering the map on the clicked marker and opening a popup
-         //            const lat = e.latlng.lat;
-         //            const lng = e.latlng.lng;
-         //
-         //
-         //            const selectedListItem = document.querySelector(`[data-lat="${lat}"][data-lng="${lng}"]`);
-         //            if (selectedListItem) {
-         //               const highlightedItems = document.querySelectorAll('.highlight');
-         //               highlightedItems.forEach(item => item.classList.remove('highlight'));
-         //               selectedListItem.classList.add('highlight');
-         //            }
-         //         });
-         //         });
-
-
-         //         // Обробка клацання по карті з оновленою функцією
+         displayAidMarkersFromServer()
          map.on('click', function (e) {
-            //            var clickedMarker = e.target; // Access the clicked marker
-            //
-            //            // Perform actions with the clicked marker
-            ////            console.log('Clicked Marker:', clickedMarker);
-            ////            if (markerModeEnabled) {
-            ////
+
             console.log(e.latlng.lat, ' ', e.latlng.lng,);
             ////
             ////               console.log('clicked address: ', getAddressFromCoordinates(e.latlng.lat, e.latlng.lat));
@@ -567,6 +543,168 @@
          }
          function removeLayer(marker) {
             point_layers.removeLayer(marker);
+         }
+
+         function initializeTotalServiceRequestsChart() {
+            fetch('/getTotalServiceRequests')
+               .then(response => response.json())
+               .then(data => {
+               console.log(data); // Log the received data
+
+               const dataPoints = Object.keys(data).map(date => {
+                  const [month, year] = date.split('-');
+                  return {
+                     x: new Date(`${year}-${month}-01`), // Construct Date object with year and month
+                     y: data[date]
+                  };
+               });
+               dataPoints.sort((a, b) => a.x - b.x);
+
+               const chart = new CanvasJS.Chart("chartContainer", {
+                  animationEnabled: true,
+                  theme: "light2",
+                  title: {
+                     fontWeight: "normal",
+                     text: "Total Service Requests",
+                     fontSize: 20
+                  },
+                  axisX: {
+                  },
+                  axisY: {
+                     title: "Request Count"
+                  },
+                  data: [{
+                     type: "spline", // Use 'spline' for a smooth curve line
+                     lineDashType: "solid", // Set lineDashType to 'solid' for a solid line
+                     indexLabelFontSize: 16,
+                     dataPoints: dataPoints,
+                     color: "rgb(254, 26, 103)"
+                  }],
+               });
+
+               chart.render();
+            })
+               .catch(error => {
+               console.error('Error fetching data:', error);
+            });
+         }
+         function initializeMostRequestedServicesChart() {
+            fetch('/getMostRequestedServices')
+               .then(response => response.json())
+               .then(data => {
+               console.log(data); // Log the received data
+
+               const dataPoints = Object.keys(data).map(category => ({
+                  y: data[category],
+                  name: category
+               }));
+
+               const chart = new CanvasJS.Chart("chartContainer2", {
+                  animationEnabled: true,
+                  theme: "light2",
+                  title: {
+                     fontWeight: "normal",
+                     text: "Most Requested Aid Categories",
+                     fontSize: 20
+
+                  },
+                  data: [{
+                     type: "doughnut",
+                     showInLegend: true,
+                     indexLabelPlacement: "inside", // Place the index labels outside the chart
+                     indexLabel: "#percent%",
+                     labelFontColor: "white",
+                     dataPoints: dataPoints
+                  }]
+               });
+
+               chart.render();
+            })
+               .catch(error => {
+               console.error('Error fetching data:', error);
+            });
+         }
+         function initializeRegionalDistributionOfAidsChart() {
+            fetch('/getRegionalDistributionOfAids')
+               .then(response => response.json())
+               .then(data => {
+               const dataPoints = Object.keys(data).map(region => ({
+                  label: region,
+                  y: data[region]
+               }));
+
+               const chart = new CanvasJS.Chart("chartContainer2", {
+                  animationEnabled: true,
+                  theme: "light2",
+
+                  title: {
+                     fontWeight: "normal",
+                     text: "Regional Distribution of Aids ",
+                     fontSize: 20 // Set the font size for the chart title
+                  },
+                  axisX: {
+                     interval: 1,
+                  },
+                  axisY: {
+                     title: "Number of Aids"
+                  },
+                  data: [{
+                     type: "bar",
+                     indexLabel: "{y}",
+                     indexLabelPlacement: "inside",
+                     indexLabelFontColor: "white",
+                     indexLabelFontSize: 16,
+                     dataPoints: dataPoints
+                  }]
+               });
+
+               chart.render();
+            })
+               .catch(error => {
+               console.error('Error fetching data:', error);
+            });
+         }
+
+         function initializeRegionalDistributionOfRefugeesChart() {
+            fetch('/getRegionalDistributionOfRefugees')
+               .then(response => response.json())
+               .then(data => {
+
+               const dataPoints = Object.keys(data).map(region => ({
+                  label: region,
+                  y: data[region]
+               }));
+
+               const chart = new CanvasJS.Chart("chartContainer3", {
+                  animationEnabled: true,
+                  theme: "light2",
+
+                  title: {
+                     fontWeight: "normal",
+                     text: "Regional Distribution of Refugees ",
+                     fontSize: 20 // Set the font size for the chart title
+                  },
+                  axisX: {
+                     interval: 1,
+                  },
+                  axisY: {
+                     title: "Number of Refugees"
+                  },
+                  data: [{
+                     type: "bar",
+                     indexLabel: "{y}",
+                     indexLabelPlacement: "inside",
+                     indexLabelFontColor: "white",
+                     indexLabelFontSize: 16,
+                     dataPoints: dataPoints
+                  }]
+               });
+
+               chart.render();
+            })
+               .catch(error => {
+               console.error('Error fetching data:', error);
+            });
          }
 
          L.control.locate().addTo(map);

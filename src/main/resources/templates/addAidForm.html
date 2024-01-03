@@ -40,7 +40,6 @@
             <div class="form-group">
                 <label for="minimap">Address:</label>
                 <div id="minimap" style="height: 20rem;"></div>
-
             </div>
             <div class="form-group">
                 <input   type="text" class="form-control" id="address" name="address"
@@ -58,8 +57,6 @@
                 >
             </div>
             <button type="submit" style="background-color: #87AC52 !important;" class="btn btn-primary">Submit</button>
-<!--            <button type="reset" class="btn btn-primary">Reset</button>-->
-<!--            <button type="reset" class="btn btn-primary" th:href="@{/home}">Cancel</button>-->
             <a class="btn btn-danger" th:href="@{/home}">Cancel</a>
 
         </form>
@@ -201,7 +198,6 @@
     }).addTo(map);
 
     var marker;
-//    var address = '';
     var geocoder = L.Control.geocoder({
         defaultMarkGeocode: false
     }).on('markgeocode', function(e) {
@@ -209,52 +205,26 @@
         if (marker) {
             map.removeLayer(marker);
         }
-
         const categoryId = document.getElementById('aidCategory').value;
         const color = convertIdToColor(categoryId)
         marker = L.marker(latlng,{icon: markerIcons[color]}).addTo(map);
         map.fitBounds(e.geocode.bbox);
-        // Get the address string from the result
-        // Set the value of the address input field to the address string
         document.getElementById('address').value = e.geocode.name;
-//        console.log(e.geocode.name);
         document.getElementById('latitude').value = parseFloat(latlng.lat);
         document.getElementById('longitude').value = parseFloat(latlng.lng);
-//        address = e.geocode.name;
     }).addTo(map);
-
-    function validateForm() {
-        var addressTmp = document.getElementById('address').value;
-        var descriptionTmp = document.getElementById('description').value;
-        if (addressTmp == "" || descriptionTmp == "") {
-            alert("Please fill out the Description and Address");
-            return false;
+        function validateForm() {
+            var addressTmp = document.getElementById('address').value;
+            var descriptionTmp = document.getElementById('description').value;
+            if (addressTmp == "" || descriptionTmp == "") {
+                alert("Please fill out the Description and Address");
+                return false;
+            }
         }
-    }
-
     function changeMarkerColor(select) {
         var selectedValue = select.value;
         marker.setIcon(markerIcons[convertIdToColor(selectedValue)]);
     }
-//    map.on('click', function (e) {
-//        var clickedMarker = e.target; // Access the clicked marker
-//
-//        if (marker) {
-//            map.removeLayer(marker);
-//        }
-//
-//
-//        const categoryId = document.getElementById('aidCategory').value;
-//        const color = convertIdToColor(categoryId);
-//        marker = L.marker(latlng,{icon: markerIcons[color]}).addTo(map);
-//        // Get the address string from the result
-//        // Set the value of the address input field to the address string
-////        document.getElementById('address').value = e.geocode.name;
-//        //        console.log(e.geocode.name);
-//        document.getElementById('latitude').value = parseFloat(e.latlng.lat);
-//        document.getElementById('longitude').value = parseFloat(e.latlng.lng);
-//
-//    });
 </script>
 
 </body>

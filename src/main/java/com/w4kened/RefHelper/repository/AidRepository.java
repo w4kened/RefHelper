@@ -70,8 +70,31 @@ public interface AidRepository extends CrudRepository<AidEntity, Long> {
 
     //    findByCreator
     //TODO repository changed
-    @Query(value = "SELECT * from aid_table where id in (SELECT aid_id from users_aids_table WHERE aid_interaction = 'CREATING' AND user_id = ?1)", nativeQuery = true)
+    @Query(value = "SELECT * FROM aid_table " +
+            "WHERE id in ( " +
+                "SELECT aid_id FROM users_aids_table " +
+                "WHERE aid_interaction = 'CREATING' " +
+                "AND user_id = ?1 " +
+            ")", nativeQuery = true)
     List<AidEntity> findByCreatorUserId(Long userId);
+
+    @Query(value = "SELECT * FROM aid_table " +
+            "WHERE id in ( "+
+                "SELECT aid_id FROM users_aids_table "+
+                "WHERE aid_interaction = 'REQUESTING' "+
+                "AND user_id = ?1 "+
+            ")", nativeQuery = true)
+    List<AidEntity> findByRequesterUserId(Long userId);
+
+    @Query(value = "SELECT rt2.name AS Region, COUNT(at.id) AS Count " +
+            "FROM aid_table ut " +
+            "INNER JOIN role_table rt ON ut.role_id = rt.id " +
+            "INNER JOIN city_table ct ON ut.city_id = ct.id " +
+            "INNER JOIN region_table rt2  ON ct.region_id = rt2.id " +
+            "WHERE rt.name = 'ROLE_REFUGEE' " +
+            "GROUP BY rt2.name ", nativeQuery = true)
+    List<Object[]> getRegionalDistributionOfAids();
+
 //    @Query(value = "SELECT * from aid_table where id in (SELECT aid_id from users_aids_table WHERE aid_interaction = 'CREATING' AND user_id = ?1)", nativeQuery = true)
 //    Page<AidEntity> findByCreatorUserId(Long userId, Pageable pageable);
 

@@ -218,7 +218,7 @@
                                                         <p style="font-weight: bold; color: black;">Name:</p>
                                                         <p style="font-weight: bold; color: black;">Email:</p>
                                                         <p style="font-weight: bold; color: black;">Total Offered Aids:</p>
-                                                        <p style="font-weight: bold; color: black;">Total Requested Aids:</p>
+                                                        <p style="font-weight: bold; color: black;">Number of Unanswered Requests:</p>
                                                         <p style="font-weight: bold; color: black;">Role:</p>
                                                         <h4 style="display: flex; margin-left: -1.5rem;">Service Statistics:</h4>
                                                         <div id="chartContainer" style="height: 37rem; width: 100%;"></div>
@@ -294,10 +294,9 @@
                                         <div id="requests" class="container tab-pane fade">
                                             <h4>Aid Requests</h4>
                                             <div class="table-responsive" style="max-width:100rem">
-                                                <table class="table">
+                                                <table class="table sortable">
                                                     <thead>
                                                     <tr>
-<!--                                                        <th>Distance</th>-->
                                                         <th>Aid Category</th>
                                                         <th>Aid Description</th>
                                                         <th>Refugee name</th>
@@ -383,6 +382,8 @@
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
         <script th:src="@{app/jquery-ui/jquery-ui.min.js}"></script>
+        <script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
+
         <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
 
 
@@ -439,6 +440,7 @@
 
                 tableRowsTable2.forEach((row, index) => {
                     if (index >= startIndex && index < endIndex) {
+
                         row.style.display = 'table-row';
                     } else {
                         row.style.display = 'none';
@@ -484,129 +486,9 @@
                 }
             }
 
-            function initializeTotalServiceRequestsChart() {
-                fetch('/getTotalServiceRequests')
-                    .then(response => response.json())
-                    .then(data => {
-                    console.log(data); // Log the received data
-
-                    const dataPoints = Object.keys(data).map(date => {
-                        const [month, year] = date.split('-');
-                        return {
-                            x: new Date(`${year}-${month}-01`), // Construct Date object with year and month
-                            y: data[date]
-                        };
-                    });
-                    dataPoints.sort((a, b) => a.x - b.x);
-
-                    const chart = new CanvasJS.Chart("chartContainer", {
-                        animationEnabled: true,
-                        theme: "light2",
-                        title: {
-                            fontWeight: "normal",
-                            text: "Total Service Requests",
-                            fontSize: 20
-                        },
-                        axisX: {
-                        },
-                        axisY: {
-                            title: "Request Count"
-                        },
-                        data: [{
-                            type: "spline", // Use 'spline' for a smooth curve line
-                            lineDashType: "solid", // Set lineDashType to 'solid' for a solid line
-                            indexLabelFontSize: 16,
-                            dataPoints: dataPoints,
-                            color: "rgb(254, 26, 103)"
-                        }],
-                    });
-
-                    chart.render();
-                })
-                    .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
-            }
-            function initializeMostRequestedServicesChart() {
-                fetch('/getMostRequestedServices')
-                    .then(response => response.json())
-                    .then(data => {
-                    console.log(data); // Log the received data
-
-                    const dataPoints = Object.keys(data).map(category => ({
-                        y: data[category],
-                        name: category
-                    }));
-
-                    const chart = new CanvasJS.Chart("chartContainer2", {
-                        animationEnabled: true,
-                        theme: "light2",
-                        title: {
-                            fontWeight: "normal",
-                            text: "Most Requested Aid Categories",
-                            fontSize: 20
-
-                        },
-                        data: [{
-                            type: "doughnut",
-                            showInLegend: true,
-                            indexLabelPlacement: "inside", // Place the index labels outside the chart
-                            indexLabel: "#percent%",
-                            dataPoints: dataPoints
-                        }]
-                    });
-
-                    chart.render();
-                })
-                    .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
-            }
-            function initializeRegionalDistributionOfRefugeesChart() {
-                fetch('/getRegionalDistributionOfRefugees')
-                    .then(response => response.json())
-                    .then(data => {
-                    console.log(data); // Log the received data
-
-                    const dataPoints = Object.keys(data).map(region => ({
-                        label: region,
-                        y: data[region]
-                    }));
-
-                    const chart = new CanvasJS.Chart("chartContainer3", {
-                        animationEnabled: true,
-                        theme: "light2",
-
-                        title: {
-                            fontWeight: "normal",
-                            text: "Regional Distribution of Refugees ",
-                            fontSize: 20 // Set the font size for the chart title
-                        },
-                        axisX: {
-                            interval: 1,
-                        },
-                        axisY: {
-                            interval: 1,
-                            title: "Number of Refugees"
-                        },
-                        data: [{
-                            type: "bar",
-                            indexLabel: "{y}",
-                            indexLabelPlacement: "inside",
-                            indexLabelFontColor: "white",
-                            indexLabelFontSize: 16,
-                            dataPoints: dataPoints
-                        }]
-                    });
-
-                    chart.render();
-                })
-                    .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
 
 
-            }
+
 
             function confirmDelete() {
                 //                return confirm("Are you sure you want to delete aid?");
@@ -834,108 +716,48 @@
 
 
             function addToSidebar(marker) {
-                //                const dataElement = document.getElementById('dataElement');
-                //                const dataText = dataElement.textContent;
-
                 const sidebarList = document.getElementById('sidebarList');
-
                 const listItem = document.createElement('li');
                 listItem.className = "list-group-item d-flex justify-content-between align-items-start";
-
                 const div = document.createElement('div');
                 div.className = "ms-2 me-auto";
-
                 const subheading = document.createElement('div');
                 subheading.className = "fw-bold";
                 subheading.style.fontWeight = "bold"; // Example: Making subheading bold
                 subheading.textContent = convertIdToName(marker.aidCategoryEntity.id);
-
                 const descriptionDiv = document.createElement('div');
                 descriptionDiv.textContent = marker.description;
                 descriptionDiv.innerHTML = marker.description.replace(/\n/g, '<br>'); // Replace newlines with HTML line breaks
-                //                descriptionDiv.textContent = marker.description;
-
                 const creatorDiv = document.createElement('div');
                 creatorDiv.style.fontStyle = "italic";
-                creatorDiv.textContent = "Volunteer: " + marker.usersAidsEntities[0].userEntity.name; // Adding creator's name
-
+                creatorDiv.textContent = "Volunteer: " + marker.usersAidsEntities[0].userEntity.name;
                 const addressDiv = document.createElement('div');
                 addressDiv.textContent = "Address: "+ marker.address;
-
-
-                //                const removeIcon = document.createElement('i');
-                //                removeIcon.className = "fa fa-trash-o";
-
                 listItem.addEventListener('click', function(e) {
                     const highlightedItems = document.querySelectorAll('.highlight');
                     highlightedItems.forEach(item => item.classList.remove('highlight'));
                     this.classList.add('highlight');
-
                     for (var i  = 0; i < markerlist.length; i++) {
                         if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
-                            //                                point_layers.removeLayer(markerlist[i]);
-                            console.log('finded ', markerlist[i]);
-                            map.setView([markerlist[i]._latlng.lat, markerlist[i]._latlng.lng], 12); // Change the map.getZoom() according to your requirement
+                            map.setView([marker.latitude, marker.longitude], 12); // Change the map.getZoom() according to your requirement
                             markerlist[i].openPopup();
+//                            console.log('popup');
                             break;
-
                         }
-
                     }
                 });
-
-                //                if (marker.usersAidsEntities[0].userEntity.email == dataText) {
-                //                    div.appendChild(subheading);
-                //                    div.appendChild(descriptionDiv);
-                //                    div.appendChild(creatorDiv); // Add creator's name to the div
-                //
-                //                    listItem.appendChild(div);
-                //                    listItem.appendChild(removeIcon);
-                //
-                //                    sidebarList.appendChild(listItem);
-                //
-                //                    removeIcon.addEventListener('click', function(event) {
-                //
-                //
-                //                        console.log('delete evenet');
-                //                        var result = confirm("Want to delete?");
-                //
-                //                        if (result) {
-                //                            console.log('list item ', listItem);
-                //                            console.log('our data [',marker.description.trim(),']');
-                //
-                //                            //                            point_layers.clearLayers();
-                //                            for (var i  = 0; i < markerlist.length; i++) {
-                //                                if (markerlist[i]._latlng.lat == marker.latitude && markerlist[i]._latlng.lng == marker.longitude) {
-                //                                    deleteAidDataFromServer(marker.usersAidsEntities[0].id, marker.id);
-                //                                    map.removeLayer(markerlist[i]);
-                //                                    sidebarList.removeChild(listItem);
-                //                                    //                                    removeLayer(marker);
-                //                                    markerCluster.removeLayer(markerlist[i]);
-                //
-                //                                    break;
-                //                                }
-                //                            }
-                //
-                //                        }
-                //                    });
-                //                } else {
                 div.appendChild(subheading);
                 div.appendChild(descriptionDiv);
-                div.appendChild(creatorDiv); // Add creator's name to the div
-                div.appendChild(addressDiv); // Add creator's name to the div
-
+                div.appendChild(creatorDiv);
+                div.appendChild(addressDiv);
                 listItem.appendChild(div);
                 sidebarList.appendChild(listItem);
-                //                }
             }
 
             // Function to filter aids based on the keyw ord
             function filterAidsByKeyword(keyword) {
                 keyword = keyword.toLowerCase().trim();
                 document.getElementById("sidebarList").innerHTML = "";
-                //                let arr = wrappedMarkers;
-                //                wrappedMarkers = [];
 
                 wrappedMarkers.forEach(marker => {
                     console.log('curent marker ');
@@ -1020,6 +842,61 @@
                 });
                 //
                 map.addLayer(markerCluster); // Add the updated marker cluster to the map
+            }
+
+            function sortTable(n) {
+                var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+                table = document.getElementById("myTable");
+                switching = true;
+                //Set the sorting direction to ascending:
+                dir = "asc";
+                /*Make a loop that will continue until
+                no switching has been done:*/
+                while (switching) {
+                    //start by saying: no switching is done:
+                    switching = false;
+                    rows = table.rows;
+                    /*Loop through all table rows (except the
+                    first, which contains table headers):*/
+                    for (i = 1; i < (rows.length - 1); i++) {
+                        //start by saying there should be no switching:
+                        shouldSwitch = false;
+                        /*Get the two elements you want to compare,
+                        one from current row and one from the next:*/
+                        x = rows[i].getElementsByTagName("TD")[n];
+                        y = rows[i + 1].getElementsByTagName("TD")[n];
+                        /*check if the two rows should switch place,
+                        based on the direction, asc or desc:*/
+                        if (dir == "asc") {
+                            if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                                //if so, mark as a switch and break the loop:
+                                shouldSwitch= true;
+                                break;
+                            }
+                        } else if (dir == "desc") {
+                            if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                                //if so, mark as a switch and break the loop:
+                                shouldSwitch = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (shouldSwitch) {
+                        /*If a switch has been marked, make the switch
+                        and mark that a switch has been done:*/
+                        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                        switching = true;
+                        //Each time a switch is done, increase this count by 1:
+                        switchcount ++;
+                    } else {
+                        /*If no switching has been done AND the direction is "asc",
+                        set the direction to "desc" and run the while loop again.*/
+                        if (switchcount == 0 && dir == "asc") {
+                            dir = "desc";
+                            switching = true;
+                        }
+                    }
+                }
             }
 
 
