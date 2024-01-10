@@ -36,42 +36,44 @@ public class UserServiceImpl implements UserService {
         this.cityRepository  = cityRepository;
     }
 
+//    @Autowired UserServiceImpl(UserRepository userRepository) {
+//        this.userRepository = userRepository;
+//    }
+
+
 
     @Override
-    public void saveUser(UserDto userDto) {
+    public boolean saveUser(UserDto userDto) {
         UserEntity userEntity = new UserEntity();
         userEntity.setName(userDto.getFirstName()+" "+userDto.getLastName());
         userEntity.setEmail(userDto.getEmail());
         userEntity.setPassword(passwordEncoder.encode(userDto.getPassword()));
         userEntity.setPhoneNumber(userDto.getPhoneNumber());
-
-        String currentTime = LocalDateTime
-                .now()
-                .format(
-                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                );
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime now = LocalDateTime.parse(currentTime, formatter);
+        LocalDateTime now = getCurrentTimeStamp();
         userEntity.setCreatedDate(now);
-
-        System.out.println(now);
-        System.out.println("selected "+userDto.getSelectedRole());
         RoleEntity roleEntity;
         switch (userDto.getSelectedRole()) {
             case 2 -> {
-                roleEntity = roleRepository.findByName("ROLE_REFUGEE");
-                userEntity.setRoleEntity(roleEntity);
-            }
-            case 3 -> {
                 roleEntity = roleRepository.findByName("ROLE_VOLUNTEER");
                 userEntity.setRoleEntity(roleEntity);
             }
+            case 3 -> {
+                roleEntity = roleRepository.findByName("ROLE_REFUGEE");
+                userEntity.setRoleEntity(roleEntity);
+            }
         }
-
         CityEntity cityEntity = cityRepository.findByName(userDto.getCityName());
         userEntity.setCityEntity(cityEntity);
-        userRepository.save(userEntity);
+        try {
+            UserEntity existingUser = userRepository.findByEmail(userDto.getEmail());
+            if (existingUser != null || userDto.getPassword().length() < 8) {
+                return false;
+            }
+            userRepository.save(userEntity);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
@@ -89,16 +91,10 @@ public class UserServiceImpl implements UserService {
                         row -> ((BigInteger) row[1]).longValue()
                 ));
     }
-
-//    @Override
-//    public RoleEntity getRoleOfUser(String email) {
-//        return userRepository.findByEmail(email).getRoleEntity();
-//    }
-//    @Override
-//    public List<UserDto> findAllUsers() {
-//        List<UserEntity> users = userRepository.findAll();
-//        return users.stream()
-//                    .map((user) -> map)
-//        return userRepository.findAll();
-//    }
+    public static LocalDateTime getCurrentTimeStamp() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        String formattedDateTimeString = now.format(formatter);
+        return LocalDateTime.parse(formattedDateTimeString, formatter);
+    }
 }

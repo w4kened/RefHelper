@@ -9,6 +9,7 @@ import com.w4kened.RefHelper.service.UserService;
 import com.w4kened.RefHelper.service.UsersAidsService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -56,6 +57,14 @@ public class AidServiceImpl implements AidService {
         this.regionRepository = regionRepository;
     }
 
+//    @Autowired
+//    public AidServiceImpl(AidRepository aidRepository
+//                          ) {
+//        this.aidRepository = aidRepository;
+//    }
+
+
+
     public static LocalDateTime getCurrentTimeStamp() {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
@@ -77,21 +86,6 @@ public class AidServiceImpl implements AidService {
     public List<UsersAidsEntity> findRequestedAidsByAidIds(List<Long> aidIds) throws NotFoundException {
         return usersAidsRepository.findRequestedAidsByAidIds(aidIds);
     }
-//    @Override
-//    public List<UsersAidsEntity> unansweredAidsByAidIds(List<Long> aidIds) throws NotFoundException {
-//        return usersAidsRepository.findUnansweredAidsByAidIds(aidIds);
-//    }
-
-//    @Override
-//    public List<UsersAidsEntity> findsResponsedAidsByAidIds(List<Long> id) throws NotFoundException {
-//        return null;
-//    }
-//
-//    @Override
-//    public List<UsersAidsEntity> findsResponsedAidsByAidIds(Long userId) throws NotFoundException {
-//        return usersAidsRepository.findResponsesByUserId(userId);
-
-//    }
 
     public AidCategoryEntity convertAndFindCategory(AidDto aidDto) {
         if (aidDto.getSelectedCategoryAid() == 1L) {
@@ -115,9 +109,14 @@ public class AidServiceImpl implements AidService {
     }
 
 
-    //TODO created_date new field on interaction table (create)
     @Override
-    public void saveAid(AidDto aidDto) {
+    public boolean saveAid(AidDto aidDto) {
+        System.out.println("true");
+
+        UserEntity userEntity = userService.findByEmail(SecurityUtil.getSessionUser());
+        if (!userEntity.getRoleEntity().getName().equals("ROLE_VOLUNTEER")) {
+            return false;
+        }
         AidEntity aidEntity = new AidEntity();
         aidEntity.setDescription(aidDto.getDescription());
         aidEntity.setAddress(aidDto.getAddress());
@@ -128,35 +127,39 @@ public class AidServiceImpl implements AidService {
         AidCategoryEntity aidCategory = convertAndFindCategory(aidDto);
         aidEntity.setAidCategoryEntity(aidCategory);
         aidRepository.save(aidEntity);
-        UserEntity userEntity = userService.findByEmail(SecurityUtil.getSessionUser());
         UsersAidsEntity usersAidsEntity  = new UsersAidsEntity();
         usersAidsEntity.setAidEntity(aidEntity);
         usersAidsEntity.setUserEntity(userEntity);
         usersAidsEntity.setAidInteraction(AidInteraction.CREATING);
         usersAidsEntity.setCreatedDate(now);
         usersAidsRepository.save(usersAidsEntity);
+        System.out.println("true");
+        return true;
     }
 
-    //TODO created_date new field on interaction table (update)
     @Override
     @Transactional
-    public void updateAid(AidDto aidDto, Long id) throws NotFoundException{
+    public boolean updateAid(AidDto aidDto, Long id) throws NotFoundException{
+        UserEntity userEntity = userService.findByEmail(SecurityUtil.getSessionUser());
         Optional<AidEntity> optionalAidEntity = aidRepository.findById(id);
         if (optionalAidEntity.isPresent()) {
             AidEntity existingAidEntity = optionalAidEntity.get();
+            if (!usersAidsRepository.isCreatorOfAid(existingAidEntity.getId(),
+                    userEntity.getId()) ) {
+                return false;
+            }
             existingAidEntity.setDescription(aidDto.getDescription());
             existingAidEntity.setLatitude(aidDto.getLatitude());
             existingAidEntity.setLongitude(aidDto.getLongitude());
             existingAidEntity.setAddress(aidDto.getAddress());
-
             aidRepository.save(existingAidEntity);
-            UserEntity userEntity = userService.findByEmail(SecurityUtil.getSessionUser());
             UsersAidsEntity usersAidsEntity  = new UsersAidsEntity();
             usersAidsEntity.setAidEntity(existingAidEntity);
             usersAidsEntity.setUserEntity(userEntity);
             usersAidsEntity.setAidInteraction(AidInteraction.MODIFYING);
             usersAidsEntity.setCreatedDate(getCurrentTimeStamp());
             usersAidsRepository.save(usersAidsEntity);
+            return true;
         }
         else {
             throw new NotFoundException("AidEntity with ID " + id + " not found");
@@ -170,11 +173,16 @@ public class AidServiceImpl implements AidService {
 //    }
 
     @Override
-    public void deleteAidById(Long id) throws NotFoundException {
+    public boolean deleteAidById(Long id) throws NotFoundException {
         Optional<AidEntity> optionalAidEntity = aidRepository.findById(id);
         if (optionalAidEntity.isPresent()) {
+            UserEntity userEntity = userService.findByEmail(SecurityUtil.getSessionUser());
+            if (!usersAidsRepository.isCreatorOfAid(id, userEntity.getId()) ) {
+                return false;
+            }
             usersAidsRepository.deleteByAidId(id);
             aidRepository.deleteById(id); // Delete the aid by its ID
+            return true;
         } else {
             throw new NotFoundException("AidEntity with ID " + id + " not found");
         }
@@ -208,31 +216,23 @@ public class AidServiceImpl implements AidService {
 
 
     @Override
-    public void requestAid(Long id) throws NotFoundException {
+    public boolean requestAid(Long id) throws NotFoundException {
         Optional<AidEntity> optionalAidEntity = aidRepository.findById(id);
 
         if (optionalAidEntity.isPresent()) {
-            //aid founded
             AidEntity existingAidEntity = optionalAidEntity.get();
-            //geting user entity
             UserEntity userEntity = userService.findByEmail(SecurityUtil.getSessionUser());
-            //creating interaction?
             UsersAidsEntity usersAidsEntity  = new UsersAidsEntity();
-//
-//            if (usersAidsService.findByAid())
-//            if (usersAidsService.findByUserIdAndAidId(userEntity.getId(), 25L).size() > 0) {
-//                return;
-//
-//            }
-//            if (usersAidsService.findByUserId(userEntity.getId());
 
-//            if (usersAidsService.findAll())
+            if (!userEntity.getRoleEntity().getName().equals("ROLE_REFUGEE")) {
+                return false;
+            }
             usersAidsEntity.setAidEntity(existingAidEntity);
             usersAidsEntity.setUserEntity(userEntity);
             usersAidsEntity.setAidInteraction(AidInteraction.REQUESTING);
             usersAidsEntity.setCreatedDate(getCurrentTimeStamp());
             usersAidsRepository.save(usersAidsEntity);
-            System.out.println("request aid calling ");
+            return true;
         }
         else {
             throw new NotFoundException("AidEntity with ID " + id + " not found");
@@ -244,7 +244,6 @@ public class AidServiceImpl implements AidService {
     @Override
     public void acceptAidRequest(Long aidId, Long userId) throws NotFoundException {
         Optional<AidEntity> optionalAidEntity = aidRepository.findById(aidId);
-
         if (optionalAidEntity.isPresent()) {
             AidEntity existingAidEntity = optionalAidEntity.get();
             Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);

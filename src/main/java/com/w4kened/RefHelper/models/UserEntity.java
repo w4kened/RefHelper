@@ -6,10 +6,7 @@ import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -19,9 +16,20 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity(name = "user_table")
 public class UserEntity {
     private static final long serialVersionUID = 1L;
+
+    public UserEntity(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
+    public UserEntity(String email, String password, RoleEntity roleEntity) {
+        this.email = email;
+        this.password = password;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,17 +57,6 @@ public class UserEntity {
     @JsonManagedReference
     private CityEntity cityEntity;
 
-//    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-//    @JoinTable(
-//            name = "users_aids",
-//            joinColumns = {
-//                    @JoinColumn(name = "user_id", referencedColumnName = "id")
-//            },
-//            inverseJoinColumns = {
-//                    @JoinColumn(name = "aid_id", referencedColumnName = "id")
-//            }
-//    )
-//    private List<AidEntity> aidEntities = new ArrayList<>();
     @OneToMany(mappedBy = "userEntity")
     @JsonBackReference
     private List<UsersAidsEntity> usersAidsEntities;

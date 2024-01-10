@@ -3,14 +3,26 @@ package com.w4kened.RefHelper.dto;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Email;
 import javax.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+
+import com.w4kened.RefHelper.models.UserEntity;
+import lombok.*;
 
 @Data
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 public class UserDto {
+
+    public UserDto (UserEntity userEntity) {
+        this.email = userEntity.getEmail();
+        this.password = userEntity.getPassword();
+        this.firstName = userEntity.getName().split(" ")[0];
+        this.lastName = userEntity.getName().split(" ")[1];
+        this.cityName = userEntity.getCityEntity().getName();
+        this.selectedRole = Math.toIntExact(userEntity.getRoleEntity().getId());
+        this.phoneNumber = userEntity.getPhoneNumber();
+    }
 
     @Email
     @NotEmpty
@@ -35,7 +47,7 @@ public class UserDto {
     @NotEmpty
     private String cityName;
 
-    private int selectedRole;
+    private Integer selectedRole;
 
     public UserDto() {
         this.selectedRole = 2;

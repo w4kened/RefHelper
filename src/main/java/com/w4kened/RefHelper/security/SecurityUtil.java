@@ -6,10 +6,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class SecurityUtil {
     public static String getSessionUser() {
-        Authentication authentication  = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             return authentication.getName();
+        } else {
+            System.out.println("get session >");
+            throw new IllegalStateException("No authenticated user found.");
         }
-        return null;
     }
 }

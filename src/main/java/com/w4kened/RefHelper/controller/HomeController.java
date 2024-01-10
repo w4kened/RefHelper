@@ -38,7 +38,11 @@ public class HomeController {
     private final UsersAidsRepository usersAidsRepository;
 
     @Autowired
-    public HomeController(UserService userService, AidService aidService, UsersAidsService usersAidsService, AidCategoryRepository aidCategoryRepository, AidRepository aidRepository, UsersAidsRepository usersAidsRepository) {
+    public HomeController(UserService userService, AidService aidService,
+                          UsersAidsService usersAidsService,
+                          AidCategoryRepository aidCategoryRepository,
+                          AidRepository aidRepository,
+                          UsersAidsRepository usersAidsRepository) {
         this.userService = userService;
         this.aidService = aidService;
         this.usersAidsService = usersAidsService;
@@ -71,9 +75,6 @@ public class HomeController {
             List<UsersAidsEntity> requests = new ArrayList<>();
             if (!aids.isEmpty()) {
                 requests = aidService.findRequestedAidsByAidIds(aidIds);
-                for (UsersAidsEntity element : requests) {
-                    System.out.println(element.getUserEntity().getName());
-                }
             }
             model.addAttribute("aidsOfferedCount", aids.toArray().length);
             model.addAttribute("aidsRequestedCount", requests.toArray().length);
@@ -102,14 +103,7 @@ public class HomeController {
         return "home";
     }
 
-//    @GetMapping("/getDataForChart")
-//    public Map<String, Long> retrieveOverallCountRequestForChar() {
-//        for (String dateAsKey : usersAidsService.getOverallDataForChart().keySet()) {
-//            System.out.println("date:"+dateAsKey+" count:"+usersAidsService.getOverallDataForChart().get(dateAsKey));
-//        }
-////        System.out.println("retrieving for chart \n "+ usersAidsService.getOverallDataForChart().get(0).getCount());
-//        return usersAidsService.getOverallDataForChart();
-//    }
+
     @GetMapping("/getTotalServiceRequests")
     public ResponseEntity<Map<String, Long>> getTotalServiceRequests() {
         Map<String, Long> dataForChart = usersAidsService.getOverallDataForChart();
@@ -142,6 +136,7 @@ public class HomeController {
 
     @PostMapping("/addAid")
     public String addAid(@ModelAttribute("aidDto") AidDto aidDto) {
+//        System.out.println("Received AidDto: " + aidDto); // Log to check if data is received correctly
         aidService.saveAid(aidDto);
         return "redirect:/home";
     }
@@ -152,7 +147,6 @@ public class HomeController {
         if (aidEntity == null) {
             throw new NotFoundException("Not aid with   ID " + id);
         }
-
         ModelAndView editView = new ModelAndView();
         editView.setViewName("editAidForm");
         AidDto aidDto = new AidDto(aidEntity);
@@ -189,10 +183,9 @@ public class HomeController {
 
     @GetMapping("/acceptAidRequest/{aidId}/{userId}")
     public String acceptAidRequest(@PathVariable("aidId") Long aidId, @PathVariable("userId") Long userId) throws NotFoundException {
-        // Use the 'id' and 'otherId' values in your method logic
         try {
             aidService.acceptAidRequest(aidId, userId);
-            return "redirect:/home?AidRequestedAccepted";
+            return "redirect:/home?AidRequezstedAccepted";
         } catch (Exception ex) {
             return ex.getMessage();
         }

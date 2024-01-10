@@ -475,14 +475,6 @@
                         var distance = userLatLng.distanceTo(markerLatLng);
                         distanceCell.innerText = (distance/ 1000).toFixed(2) + ' km away';
                      }
-
-                     var respDistCellId = 'respDistId-' + markerLatitude + '-' + markerLongitude;
-                     var respDistanceCell = document.getElementById(respDistCellId);
-
-                     if (respDistanceCell) {
-                        var respDistance = userLatLng.distanceTo(markerLatLng);
-                        respDistanceCell.innerText = (distance/ 1000).toFixed(2) + ' km away';
-                     }
                   });
                });
             }).catch(error => {

@@ -8,11 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface UserService {
-    void saveUser(UserDto userDto);
+    boolean saveUser(UserDto userDto);
     UserEntity findByEmail(String email);
     Map<String, Long> getRegionalDistributionOfRefugeesForChart();
 
-
-//    RoleEntity getRoleOfUser(String email);
-//    List<UserDto> findAllUsers();
 }

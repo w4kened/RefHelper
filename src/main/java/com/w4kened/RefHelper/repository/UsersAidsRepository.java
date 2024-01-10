@@ -57,6 +57,15 @@ public interface UsersAidsRepository extends CrudRepository <UsersAidsEntity, Lo
     List<UsersAidsEntity> findRequestedAidsByAidIds(@Param("aidIds") List<Long> aidIds);
 
 
+    @Query(value = "SELECT CASE WHEN COUNT(*) > 0 THEN TRUE " +
+            "ELSE FALSE END " +
+            "FROM users_aids_table " +
+            "WHERE aid_id = ?1 " +
+            "AND user_id = ?2 " +
+            "AND aid_interaction = 'CREATING'", nativeQuery = true)
+    Boolean isCreatorOfAid(Long aidId, Long userId);
+
+
 //    List<UsersAidsEntity> findUnansweredAidsByAidIds(@Param("aidIds") List<Long> aidIds);
 
 

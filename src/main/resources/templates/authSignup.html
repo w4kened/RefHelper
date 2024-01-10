@@ -368,19 +368,7 @@
                                 <p class="help-block text-danger"></p>
                             </div>
                             <div id="passwordMismatch" class="alert alert-danger" style="display: none;">
-                                Passwords do not match
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input"
-                                       type="radio"
-                                       name="exampleRadios"
-                                       id="exampleRadios2"
-                                       value="2"
-                                       th:field="*{selectedRole}"
-                                >
-                                <label class="form-check-label" for="exampleRadios2">
-                                    Refugee
-                                </label>
+                                Passwords do not match or length of password less than 8 symbols
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input"
@@ -393,6 +381,18 @@
                                 >
                                 <label class="form-check-label" for="exampleRadios1">
                                     Volunteer
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="radio"
+                                       name="exampleRadios"
+                                       id="exampleRadios2"
+                                       value="2"
+                                       th:field="*{selectedRole}"
+                                >
+                                <label class="form-check-label" for="exampleRadios2">
+                                    Refugee
                                 </label>
                             </div>
                             <div class="form-check">
@@ -442,7 +442,8 @@
     const submitButton = document.getElementById('sumbitButtonId');
 
     function checkPasswordMatch() {
-        if (passwordField.value !== repeatPasswordField.value) {
+        if (passwordField.value !== repeatPasswordField.value &&
+                passwordField.value.length < 8) {
             mismatchAlert.style.display = 'block';
             submitButton.style.display = 'none';
 

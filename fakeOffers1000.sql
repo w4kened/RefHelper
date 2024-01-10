@@ -2968,7 +2968,7 @@ insert into aid_table (address, created_date, category_id, description, latitude
 insert into aid_table (address, created_date, category_id, description, latitude, longitude) values ('27 Fortuny; Jelonki; Warsaw; Masovian Voivodeship; 01-339; Poland', '2023-01-16 18:08:07', 6, 'Organizing a community cleanup event 
  to help maintain our local parks and streets  
  clean and safe for everyone.', 52.115792244, 18.361582719);
-insert into aid_table (address, created_date, category_id, description, latitude, longitude) values ('27 Fortuny; Jelonki; Warsaw; Masovian Voivodeship; 01-339; Poland', '2023-11-25 21:01:36', 1, 'I provide essential food supplies 
+insert into aid_table (address, created_date, category_id, description, latitude, longitude) values ('(', '2023-11-25 21:01:36', 1, 'I provide essential food supplies 
  for a family of four for two weeks, 
  including non-perishable items and toiletries.', 53.912775079, 18.25321375);
 insert into aid_table (address, created_date, category_id, description, latitude, longitude) values ('5D; gmina Gąsawa; Żnin County; Kuyavian-Pomeranian Voivodeship; 88-410; Poland', '2023-02-26 00:19:53', 6, 'Organizing a community cleanup event 

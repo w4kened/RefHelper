@@ -109,7 +109,7 @@ public interface AidRepository extends CrudRepository<AidEntity, Long> {
             "INNER JOIN users_aids_table AS uat " +
             "ON at.id = uat.aid_id " +
             "WHERE uat.aid_interaction = 'REQUESTING' " +
-            "AND at.id = ?1 " + // Added space before AND
+            "AND at.id = ?1 " +
             "AND uat.user_id = ?2 ", nativeQuery = true)
     Long countRequestedAidByAidIdAndUserId(Long aidId, Long userId);
 

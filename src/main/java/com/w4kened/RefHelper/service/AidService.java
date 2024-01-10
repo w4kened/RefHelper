@@ -26,19 +26,18 @@ public interface AidService {
 
 //    findResponsesByUserId
 
-    void saveAid(AidDto aidDto);
+    boolean saveAid(AidDto aidDto);
 
-    void updateAid(AidDto aidDto, Long id) throws NotFoundException;
+    boolean updateAid(AidDto aidDto, Long id) throws NotFoundException;
 
 //    void removeAid(Long usersAidsId, Long aidId);
 
-    void deleteAidById(Long id) throws NotFoundException;
+    boolean deleteAidById(Long id) throws NotFoundException;
 
     AidEntity findByCategoryName(String name);
 
     AidEntity findByAidId(Long aidId);
 
-    // Todo query repository changed
     List<AidEntity> findByCreatorUserId(Long userId);
 
     List<AidEntity> findByRequesterUserId(Long userId);
@@ -47,7 +46,7 @@ public interface AidService {
 
 
 
-    void requestAid(Long aidId) throws NotFoundException;
+    boolean requestAid(Long aidId) throws NotFoundException;
     void acceptAidRequest(Long aidId, Long userId) throws NotFoundException;
 
     void rejectAidRequest(Long aidId, Long userId) throws NotFoundException;

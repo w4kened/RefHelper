@@ -9,13 +9,7 @@ import java.util.List;
 public interface UserRepository extends CrudRepository<UserEntity, Long> {
     UserEntity findByEmail(String email);
 
-//    @Query(value = "SELECT act.name AS Category, count(uat.id) AS count " +
-//            "FROM users_aids_table uat " +
-//            "INNER JOIN aid_table at ON uat.aid_id  = at.id " +
-//            "INNER JOIN aid_category_table act ON at.category_id = act.id " +
-//            "WHERE uat.aid_interaction = 'REQUESTING' " +
-//            "GROUP BY act.name ",nativeQuery = true)
-//    List<Object[]> getCountOfAidRequestsByMostRequestedCategory();
+
     @Query(value = "SELECT rt2.name AS Region, COUNT(ut.id) AS Count " +
             "FROM user_table ut " +
             "INNER JOIN role_table rt ON ut.role_id = rt.id " +

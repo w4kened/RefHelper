@@ -3,6 +3,7 @@ package com.w4kened.RefHelper.controller;
 import com.w4kened.RefHelper.dto.UserDto;
 import com.w4kened.RefHelper.models.UserEntity;
 import com.w4kened.RefHelper.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,6 +19,7 @@ import java.util.List;
 public class AuthController {
     private UserService userService;
 
+    @Autowired
     public AuthController(UserService userService) {
         this.userService = userService;
     }
@@ -27,12 +29,8 @@ public class AuthController {
         return "preview";
     }
 
-//    @GetMapping("/list")
-//    public String showCityList(Model model) {
-//        // Simulated list of cities (replace this with your database retrieval logic)
-//
-//        return "cityList"; // Thymeleaf template name
-//    }
+
+
     @RequestMapping("/register")
     public String getRegisterPage(Model model) {
         UserDto userDto = new UserDto();
@@ -58,40 +56,6 @@ public class AuthController {
         return "authSignup";
     }
 
-//    @GetMapping("/city")
-//    public String showCityForm(Model model) {
-//        RestTemplate restTemplate = new RestTemplate();
-//        String url = "https://raw.githubusercontent.com/sk1me/polish-town-string/main/polish-town-string.txt";
-//        String cities = restTemplate.getForObject(url, String.class);
-//        System.out.println(cities);
-//        List<String> cityList = Arrays.asList(cities.split(","));
-//        model.addAttribute("cities", cityList);
-//        return "city/cityForm";
-//    }
-//    @GetMapping("/city")
-//    public String showCityForm(Model model, @RequestParam(defaultValue = "0") int page) {
-//        List<String> cities = getCitiesFromApi(page);
-//        model.addAttribute("cities", cities);
-//        return "city/cityForm";
-//    }
-
-//    @GetMapping("/cities")
-//    public String getCities(Model model) {
-//        System.out.println("asdasdas");
-//
-//        RestTemplate restTemplate = new RestTemplate();
-//        String apiUrl = "http://api.geonames.org/searchJSON?country=PL&maxRows=20&username=refhelperapplication";
-//        // Replace YOUR_USERNAME with your GeoNames username
-//
-//        // Fetch city data from API
-//        String citiesJson = restTemplate.getForObject(apiUrl, String.class);
-//
-//        System.out.println(citiesJson);
-////
-//        model.addAttribute("citiesJson", citiesJson);
-//        return "cityList"; // Thymeleaf template name
-//    }
-
     @PostMapping("/register/save")
     public String register(@Valid @ModelAttribute("user") UserDto user,
                            BindingResult result, Model model) {
@@ -107,6 +71,7 @@ public class AuthController {
         }
         if(result.hasErrors()) {
             model.addAttribute("user", user);
+            System.out.println("error res " +result);
             return "authSignup";
         }
 
@@ -117,9 +82,13 @@ public class AuthController {
 
     @GetMapping("/login")
     public String showLoginPage(@RequestParam(value = "error", required = false) String error, Model model) {
+        System.out.println("error res " +error + model);
+
         if (error != null) {
             model.addAttribute("error", "Invalid username or password");
         }
+
+
         return "authLogin";
     }
 //    @PostMapping("/login")

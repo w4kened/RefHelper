@@ -23,15 +23,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        System.out.println("username="+email);
-
         UserEntity user = userRepository.findByEmail(email);
-        System.out.println(user);
-
         if (user != null) {
-            System.out.println(
-                    user.getEmail()+" "+
-                            user.getPassword());
+            if (user.getEmail() == null || user.getEmail().isEmpty()) {
+                throw new IllegalArgumentException("Email is null or empty for user with ID: " + user.getId());
+            }
+            if (user.getPassword() == null || user.getPassword().isEmpty()) {
+                throw new IllegalArgumentException("Password is null or empty for user with ID: " + user.getId());
+            }
             SimpleGrantedAuthority authority = new SimpleGrantedAuthority(user.getRoleEntity().getName());
             User authUser = new User(
                     user.getEmail(),
