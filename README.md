@@ -3,7 +3,7 @@ RefHelper is a web application facilitating assistance for war refugees.
 It ensures access to information concerning various types of aid, aiming to ease their navigation in a new environment and accelerate the adaptation process.  
 This application is based on the **CRUD Spring MVC.**  
 
-Tech-Stack: **Spring Boot, Thymeleaf, Hibernate, Leaflet**  
+Tech-Stack: **MySQL, Hibernate, Spring Boot, Thymeleaf, Leaflet**  
 
 ![Signup Screen](https://github.com/w4kened/RefHelper/assets/46037103/eaefe3e9-9656-4b94-b6fa-948335a06440)  
 Signup screen
