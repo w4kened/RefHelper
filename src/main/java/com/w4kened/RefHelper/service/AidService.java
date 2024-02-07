@@ -22,15 +22,11 @@ public interface AidService {
     List<AidEntity> findAll();
 
     List<UsersAidsEntity> findRequestedAidsByAidIds(List<Long> id) throws NotFoundException;
-//    List<UsersAidsEntity> unansweredAidsByAidIds(List<Long> id) throws NotFoundException;
-
-//    findResponsesByUserId
 
     boolean saveAid(AidDto aidDto);
 
     boolean updateAid(AidDto aidDto, Long id) throws NotFoundException;
 
-//    void removeAid(Long usersAidsId, Long aidId);
 
     boolean deleteAidById(Long id) throws NotFoundException;
 

@@ -19,8 +19,6 @@ public class RegionEntity {
     private Long id;
     private String name;
 
-//    @OneToMany(mappedBy = "regionEntity", cascade= CascadeType.ALL,orphanRemoval=true)
-//    @JsonBackReference
     @OneToMany(mappedBy = "regionEntity", cascade= CascadeType.ALL,orphanRemoval=true)
     @JsonBackReference
     private List<CityEntity> cityEntities;

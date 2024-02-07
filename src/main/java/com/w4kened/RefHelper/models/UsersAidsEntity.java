@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @Entity(name = "users_aids_table")
 public class UsersAidsEntity {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

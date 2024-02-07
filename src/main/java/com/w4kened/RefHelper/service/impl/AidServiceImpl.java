@@ -112,7 +112,6 @@ public class AidServiceImpl implements AidService {
     @Override
     public boolean saveAid(AidDto aidDto) {
         System.out.println("true");
-
         UserEntity userEntity = userService.findByEmail(SecurityUtil.getSessionUser());
         if (!userEntity.getRoleEntity().getName().equals("ROLE_VOLUNTEER")) {
             return false;
@@ -144,10 +143,10 @@ public class AidServiceImpl implements AidService {
         Optional<AidEntity> optionalAidEntity = aidRepository.findById(id);
         if (optionalAidEntity.isPresent()) {
             AidEntity existingAidEntity = optionalAidEntity.get();
-            if (!usersAidsRepository.isCreatorOfAid(existingAidEntity.getId(),
-                    userEntity.getId()) ) {
+            if (usersAidsRepository.isCreatorOfAid(id, userEntity.getId()) < 1) {
                 return false;
             }
+
             existingAidEntity.setDescription(aidDto.getDescription());
             existingAidEntity.setLatitude(aidDto.getLatitude());
             existingAidEntity.setLongitude(aidDto.getLongitude());
@@ -177,11 +176,11 @@ public class AidServiceImpl implements AidService {
         Optional<AidEntity> optionalAidEntity = aidRepository.findById(id);
         if (optionalAidEntity.isPresent()) {
             UserEntity userEntity = userService.findByEmail(SecurityUtil.getSessionUser());
-            if (!usersAidsRepository.isCreatorOfAid(id, userEntity.getId()) ) {
+            if (usersAidsRepository.isCreatorOfAid(id, userEntity.getId()) < 1) {
                 return false;
             }
             usersAidsRepository.deleteByAidId(id);
-            aidRepository.deleteById(id); // Delete the aid by its ID
+            aidRepository.deleteById(id);
             return true;
         } else {
             throw new NotFoundException("AidEntity with ID " + id + " not found");
@@ -218,12 +217,10 @@ public class AidServiceImpl implements AidService {
     @Override
     public boolean requestAid(Long id) throws NotFoundException {
         Optional<AidEntity> optionalAidEntity = aidRepository.findById(id);
-
         if (optionalAidEntity.isPresent()) {
             AidEntity existingAidEntity = optionalAidEntity.get();
             UserEntity userEntity = userService.findByEmail(SecurityUtil.getSessionUser());
             UsersAidsEntity usersAidsEntity  = new UsersAidsEntity();
-
             if (!userEntity.getRoleEntity().getName().equals("ROLE_REFUGEE")) {
                 return false;
             }
@@ -248,7 +245,7 @@ public class AidServiceImpl implements AidService {
             AidEntity existingAidEntity = optionalAidEntity.get();
             Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
             if (optionalUserEntity.isPresent()) {
-                          //creating interaction?
+
                 UsersAidsEntity usersAidsEntity = new UsersAidsEntity();
                 UserEntity existingUserEntity = optionalUserEntity.get();
                 usersAidsEntity.setAidEntity(existingAidEntity);

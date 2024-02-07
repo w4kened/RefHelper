@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
     <style>
-        .alert-danger {
+        .psswd {
             display: none;
         }
         .logo {
@@ -367,7 +367,7 @@
                                 >
                                 <p class="help-block text-danger"></p>
                             </div>
-                            <div id="passwordMismatch" class="alert alert-danger" style="display: none;">
+                            <div id="passwordMismatch" class="alert alert-danger passwd" style="display: none;">
                                 Passwords do not match or length of password less than 8 symbols
                             </div>
                             <div class="form-check">
@@ -375,7 +375,7 @@
                                        type="radio"
                                        name="exampleRadios"
                                        id="exampleRadios1"
-                                       value="3"
+                                       value="2"
                                        th:field="*{selectedRole}"
                                        checked
                                 >
@@ -388,7 +388,7 @@
                                        type="radio"
                                        name="exampleRadios"
                                        id="exampleRadios2"
-                                       value="2"
+                                       value="3"
                                        th:field="*{selectedRole}"
                                 >
                                 <label class="form-check-label" for="exampleRadios2">

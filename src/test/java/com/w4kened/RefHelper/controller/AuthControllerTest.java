@@ -69,41 +69,6 @@ public class AuthControllerTest {
     @InjectMocks
     private AuthController controller;
 
-//
-//
-//    @BeforeEach
-//    void setUp() {
-//        when(passwordEncoder.encode("qwerty123123")).thenReturn("encodedPassword");
-//
-//
-//        RegionEntity existingRegion = RegionEntity.builder()
-//                .name("Masovian").build();
-//        CityEntity existingCity = CityEntity.builder()
-//                .name("Warszawa")
-//                .regionEntity(existingRegion).build();
-//        RoleEntity existingRole = RoleEntity.builder()
-//                .name("ROLE_VOLUNTEER").build();
-//        UserEntity existingUser = UserEntity.builder()
-//                    .email("existingEmail@gmail.com")
-//                    .password("qwerty123123")
-//                    .name("Jan Kowalski")
-//                    .password(passwordEncoder.encode("qwerty123123"))
-//                    .phoneNumber("511211232")
-//                    .cityEntity(existingCity)
-//                    .roleEntity(existingRole).build();
-//
-//
-//        when(userRepository.findByEmail("existingEmail@gmail.com")).thenReturn(existingUser);
-//
-//        UserDetails userDetails = new User(
-//                existingUser.getEmail(),
-//                existingUser.getPassword(),
-//                Collections.singletonList(new SimpleGrantedAuthority(existingUser.getRoleEntity().getName()))
-//        );
-//
-//        when(customUserDetailsService.loadUserByUsername("existingEmail@gmail.com")).thenReturn(userDetails);
-//    }
-
     @Test
     public void shouldLoginSuccessfully() throws Exception {
         mockMvc.perform(post("/login")

@@ -91,15 +91,4 @@ public class AuthController {
 
         return "authLogin";
     }
-//    @PostMapping("/login")
-//    public String login(@RequestParam String email, @RequestParam String password, Model model) {
-//        if (authenticationService.authenticateUser(email, password)) {
-//            // Authentication successful
-//            return "redirect:/home"; // or any other success page
-//        } else {
-//            // Authentication failed
-//            model.addAttribute("error", "Invalid username or password");
-//            return "authLogin";
-//        }
-//    }
 }

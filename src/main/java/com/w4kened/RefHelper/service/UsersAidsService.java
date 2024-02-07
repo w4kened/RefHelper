@@ -11,9 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface UsersAidsService {
-//    List<AidEntity> findAll();
-//
-//    void saveUserAids();
 
     void deleteUsersAidsById(Long id) throws NotFoundException;
     void deleteUsersAidsByAidId(Long id) throws NotFoundException;
@@ -22,7 +19,6 @@ public interface UsersAidsService {
 
     List<UsersAidsEntity> findByAid(Long aid);
 
-//    List<UsersAidsEntity> findByUser
 
     List<UsersAidsEntity> findByAidInteraction(AidInteraction aidInteraction);
 
@@ -36,10 +32,4 @@ public interface UsersAidsService {
     Map<String, Long> getOverallDataForChart();
 
     Map<String, Long> getMostRequestedDataForChart();
-
-
-//    List<Object[]> getCountOfAidRequestsByMonthAndYear();
-//
-
-//    UserAids
 }

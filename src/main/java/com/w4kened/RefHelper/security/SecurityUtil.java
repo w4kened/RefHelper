@@ -10,7 +10,6 @@ public class SecurityUtil {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             return authentication.getName();
         } else {
-            System.out.println("get session >");
             throw new IllegalStateException("No authenticated user found.");
         }
     }

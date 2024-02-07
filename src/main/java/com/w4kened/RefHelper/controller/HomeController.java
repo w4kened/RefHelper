@@ -2,7 +2,6 @@ package com.w4kened.RefHelper.controller;
 
 import com.w4kened.RefHelper.dto.AidDto;
 import com.w4kened.RefHelper.models.AidEntity;
-import com.w4kened.RefHelper.models.RegionEntity;
 import com.w4kened.RefHelper.models.UserEntity;
 import com.w4kened.RefHelper.models.UsersAidsEntity;
 import com.w4kened.RefHelper.repository.AidCategoryRepository;
@@ -13,7 +12,6 @@ import com.w4kened.RefHelper.service.AidService;
 import com.w4kened.RefHelper.service.UserService;
 import com.w4kened.RefHelper.service.UsersAidsService;
 import javassist.NotFoundException;
-import javassist.expr.NewArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -24,7 +22,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Controller
 public class HomeController {
@@ -86,17 +87,10 @@ public class HomeController {
             model.addAttribute("aidsList", aids);
             List<UsersAidsEntity> responses = new ArrayList<>();
             List<AidEntity> requestedAids = aidService.findByRequesterUserId(userEntity.getId());
-            aidIds = aids.stream()
-                    .map(AidEntity::getId)
-                    .toList();
 
-            List<UsersAidsEntity> unansweredAids = new ArrayList<>();
-            if (!aids.isEmpty()) {
-                unansweredAids = aidService.findRequestedAidsByAidIds(aidIds);
-            }
             responses = usersAidsService.findResponsesByUserId(userEntity.getId());
             model.addAttribute("responsesAidsList", responses);
-            model.addAttribute("aidsUnansweredCount", unansweredAids.toArray().length);
+            model.addAttribute("aidsUnansweredCount", requestedAids.toArray().length);
             model.addAttribute("aidsResponsedCount", responses.toArray().length);
             model.addAttribute("layout", "refLayout");
         }

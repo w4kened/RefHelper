@@ -78,13 +78,17 @@ public interface AidRepository extends CrudRepository<AidEntity, Long> {
             ")", nativeQuery = true)
     List<AidEntity> findByCreatorUserId(Long userId);
 
-    @Query(value = "SELECT * FROM aid_table " +
-            "WHERE id in ( "+
-                "SELECT aid_id FROM users_aids_table "+
-                "WHERE aid_interaction = 'REQUESTING' "+
-                "AND user_id = ?1 "+
-            ")", nativeQuery = true)
+
+    @Query(value = "SELECT aid.* FROM aid_table aid " +
+            "JOIN users_aids_table uat1 ON aid.id = uat1.aid_id " +
+            "LEFT JOIN users_aids_table uat2 ON aid.id = uat2.aid_id AND ( "+
+            "uat2.aid_interaction = 'ACCEPTANCE' OR uat2.aid_interaction = 'REJECTION') " +
+            "WHERE uat1.aid_interaction = 'REQUESTING' " +
+            "AND uat1.user_id = ?1 " +
+            "AND uat2.aid_id IS NULL", nativeQuery = true)
     List<AidEntity> findByRequesterUserId(Long userId);
+
+
 
     @Query(value = "SELECT rt2.name AS Region, COUNT(at.id) AS Count " +
             "FROM aid_table ut " +
@@ -95,16 +99,11 @@ public interface AidRepository extends CrudRepository<AidEntity, Long> {
             "GROUP BY rt2.name ", nativeQuery = true)
     List<Object[]> getRegionalDistributionOfAids();
 
-//    @Query(value = "SELECT * from aid_table where id in (SELECT aid_id from users_aids_table WHERE aid_interaction = 'CREATING' AND user_id = ?1)", nativeQuery = true)
-//    Page<AidEntity> findByCreatorUserId(Long userId, Pageable pageable);
-
-
 
 
     @Query(value = "SELECT * FROM aid_table where id = ?1", nativeQuery = true)
     AidEntity findByAidId(Long id);
 
-//    @Query(value = "SELECT * FROM aid_table where id = ?1", nativeQuery = true)
     @Query(value = "SELECT COUNT(*) FROM aid_table AS at " +
             "INNER JOIN users_aids_table AS uat " +
             "ON at.id = uat.aid_id " +
@@ -116,5 +115,4 @@ public interface AidRepository extends CrudRepository<AidEntity, Long> {
 
 
 
-//    List<UsersAidsEntity> findsResponsedAidsByAidIds(Long userId) throws NotFoundException;
 }
