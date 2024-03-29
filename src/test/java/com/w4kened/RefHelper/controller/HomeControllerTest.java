@@ -73,6 +73,7 @@ public class HomeControllerTest {
     @Test
     public void shouldToEnterAllUsersHomePageWithWrongCredentials() throws Exception {
         int dmlCounter = 0;
+        int expectNumberOfUsers = 200;
         List<UserDto> listOfUsers = generateMultipleUserDTOs();
         Map<Boolean, UserDto> mapOfSelects = new HashMap<>();
         for (UserDto userDto : listOfUsers) {
@@ -84,11 +85,12 @@ public class HomeControllerTest {
             dmlCounter++;
         }
 
-        assertThat(dmlCounter).isEqualTo(200);
+        assertThat(dmlCounter).isEqualTo(expectNumberOfUsers);
     }
     @Test
     public void shouldToEnterAllUsersHomePageWithMatchingCredentials() throws Exception {
         int dmlCounter = 0;
+        int expectNumberOfUsers = 200;
         for (UserDto userDto : listOfUsers) {
             mockMvc.perform(post("/login")
                             .param("email", userDto.getEmail())
@@ -97,11 +99,12 @@ public class HomeControllerTest {
                     .andExpect(redirectedUrl("/home"));
             dmlCounter++;
         }
-        assertThat(dmlCounter).isEqualTo(200);
+        assertThat(dmlCounter).isEqualTo(expectNumberOfUsers);
     }
     @Test
     public void shouldToSaveRandomAids() throws Exception {
         List<AidDto> aidDtos = generateMultipleAidDTOs();
+        int expectNumberOfAids = 1600;
         int dmlCounter = 0;
         for (AidDto aidDto : aidDtos) {
             for (UserDto userDto : listOfUsers) {
@@ -116,7 +119,7 @@ public class HomeControllerTest {
                 }
             }
         }
-        assertThat(dmlCounter).isEqualTo(1600);
+        assertThat(dmlCounter).isEqualTo(expectNumberOfAids);
     }
     @Test
     public void shouldToRequestRandomAids() throws Exception {

@@ -39,32 +39,4 @@ public class AidController {
         return aidService.findAll();
     }
 
-//
-//
-//    @PostMapping("/uploadAidData")
-//    public String uploadAidData(@RequestBody String jsonData) {
-//        // Опрацьовуємо JSON-дані та зберігаємо їх у базі даних
-//        // Ви можете використовувати бібліотеку, таку як Jackson, для розбору JSON в об'єкти
-//        // Потім викликаєте метод сервісу для збереження даних
-//
-//        // Приклад: розбір JSON-даних та збереження маркера допомоги
-//        System.out.println("invoking insertAid");
-//        System.out.println(jsonData);
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        try {
-//            AidDto aidDto = objectMapper.readValue(jsonData, AidDto.class);
-//            aidService.saveAid(aidDto);
-//            return "redirect:/";
-//        } catch (JsonProcessingException e) {
-//            return "Error at aid processing from JSON JSON-даних: " + e.getMessage();
-//        }
-//    }
-//
-//    @GetMapping("/delete/{id}")
-//    public String deleteAid(@PathVariable("id") long id, Model model) {
-//        AidEntity aid = aidRepository.findById(id)
-//                .orElseThrow(() -> new IllegalArgumentException("Invalid aid Id:" + id));
-//        aidRepository.delete(aid);
-//        return "redirect:/index";
-//    }
 }

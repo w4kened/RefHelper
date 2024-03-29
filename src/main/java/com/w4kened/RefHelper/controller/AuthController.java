@@ -31,28 +31,16 @@ public class AuthController {
 
 
 
-    @RequestMapping("/register")
+    @GetMapping("/register")
     public String getRegisterPage(Model model) {
         UserDto userDto = new UserDto();
         model.addAttribute("user", userDto);
-
-        List<String> cities = new ArrayList<>();
-        cities.add("Rzeszów");
-        cities.add("Lublin");
-        cities.add("Kraków");
-        cities.add("Kielce");
-        cities.add("Warszawa");
-        cities.add("Białystok");
-        cities.add("Katowice");
-        cities.add("Łódź");
-        cities.add("Bydgoszcz");
-        cities.add("Olsztyn");
-        cities.add("Gdańsk");
-        cities.add("Poznań");
-        cities.add("Wrocław");
-        cities.add("Gorzów Wielkopolski");
-
-        model.addAttribute("cities", cities);
+        model.addAttribute("cities", Arrays.asList(
+                "Rzeszów", "Lublin", "Kraków", "Kielce",
+                "Warszawa", "Białystok", "Katowice",
+                "Łódź", "Bydgoszcz", "Olsztyn", "Gdańsk",
+                "Poznań", "Wrocław", "Gorzów Wielkopolski")
+        );
         return "authSignup";
     }
 
@@ -62,16 +50,16 @@ public class AuthController {
         if (!user.getPassword().equals(user.getRepeatPassword())) {
             result.rejectValue("repeatPassword", "error.user", "Passwords do not match");
             return "redirect:/register";
-            // passwords match, continue with registration
         }
+
         UserEntity existingUserEmail = userService.findByEmail(user.getEmail());
         if(existingUserEmail != null && existingUserEmail.getEmail() != null &&
                 !existingUserEmail.getEmail().isEmpty()) {
             return "redirect:/register?fail";
         }
+
         if(result.hasErrors()) {
             model.addAttribute("user", user);
-            System.out.println("error res " +result);
             return "authSignup";
         }
 
@@ -82,7 +70,6 @@ public class AuthController {
 
     @GetMapping("/login")
     public String showLoginPage(@RequestParam(value = "error", required = false) String error, Model model) {
-        System.out.println("error res " +error + model);
 
         if (error != null) {
             model.addAttribute("error", "Invalid username or password");

@@ -38,10 +38,6 @@ public interface AidService {
 
     List<AidEntity> findByRequesterUserId(Long userId);
 
-//    public Page<AidEntity> findByCreatorUserId(Long userId, Pageable pageable);
-
-
-
     boolean requestAid(Long aidId) throws NotFoundException;
     void acceptAidRequest(Long aidId, Long userId) throws NotFoundException;
 

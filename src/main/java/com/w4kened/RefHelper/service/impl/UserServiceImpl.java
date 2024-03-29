@@ -2,6 +2,7 @@ package com.w4kened.RefHelper.service.impl;
 
 import com.w4kened.RefHelper.models.CityEntity;
 import com.w4kened.RefHelper.models.RoleEntity;
+import com.w4kened.RefHelper.models.RoleName;
 import com.w4kened.RefHelper.repository.CityRepository;
 import com.w4kened.RefHelper.repository.UserRepository;
 import com.w4kened.RefHelper.repository.RoleRepository;
@@ -44,21 +45,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean saveUser(UserDto userDto) {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setName(userDto.getFirstName()+" "+userDto.getLastName());
-        userEntity.setEmail(userDto.getEmail());
-        userEntity.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        userEntity.setPhoneNumber(userDto.getPhoneNumber());
-        LocalDateTime now = getCurrentTimeStamp();
-        userEntity.setCreatedDate(now);
+        UserEntity userEntity = UserEntity.builder()
+                .name(userDto.getFirstName()+" "+userDto.getLastName())
+                .email(userDto.getEmail())
+                .password(passwordEncoder.encode(userDto.getPassword()))
+                .phoneNumber(userDto.getPhoneNumber())
+                .createdDate(getCurrentTimeStamp())
+                .build();
+
         RoleEntity roleEntity;
         switch (userDto.getSelectedRole()) {
             case 2 -> {
-                roleEntity = roleRepository.findByName("ROLE_VOLUNTEER");
+                roleEntity = roleRepository.findByName(RoleName.ROLE_VOLUNTEER.getLabel());
                 userEntity.setRoleEntity(roleEntity);
             }
             case 3 -> {
-                roleEntity = roleRepository.findByName("ROLE_REFUGEE");
+                roleEntity = roleRepository.findByName(RoleName.ROLE_REFUGEE.getLabel());
                 userEntity.setRoleEntity(roleEntity);
             }
         }

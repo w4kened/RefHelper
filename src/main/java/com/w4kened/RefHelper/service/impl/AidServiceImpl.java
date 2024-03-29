@@ -9,18 +9,15 @@ import com.w4kened.RefHelper.service.UserService;
 import com.w4kened.RefHelper.service.UsersAidsService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class AidServiceImpl implements AidService {
@@ -57,12 +54,6 @@ public class AidServiceImpl implements AidService {
         this.regionRepository = regionRepository;
     }
 
-//    @Autowired
-//    public AidServiceImpl(AidRepository aidRepository
-//                          ) {
-//        this.aidRepository = aidRepository;
-//    }
-
 
 
     public static LocalDateTime getCurrentTimeStamp() {
@@ -78,7 +69,6 @@ public class AidServiceImpl implements AidService {
 
     @Override
     public List<AidEntity> findAll() {
-//        save_csv();
         return aidRepository.findAll();
     }
 
@@ -88,22 +78,18 @@ public class AidServiceImpl implements AidService {
     }
 
     public AidCategoryEntity convertAndFindCategory(AidDto aidDto) {
-        if (aidDto.getSelectedCategoryAid() == 1L) {
-            return aidCategoryRepository.findByName("Basic Necessities Aid");
-        } else if (aidDto.getSelectedCategoryAid() == 2L) {
-            return aidCategoryRepository.findByName("Healthcare Aid");
+        Map<Long, String> categoryMap = new HashMap<>();
+        categoryMap.put(1L, "Basic Necessities Aid");
+        categoryMap.put(2L, "Healthcare Aid");
+        categoryMap.put(3L, "Education Aid");
+        categoryMap.put(4L, "Employment Aid");
+        categoryMap.put(5L, "Legal Aid");
+        categoryMap.put(6L, "Community Aid");
 
-        } else if (aidDto.getSelectedCategoryAid() == 3L) {
-            return aidCategoryRepository.findByName("Education Aid");
-
-        } else if (aidDto.getSelectedCategoryAid() == 4L) {
-            return aidCategoryRepository.findByName("Employment Aid");
-
-        } else if (aidDto.getSelectedCategoryAid() == 5L) {
-            return aidCategoryRepository.findByName("Legal Aid");
-
-        } else if (aidDto.getSelectedCategoryAid() == 6L) {
-            return aidCategoryRepository.findByName("Community Aid");
+        Long selectedCategoryAid = aidDto.getSelectedCategoryAid();
+        String categoryName = categoryMap.get(selectedCategoryAid);
+        if (categoryName != null) {
+            return aidCategoryRepository.findByName(categoryName);
         }
         return null;
     }
@@ -116,23 +102,27 @@ public class AidServiceImpl implements AidService {
         if (!userEntity.getRoleEntity().getName().equals("ROLE_VOLUNTEER")) {
             return false;
         }
-        AidEntity aidEntity = new AidEntity();
-        aidEntity.setDescription(aidDto.getDescription());
-        aidEntity.setAddress(aidDto.getAddress());
-        aidEntity.setLatitude(aidDto.getLatitude());
-        aidEntity.setLongitude(aidDto.getLongitude());
-        LocalDateTime now = getCurrentTimeStamp();
-        aidEntity.setCreatedDate(now);
         AidCategoryEntity aidCategory = convertAndFindCategory(aidDto);
-        aidEntity.setAidCategoryEntity(aidCategory);
+
+        AidEntity aidEntity = AidEntity.builder()
+                .description(aidDto.getDescription())
+                .address(aidDto.getAddress())
+                .latitude(aidDto.getLatitude())
+                .longitude(aidDto.getLongitude())
+                .createdDate(getCurrentTimeStamp())
+                .aidCategoryEntity(aidCategory)
+                .build();
         aidRepository.save(aidEntity);
-        UsersAidsEntity usersAidsEntity  = new UsersAidsEntity();
-        usersAidsEntity.setAidEntity(aidEntity);
-        usersAidsEntity.setUserEntity(userEntity);
-        usersAidsEntity.setAidInteraction(AidInteraction.CREATING);
-        usersAidsEntity.setCreatedDate(now);
+
+
+        UsersAidsEntity usersAidsEntity  = UsersAidsEntity.builder()
+                .aidEntity(aidEntity)
+                .userEntity(userEntity)
+                .aidInteraction(AidInteraction.CREATING)
+                .createdDate(getCurrentTimeStamp())
+                .build();
         usersAidsRepository.save(usersAidsEntity);
-        System.out.println("true");
+
         return true;
     }
 
@@ -147,17 +137,23 @@ public class AidServiceImpl implements AidService {
                 return false;
             }
 
-            existingAidEntity.setDescription(aidDto.getDescription());
-            existingAidEntity.setLatitude(aidDto.getLatitude());
-            existingAidEntity.setLongitude(aidDto.getLongitude());
-            existingAidEntity.setAddress(aidDto.getAddress());
+            existingAidEntity = AidEntity.builder()
+                    .description(aidDto.getDescription())
+                    .latitude(aidDto.getLatitude())
+                    .longitude(aidDto.getLongitude())
+                    .address(aidDto.getAddress())
+                    .build();
             aidRepository.save(existingAidEntity);
-            UsersAidsEntity usersAidsEntity  = new UsersAidsEntity();
-            usersAidsEntity.setAidEntity(existingAidEntity);
-            usersAidsEntity.setUserEntity(userEntity);
-            usersAidsEntity.setAidInteraction(AidInteraction.MODIFYING);
-            usersAidsEntity.setCreatedDate(getCurrentTimeStamp());
+
+
+            UsersAidsEntity usersAidsEntity  = UsersAidsEntity.builder()
+                    .aidEntity(existingAidEntity)
+                    .userEntity(userEntity)
+                    .aidInteraction(AidInteraction.MODIFYING)
+                    .createdDate(getCurrentTimeStamp())
+                    .build();
             usersAidsRepository.save(usersAidsEntity);
+
             return true;
         }
         else {
@@ -165,11 +161,6 @@ public class AidServiceImpl implements AidService {
         }
     }
 
-//    @Override
-//    public void removeAid(Long usersAidsId, Long aidId) {
-//        usersAidsRepository.removeUsersAidsById(usersAidsId);
-//        aidRepository.deleteById(aidId);
-//    }
 
     @Override
     public boolean deleteAidById(Long id) throws NotFoundException {
@@ -207,12 +198,6 @@ public class AidServiceImpl implements AidService {
     public List<AidEntity> findByRequesterUserId(Long userId) {
         return aidRepository.findByRequesterUserId(userId);
     }
-//    @Override
-//    public Page<AidEntity> findByCreatorUserId(Long userId, Pageable pageable) {
-//        return aidRepository.findByCreatorUserId(userId, pageable);
-//    }
-
-
 
     @Override
     public boolean requestAid(Long id) throws NotFoundException {
@@ -224,11 +209,14 @@ public class AidServiceImpl implements AidService {
             if (!userEntity.getRoleEntity().getName().equals("ROLE_REFUGEE")) {
                 return false;
             }
-            usersAidsEntity.setAidEntity(existingAidEntity);
-            usersAidsEntity.setUserEntity(userEntity);
-            usersAidsEntity.setAidInteraction(AidInteraction.REQUESTING);
-            usersAidsEntity.setCreatedDate(getCurrentTimeStamp());
+            usersAidsEntity = UsersAidsEntity.builder()
+                    .aidEntity(existingAidEntity)
+                    .userEntity(userEntity)
+                    .aidInteraction(AidInteraction.REQUESTING)
+                    .createdDate(getCurrentTimeStamp())
+                    .build();
             usersAidsRepository.save(usersAidsEntity);
+
             return true;
         }
         else {
@@ -248,10 +236,12 @@ public class AidServiceImpl implements AidService {
 
                 UsersAidsEntity usersAidsEntity = new UsersAidsEntity();
                 UserEntity existingUserEntity = optionalUserEntity.get();
-                usersAidsEntity.setAidEntity(existingAidEntity);
-                usersAidsEntity.setUserEntity(existingUserEntity);
-                usersAidsEntity.setAidInteraction(AidInteraction.ACCEPTANCE);
-                usersAidsEntity.setCreatedDate(getCurrentTimeStamp());
+                usersAidsEntity = UsersAidsEntity.builder()
+                        .aidEntity(existingAidEntity)
+                        .aidInteraction(AidInteraction.ACCEPTANCE)
+                        .createdDate(getCurrentTimeStamp())
+                        .build();
+
                 usersAidsRepository.save(usersAidsEntity);
             }
         }
@@ -271,10 +261,12 @@ public class AidServiceImpl implements AidService {
             if (optionalUserEntity.isPresent()) {
                 UsersAidsEntity usersAidsEntity = new UsersAidsEntity();
                 UserEntity existingUserEntity = optionalUserEntity.get();
-                usersAidsEntity.setAidEntity(existingAidEntity);
-                usersAidsEntity.setUserEntity(existingUserEntity);
-                usersAidsEntity.setAidInteraction(AidInteraction.REJECTION);
-                usersAidsEntity.setCreatedDate(getCurrentTimeStamp());
+                usersAidsEntity = UsersAidsEntity.builder()
+                        .aidEntity(existingAidEntity)
+                        .userEntity(existingUserEntity)
+                        .aidInteraction(AidInteraction.REJECTION)
+                        .createdDate(getCurrentTimeStamp())
+                        .build();
                 usersAidsRepository.save(usersAidsEntity);
             }
         }

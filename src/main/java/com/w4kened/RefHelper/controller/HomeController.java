@@ -2,6 +2,7 @@ package com.w4kened.RefHelper.controller;
 
 import com.w4kened.RefHelper.dto.AidDto;
 import com.w4kened.RefHelper.models.AidEntity;
+import com.w4kened.RefHelper.models.RoleName;
 import com.w4kened.RefHelper.models.UserEntity;
 import com.w4kened.RefHelper.models.UsersAidsEntity;
 import com.w4kened.RefHelper.repository.AidCategoryRepository;
@@ -68,7 +69,7 @@ public class HomeController {
 
         List<AidEntity> aids;
         List<Long> aidIds;
-        if (Objects.equals(roleName, "ROLE_VOLUNTEER")) {
+        if (Objects.equals(roleName, RoleName.ROLE_VOLUNTEER.getLabel())) {
             aids = aidService.findByCreatorUserId(userEntity.getId());
             aidIds = aids.stream()
                                             .map(AidEntity::getId)

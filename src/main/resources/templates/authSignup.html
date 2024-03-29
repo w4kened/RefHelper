@@ -442,8 +442,10 @@
     const submitButton = document.getElementById('sumbitButtonId');
 
     function checkPasswordMatch() {
-        if (passwordField.value !== repeatPasswordField.value &&
-                passwordField.value.length < 8) {
+        if (passwordField.value !== repeatPasswordField.value || passwordField.value.length < 8) {
+                console.log('entered');
+                console.log(passwordField.value, ' ', passwordField.value.length);
+
             mismatchAlert.style.display = 'block';
             submitButton.style.display = 'none';
 
